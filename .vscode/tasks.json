@@ -1,0 +1,60 @@
+{
+	"version": "2.0.0",
+	"tasks": 
+	[
+		{
+			"label": "Gamemode Principal",
+			"type": "shell",
+			"command": "${workspaceRoot}/pawno/pawncc.exe",
+			"args": ["swrp.pwn", "--%", "-Dgamemodes", "-;+", "-(+", "-d3"],
+			"group": 
+			{
+				"kind": "build",
+				"isDefault": true
+			},
+			"isBackground": false,
+			"presentation": 
+			{
+				"reveal": "silent",
+				"panel": "dedicated"
+			},
+			"problemMatcher": "$pawncc"
+		},
+		{
+			"label": "Mapeos Principales",
+			"type": "shell",
+			"command": "${workspaceRoot}/pawno/pawncc.exe",
+			"args": ["maps.pwn", "--%", "-Dfilterscripts", "-;+", "-(+", "-d3"],
+			"group": 
+			{
+				"kind": "build",
+				"isDefault": true
+			},
+			"isBackground": false,
+			"presentation": 
+			{
+				"reveal": "silent",
+				"panel": "dedicated"
+			},
+			"problemMatcher": "$pawncc"
+		},
+		{
+			"label": "Archivo Actual",
+			"type": "shell",
+			"command": "${workspaceRoot}/pawno/pawncc.exe",
+			"args": ["${file}", "--%", "-Dgamemodes", "-;+", "-(+", "-d3"],
+			"group": 
+			{
+				"kind": "build",
+				"isDefault": true
+			},
+			"isBackground": false,
+			"presentation": 
+			{
+				"reveal": "silent",
+				"panel": "dedicated"
+			},
+			"problemMatcher": "$pawncc"
+		}
+	]
+}
