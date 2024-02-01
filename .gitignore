@@ -10,5 +10,5 @@ samp-npc.exe
 samp-server.exe
 
 #Compiled Files
-filterscripts/maps.amx
-gamemodes/main.amx
+maps.amx
+swrp.amx
