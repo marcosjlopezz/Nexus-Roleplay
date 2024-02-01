@@ -18,8 +18,8 @@ hook OnPlayerSpawn(playerid)
         PLAYER_TEMP[playerid][pt_TIMERS][3] = SetTimerEx("TogglePlayerControl", 2000, false, "ib", playerid, true);
         
         ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
-        if(PI[playerid][pWANTED_LEVEL] > 0) SendNotification(playerid, "Estás herido y en búsqueda, espera a que la policía venga a por ti.");
-        else SendNotification(playerid, "Estás herido, espera a que venga un medico.");
+        if(PI[playerid][pWANTED_LEVEL] > 0) SendClientMessagef(playerid, -1, "Estás herido y en búsqueda, espera a que la policía venga a por ti.");
+        else SendClientMessagef(playerid, -1, "Estás herido, espera a que venga un medico.");
     }
 }
 

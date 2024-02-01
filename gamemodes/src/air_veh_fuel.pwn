@@ -60,13 +60,13 @@ CreatePlayerAirVehRefuellingTDs(playerid) {
 }
 
 CMD:avion(playerid, params[]) {
-    if(GetPlayerState(playerid) != PLAYER_STATE_DRIVER) return SendNotification(playerid, "No estás en un avión o helicoptero.");
+    if(GetPlayerState(playerid) != PLAYER_STATE_DRIVER) return SendClientMessagef(playerid, -1, "No estás en un avión o helicoptero.");
 
     new vehicleid = GetPlayerVehicleID(playerid);
     if(Vehicle_IsPlane(vehicleid) || Vehicle_IsHelicopter(vehicleid)) {
         new info[3];
         Streamer_GetArrayData(STREAMER_TYPE_AREA, PLAYER_TEMP[playerid][pt_LAST_AREA_ID], E_STREAMER_EXTRA_ID, info);
-        if(info[0] != AREA_TYPE_AIRVEH_FUEL || !IsPlayerInDynamicArea(playerid, PLAYER_TEMP[playerid][pt_LAST_AREA_ID])) return SendNotification(playerid, "No estás en el lugar adecuado.");
+        if(info[0] != AREA_TYPE_AIRVEH_FUEL || !IsPlayerInDynamicArea(playerid, PLAYER_TEMP[playerid][pt_LAST_AREA_ID])) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
 
         GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_ENGINE] = 0;
         UpdateVehicleParams(vehicleid);
@@ -86,7 +86,7 @@ CMD:avion(playerid, params[]) {
         PLAYER_TEMP[playerid][pt_DIALOG_ID] = DIALOG_PLANE_OPTIONS;
         ShowPlayerDialog(playerid, DIALOG_PLANE_OPTIONS, DIALOG_STYLE_LIST, "Aeropuerto", dialog_str, "Continuar", "Cerrar");
     }
-    else SendNotification(playerid, "No estás en un avión o helicoptero.");
+    else SendClientMessagef(playerid, -1, "No estás en un avión o helicoptero.");
     return 1;
 }
 
@@ -126,9 +126,9 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                     case 1: {
                         if(GivePlayerCash(playerid, -REPAIR_PLANE_PRICE, true, true)) {
                             RepairVehicleEx(PLAYER_TEMP[playerid][pt_SELECTED_MECHANIC_VEHICLE_ID], playerid);
-                            SendNotification(playerid, "Vehículo reparado.");
+                            SendClientMessagef(playerid, -1, "Vehículo reparado.");
                         }
-                        else SendNotification(playerid, "No tienes suficiente dinero.");
+                        else SendClientMessagef(playerid, -1, "No tienes suficiente dinero.");
                     }
                     case 2, 3: {
                         new vehicleid = PLAYER_TEMP[playerid][pt_SELECTED_MECHANIC_VEHICLE_ID];
@@ -150,9 +150,9 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[]) {
                         case 1: GLOBAL_VEHICLES[ PLAYER_TEMP[playerid][pt_SELECTED_MECHANIC_VEHICLE_ID] ][gb_vehicle_COLOR_2] = listitem;
                     }
                     ChangeVehicleColor(PLAYER_TEMP[playerid][pt_SELECTED_MECHANIC_VEHICLE_ID], GLOBAL_VEHICLES[ PLAYER_TEMP[playerid][pt_SELECTED_MECHANIC_VEHICLE_ID] ][gb_vehicle_COLOR_1], GLOBAL_VEHICLES[ PLAYER_TEMP[playerid][pt_SELECTED_MECHANIC_VEHICLE_ID] ][gb_vehicle_COLOR_2]);
-                    SendNotification(playerid, "Vehículo pintado.");
+                    SendClientMessagef(playerid, -1, "Vehículo pintado.");
                 }
-                else SendNotification(playerid, "No tienes suficiente dinero.");
+                else SendClientMessagef(playerid, -1, "No tienes suficiente dinero.");
             }
             return Y_HOOKS_BREAK_RETURN_1;
         }

@@ -46,22 +46,29 @@ hook OnPlayerDeath(playerid, killerid, reason) {
     }
 }
 
-hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys) {
+hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys) 
+{
     if(newkeys &  KEY_CROUCH)
 	{
-        if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL) {
-            for(new i = 0; i < list_size(DroppedWeapons); i ++) {
+        if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL) 
+        {
+            for(new i = 0; i < list_size(DroppedWeapons); i ++) 
+            {
                 new weaponInfo[E_DroppedWeapons];
                 list_get_arr(DroppedWeapons, i, weaponInfo);
 
-                if(GetPlayerInterior(playerid) == weaponInfo[dw_INTERIOR] && GetPlayerVirtualWorld(playerid) == weaponInfo[dw_WORLD] && IsPlayerInRangeOfPoint(playerid, 1.0, weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z])) {
-                    if(PI[playerid][pLEVEL] < 3) SendNotification(playerid, "Deber ser nivel 3 o superior para poder recoger armas del suelo.");
-                    else {
+                if(GetPlayerInterior(playerid) == weaponInfo[dw_INTERIOR] && GetPlayerVirtualWorld(playerid) == weaponInfo[dw_WORLD] && IsPlayerInRangeOfPoint(playerid, 1.0, weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z])) 
+                {
+                    if(PI[playerid][pLEVEL] < 3) SendClientMessagef(playerid, -1, "Deber ser nivel 3 o superior para poder recoger armas del suelo.");
+                    else 
+                    {
                         new weapon_slot = WEAPON_INFO[ weaponInfo[dw_WEAPONID] ][weapon_info_SLOT];
-                        if(PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] != 0) {
-                            SendFormatNotification(playerid, "Para recoger esta arma debes deshacerte de tu \"%s (%d)\"~w~ para tener espacio.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] ][weapon_info_NAME], weapon_slot);						
+                        if(PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] != 0) 
+                        {
+                            SendClientMessagef(playerid, -1, "Para recoger esta arma debes deshacerte de tu \"%s (%d)\"~w~ para tener espacio.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] ][weapon_info_NAME], weapon_slot);						
                         }
-                        else {
+                        else 
+                        {
                             ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 0, 1, 1, 0, 0, 1);
                             DestroyDynamicObject(weaponInfo[dw_OBJECTID]);
                             DestroyDynamic3DTextLabel(weaponInfo[dw_LABELID]);
