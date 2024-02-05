@@ -11,10 +11,10 @@ AntiAmx()
     #pragma unused a
 }
 
-#define IP_DB "127.0.0.1"
-#define USER_DB "root"
-#define NAME_DB "swrp_db"
-#define PASS_DB ""
+#define MYSQL_HOST "127.0.0.1"
+#define MYSQL_USER "root"
+#define MYSQL_DB "swrp_db"
+#define MYSQL_PASS ""
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -129,7 +129,6 @@ AntiAmx()
 #define pTemp(%0)[%1]				PLAYER_TEMP[%0][%1]
 
 stock
-	bool:server_loaded,
 	rcon_pass,
 	MySQL:handle_db,
 	QUERY_BUFFER[6144],
@@ -439,7 +438,6 @@ enum
 	DIALOG_CREW_LEAVE,
 	DIALOG_CREW_MODIFY_MEMBERS,
 	DIALOG_CREW_MODIFY_MEMBER,
-	DIALOG_CREW_PROPERTY_CONFIRM,
 	DIALOG_CREW_LEAVE_TERRITORY,
 	DIALOG_CREW_LEAVE_PROPERTY,
 	DIALOG_POLICE_PENALTY,
@@ -780,7 +778,7 @@ enum
 	AREA_TYPE_SAFE_ZONE
 };
 
-#define MAX_TERRITORIES	100
+#define MAX_TERRITORIES	400
 enum enum_TERRITORIES
 {
 	bool:territory_VALID,
@@ -2411,9 +2409,7 @@ enum Property_Info_Enum
 	property_ID_INTERIOR,
 	
 	bool:property_SOLD,
-	bool:property_CREW,
 	property_OWNER_ID,
-	property_CREW_ID,
 	property_NAME[24],
 	property_PRICE,
 	property_LEVEL,
@@ -4113,12 +4109,6 @@ new ADMIN_LEVELS[][] =
 	"Dueño"
 };
 
-public OnIncomingConnection(playerid, ip_address[], port)
-{
-	if(!server_loaded) BlockIpAddress(ip_address, 20 * 1000);
-	return 1;
-}
-
 public OnPlayerConnect(playerid)
 {
 	if(IsPlayerNPC(playerid)) Kick(playerid);
@@ -5088,11 +5078,7 @@ public OnGameModeInit()
 	SendRconCommand("sleep 1");
 	SendRconCommand("query 1");
 
-	new MySQLOpt:option_id = mysql_init_options();
-	mysql_set_option(option_id, AUTO_RECONNECT, true);
-	mysql_set_option(option_id, SERVER_PORT, 3306);
-	handle_db = mysql_connect(IP_DB, USER_DB, PASS_DB, NAME_DB,option_id);
-	mysql_set_charset("latin1", handle_db);
+	SetDatabaseInfo();
 
 	if(mysql_errno(handle_db) != 0)
 	{
@@ -5103,514 +5089,15 @@ public OnGameModeInit()
 
 	print("BASE DE DATOS CARGADA CORRECTAMENTE");
 
-	CreateTextDraws(); //Textdraws
-	LoadEnterExits(); //Interiores
-	LoadProperties(); //Y muchos mas datos.
+	mysql_tquery(handle_db, "SELECT * FROM `properties` ORDER BY `id` ASC", "LoadProperties");
+	mysql_tquery(handle_db, "SELECT * FROM `crews` ORDER BY `id` ASC", "LoadCrews");
+	mysql_tquery(handle_db, "SELECT * FROM `territories` ORDER BY `id` ASC", "LoadGangZones");
 
-	Loop(i, sizeof(Help_Actors), 0)
-	{
-		CreateDynamicActor(26, Help_Actors[i][0], Help_Actors[i][1], Help_Actors[i][2], Help_Actors[i][3], true, 100.0, -1, -1);
-		CreateDynamic3DTextLabel("Ayuda\n"COME_INTERACTION_MESSAGE"para saber un poco mas sobre {"#GOLD_COLOR"}"SERVER_NAME".", 0xFFFFFFFF, Help_Actors[i][0], Help_Actors[i][1], Help_Actors[i][2], 15.0, .testlos = true, .worldid = -1, .interiorid = -1);
-		new help_actor_pickup = CreateDynamicPickup(0, 1, Help_Actors[i][0], Help_Actors[i][1], Help_Actors[i][2], -1, -1), info[3];
-
-		info[0] = PICKUP_TYPE_HELP;
-		info[1] = 0; // Nada
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, help_actor_pickup, E_STREAMER_EXTRA_ID, info);	
-	}
-	
-	//autoescuela
-	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/examen {FFFFFF}para realizar el examen por 500$.", 0xFFFFFFFF, 1063.718994, -343.093566, 2797.699951, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
-
-	//3d texts armarios
-	for(new i = 0; i < sizeof PROPERTY_CLOSET_POS; i++)
-	{
-		CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}Armario\n\n{FFFFFF}Escribe {"#PRIMARY_COLOR"}/armario {FFFFFF}para verlo", 0xFFFFFFFF, PROPERTY_CLOSET_POS[i][property_closet_X], PROPERTY_CLOSET_POS[i][property_closet_Y], PROPERTY_CLOSET_POS[i][property_closet_Z] + 0.25, 10.0, .testlos = true, .interiorid = PROPERTY_INTERIORS[i][property_INT_INTERIOR]);
-		if(PROPERTY_INTERIORS[i][property_EMPTY_INTERIOR]) CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}Armario\n\n{FFFFFF}Escribe {"#PRIMARY_COLOR"}/armario {FFFFFF}para verlo", 0xFFFFFFFF, PROPERTY_CLOSET_POS[i][property_closet_X], PROPERTY_CLOSET_POS[i][property_closet_Y], PROPERTY_CLOSET_POS[i][property_closet_Z] + 0.25 + PROPERTY_EMPTY_INTERIOR_Z_OFFSET, 10.0, .testlos = true, .interiorid = PROPERTY_INTERIORS[i][property_INT_INTERIOR]);
-	}
-
-	// 3D Texts Ropas
-	for(new i = 0; i < sizeof Clothing_Shop_Positions; i++)
-	{
-		new label_str[256];
-		format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%s\n"COME_INTERACTION_MESSAGE"para ver las opciones disponibles", Clothing_Shop_Positions[i][clothing_shop_NAME]);
-		CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, Clothing_Shop_Positions[i][clothing_shop_X], Clothing_Shop_Positions[i][clothing_shop_Y], Clothing_Shop_Positions[i][clothing_shop_Z] + 0.25, 10.0, .testlos = true, .interiorid = Clothing_Shop_Positions[i][clothing_shop_INTERIOR]);
-	
-		new chop_pickup_id = CreateDynamicPickup(1275, 1, Clothing_Shop_Positions[i][clothing_shop_X], Clothing_Shop_Positions[i][clothing_shop_Y], Clothing_Shop_Positions[i][clothing_shop_Z] + 0.10, -1, Clothing_Shop_Positions[i][clothing_shop_INTERIOR]), info[3];
-		info[0] = PICKUP_TYPE_CLOTHING_SHOP;
-		info[1] = i; // Index
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, chop_pickup_id, E_STREAMER_EXTRA_ID, info);
-	}
-	
-	// 3D Texts Pedir comida
-	for(new i = 0; i < sizeof Fast_Food_Positions; i++)
-	{
-		new label_str[128];
-		format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%s\n"COME_INTERACTION_MESSAGE"para alimentarte", Fast_Food_Positions[i][fast_food_NAME]);
-		CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, Fast_Food_Positions[i][fast_food_X], Fast_Food_Positions[i][fast_food_Y], Fast_Food_Positions[i][fast_food_Z] + 0.25, 10.0, .testlos = true, .interiorid = Fast_Food_Positions[i][fast_food_INTERIOR]);
-
-		new fast_food_pickup_id = CreateDynamicPickup(1239, 1, Fast_Food_Positions[i][fast_food_X], Fast_Food_Positions[i][fast_food_Y], Fast_Food_Positions[i][fast_food_Z] + 0.10, -1, Fast_Food_Positions[i][fast_food_INTERIOR]), info[3];
-		info[0] = PICKUP_TYPE_FAST_FOOD;
-		info[1] = i; // Index
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, fast_food_pickup_id, E_STREAMER_EXTRA_ID, info);	
-	}
-	
-	// 3D Texts Bank
-	for(new i = 0; i < sizeof Bank_Interior_Positions; i++)
-	{
-		CreateDynamic3DTextLabel("Banco\n"COME_INTERACTION_MESSAGE"para realizar una operacion", 0xFFFFFFFF, Bank_Interior_Positions[i][bank_X], Bank_Interior_Positions[i][bank_Y], Bank_Interior_Positions[i][bank_Z] + 0.25, 10.0, .testlos = true, .worldid = Bank_Interior_Positions[i][bank_WORLD], .interiorid = Bank_Interior_Positions[i][bank_INTERIOR]);
-
-		new bank_pickup_id = CreateDynamicPickup(1212, 1, Bank_Interior_Positions[i][bank_X], Bank_Interior_Positions[i][bank_Y], Bank_Interior_Positions[i][bank_Z] + 0.10, Bank_Interior_Positions[i][bank_WORLD], Bank_Interior_Positions[i][bank_INTERIOR]), info[3];
-		info[0] = PICKUP_TYPE_BANK;
-		info[1] = i; // Index
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, bank_pickup_id, E_STREAMER_EXTRA_ID, info);	
-	}
-
-	for(new i = 0; i < sizeof BUY_PROPERTIES_SITES; i++)
-	{
-		CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para comprar una propiedad", 0xFFFFFFFF, BUY_PROPERTIES_SITES[i][site_X], BUY_PROPERTIES_SITES[i][site_Y], BUY_PROPERTIES_SITES[i][site_Z] + 0.25, 10.0, .testlos = true, .worldid = BUY_PROPERTIES_SITES[i][site_WORLD], .interiorid = BUY_PROPERTIES_SITES[i][site_INTERIOR]);
-
-		new bp_pckp = CreateDynamicPickup(0, 1, BUY_PROPERTIES_SITES[i][site_X], BUY_PROPERTIES_SITES[i][site_Y], BUY_PROPERTIES_SITES[i][site_Z] + 0.10, BUY_PROPERTIES_SITES[i][site_WORLD], BUY_PROPERTIES_SITES[i][site_INTERIOR]), info[3];
-		info[0] = PICKUP_TYPE_BUY_PROPERTY;
-		info[1] = i; // Index
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, bp_pckp, E_STREAMER_EXTRA_ID, info);	
-	}
-	
-	//Cajeros
-	for(new i = 0; i < sizeof ATM_BANK; i ++)
-	{
-		CreateDynamicObject(ATM_BANK[i][atm_modelid], ATM_BANK[i][atm_X], ATM_BANK[i][atm_Y], ATM_BANK[i][atm_Z], ATM_BANK[i][atm_RX], ATM_BANK[i][atm_RY], ATM_BANK[i][atm_RZ], 0, 0);
-		
-		ATM_BANK[i][atm_X] += (-0.5 * floatsin(-(ATM_BANK[i][atm_RZ] - 90.0), degrees));
-		ATM_BANK[i][atm_Y] += (-0.5 * floatcos(-(ATM_BANK[i][atm_RZ] - 90.0), degrees));
-		CreateDynamicMapIcon(ATM_BANK[i][atm_X], ATM_BANK[i][atm_Y], ATM_BANK[i][atm_Z], 52, -1, 0, 0);
-		CreateDynamic3DTextLabel("Cajero automático\n"COME_INTERACTION_MESSAGE"para realizar operaciones", 0xFFFFFFFF, ATM_BANK[i][atm_X], ATM_BANK[i][atm_Y], ATM_BANK[i][atm_Z] + 0.25, 10.0, .testlos = true, .worldid = 0, .interiorid = 0);
-	
-		new atm_pickup_id = CreateDynamicPickup(0, 1, ATM_BANK[i][atm_X], ATM_BANK[i][atm_Y], ATM_BANK[i][atm_Z] + 0.10, 0, 0), info[3];
-		info[0] = PICKUP_TYPE_ATM;
-		info[1] = i; // Index
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, atm_pickup_id, E_STREAMER_EXTRA_ID, info);
-	}
-	
-	// 3D Texts Gasolinera
-	for(new i = 0; i < sizeof Fuel_Stations; i++)
-	{
-		CreateDynamic3DTextLabel("{"#RED_COLOR"}Gasolinera\n\n{FFFFFF}Precio: {"#RED_COLOR"}5$/Litro\n"COME_INTERACTION_MESSAGE"para ver las opciones o pulsa {"#GOLD_COLOR"}'H'{ffffff} si estas en un vehiculo", 0xFFFFFFFF, Fuel_Stations[i][fs_X], Fuel_Stations[i][fs_Y], Fuel_Stations[i][fs_Z] + 0.25, 10.0, .testlos = true, .worldid = 0, .interiorid = 0);
-	
-		new fs_pickup_id = CreateDynamicPickup(1650, 1, Fuel_Stations[i][fs_X], Fuel_Stations[i][fs_Y], Fuel_Stations[i][fs_Z] + 0.10, 0, 0), info[3];
-		info[0] = PICKUP_TYPE_FUELSTATION;
-		info[1] = 0; // Nada
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, fs_pickup_id, E_STREAMER_EXTRA_ID, info);	
-	}
-
-	//24/7 Int
-	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para ver los productos disponibles", 0xFFFFFFFF, -27.964675, -89.948631, 1003.546875 + 0.25, 10.0, .testlos = true, .interiorid = 18);
-	new prd_lst_pickup = CreateDynamicPickup(19592, 1, -27.964675, -89.948631, 1003.546875 + 0.10, -1, 18), prd_info[3];
-	prd_info[0] = PICKUP_TYPE_PRODUCT_LIST;
-	prd_info[1] = 0; // Nada
-	prd_info[2] = 0; // Nada
-	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, prd_lst_pickup, E_STREAMER_EXTRA_ID, prd_info);
-
-	//Vehs venta
-	for(new i = 0; i != sizeof SELL_INFO_VEHICLES; i ++)
-	{
-		if(SELL_INFO_VEHICLES[i][sell_info_COLOR_1] == -1) SELL_INFO_VEHICLES[i][sell_info_COLOR_1] = valid_work_vehicle_colors[random(sizeof(valid_work_vehicle_colors))];
-		if(SELL_INFO_VEHICLES[i][sell_info_COLOR_2] == -1) SELL_INFO_VEHICLES[i][sell_info_COLOR_2] = valid_work_vehicle_colors[random(sizeof(valid_work_vehicle_colors))];
-		
-		new vehicle_id = INVALID_VEHICLE_ID;
-		vehicle_id = CreateVehicle(SELL_INFO_VEHICLES[i][sel_info_vehicle_MODELID], SELL_INFO_VEHICLES[i][sell_info_SPAWN_X], SELL_INFO_VEHICLES[i][sell_info_SPAWN_Y], SELL_INFO_VEHICLES[i][sell_info_SPAWN_Z], SELL_INFO_VEHICLES[i][sell_info_SPAWN_ANGLE], SELL_INFO_VEHICLES[i][sell_info_COLOR_1], SELL_INFO_VEHICLES[i][sell_info_COLOR_2], -1, false);
-		
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VALID] = true;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] = VEHICLE_TYPE_SELL;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] = SELL_INFO_VEHICLES[i][sel_info_vehicle_MODELID];
-		format(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_NUMBER_PLATE], 32, "EN VENTA");
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X] = SELL_INFO_VEHICLES[i][sell_info_SPAWN_X];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y] = SELL_INFO_VEHICLES[i][sell_info_SPAWN_Y];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z] = SELL_INFO_VEHICLES[i][sell_info_SPAWN_Z];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_ANGLE] = SELL_INFO_VEHICLES[i][sell_info_SPAWN_ANGLE];
-		
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][0] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][1] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][2] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z];
-		
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_HEALTH] = 1000.0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_PANELS] = 0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_DOORS] = 0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_LIGHTS] = 0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_TIRES] = 0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_1] = SELL_INFO_VEHICLES[i][sell_info_COLOR_1];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_2] = SELL_INFO_VEHICLES[i][sell_info_COLOR_2];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_PAINTJOB] = 3; // No paintjob
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS] = 0.0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_GAS] = 0.0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_STATE] = VEHICLE_STATE_NORMAL;
-
-		SELL_VEHICLES[vehicle_id][sell_vehicle_VALID] = true;
-		SELL_VEHICLES[vehicle_id][sell_vehicle_SHOP] = SELL_INFO_VEHICLES[i][sell_info_SHOP];
-		SELL_VEHICLES[vehicle_id][sell_vehicle_PRICE] = VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_PRICE];
-		SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL] = 1; /*VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_LEVEL];*/
-		SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA] = VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_COINS];
-		SELL_VEHICLES[vehicle_id][sell_vehicle_VIP_LEVEL] = VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_VIP_LEVEL];
-		
-		if(SELL_VEHICLES[vehicle_id][sell_vehicle_VIP_LEVEL]) SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL] = 1;
-		if(SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA]) SELL_VEHICLES[vehicle_id][sell_vehicle_PRICE] = 0;
-		
-		SetVehicleToRespawnEx(vehicle_id);
-		
-		
-		new label_str[256];
-		
-		if(SELL_VEHICLES[vehicle_id][sell_vehicle_VIP_LEVEL])
-		{
-			if(SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA])
-			{
-				format
-				(
-					label_str, 
-						sizeof label_str, 
-						"\
-							{"#PRIMARY_COLOR"}Membresía VIP requerida\n\
-							\n\
-							{"#PRIMARY_COLOR"}%s\n\n\
-							{FFFFFF}Coste: {"#PRIMARY_COLOR"}%d "SERVER_COIN"\n\
-							{FFFFFF}Nivel: {"#PRIMARY_COLOR"}%d\
-						", VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_NAME], SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA], SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL]
-				);
-			}
-			else
-			{
-				format
-				(
-					label_str, 
-						sizeof label_str, 
-						"\
-							{"#PRIMARY_COLOR"}Membresía VIP requerida\n\
-							\n\
-							{"#PRIMARY_COLOR"}%s\n\n\
-							{FFFFFF}Precio: {"#PRIMARY_COLOR"}%s$\n\
-							{FFFFFF}Nivel: {"#PRIMARY_COLOR"}%d\
-						", VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_NAME], number_format_thousand(SELL_VEHICLES[vehicle_id][sell_vehicle_PRICE]), SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL]
-				);
-			}
-		}
-		else
-		{
-			if(SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA])
-			{
-				format
-				(
-					label_str, 
-						sizeof label_str, 
-						"\
-							{"#PRIMARY_COLOR"}%s\n\n\
-							{FFFFFF}Coste: {"#PRIMARY_COLOR"}%d "SERVER_COIN"\n\
-							{FFFFFF}Nivel: {"#PRIMARY_COLOR"}%d\
-						", VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_NAME], SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA], SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL]
-				);
-			}
-			else
-			{
-				format
-				(
-					label_str, 
-						sizeof label_str, 
-						"\
-							{"#PRIMARY_COLOR"}%s\n\n\
-							{FFFFFF}Precio: {"#PRIMARY_COLOR"}%s$\n\
-							{FFFFFF}Nivel: {"#PRIMARY_COLOR"}%d\
-						", VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_NAME], number_format_thousand(SELL_VEHICLES[vehicle_id][sell_vehicle_PRICE]), SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL]
-				);
-			}
-		}
-		
-		
-		SELL_VEHICLES[vehicle_id][sell_vehicle_LABEL_ID] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, 0.0, 0.0, 1.5, 10.0, .attachedvehicle = vehicle_id, .testlos = true, .worldid = 0, .interiorid = 0);
-	}
-	
-	//Concesionarios
-	for(new i = 0; i < sizeof SELL_VEHICLES_SHOPS_SPAWN; i++)
-	{
-		CreateDynamicMapIcon(SELL_VEHICLES_SHOPS_SPAWN[i][0], SELL_VEHICLES_SHOPS_SPAWN[i][1], SELL_VEHICLES_SHOPS_SPAWN[i][2], 55, -1, 0, 0);
-		CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}SALIDA DE VEHICULOS", 0xFFFFFFFF, SELL_VEHICLES_SHOPS_SPAWN[i][0], SELL_VEHICLES_SHOPS_SPAWN[i][1], SELL_VEHICLES_SHOPS_SPAWN[i][2], 10.0, .testlos = true, .worldid = 0, .interiorid = 0);
-	}
-	
-	//Notario
-	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para vender\nalguna propiedad o vehículo", 0xFFFFFFFF, -474.596282, 289.679107, 2004.584960, 10.0, .testlos = true, .interiorid = 20);
-	new nto_pickup = CreateDynamicPickup(0, 1, -474.596282, 289.679107, 2004.584960 + 0.10, -1, 20), nto_info[3];
-	nto_info[0] = PICKUP_TYPE_NOTARY;
-	nto_info[1] = 0; // Nada
-	nto_info[2] = 0; // Nada
-	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, nto_pickup, E_STREAMER_EXTRA_ID, nto_info);
-
-	//Grua
-	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para solicitar\nel servicio de grua a un vehículo", 0xFFFFFFFF, -508.645385, 322.147644, 2004.585937, 10.0, .testlos = true, .interiorid = 20);
-	new crane_pickup = CreateDynamicPickup(0, 1, -508.645385, 322.147644, 2004.585937 + 0.10, -1, 20), crn_info[3];
-	crn_info[0] = PICKUP_TYPE_CRANE;
-	crn_info[1] = 0; // Nada
-	crn_info[2] = 0; // Nada
-	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, crane_pickup, E_STREAMER_EXTRA_ID, crn_info);	
-	
-	//San Andreas Vehicles
-	for(new i = 0; i != sizeof San_Andreas_Vehicles; i ++)
-	{
-		
-		if(San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_1] == -1) San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_1] = valid_work_vehicle_colors[random(sizeof(valid_work_vehicle_colors))];
-		if(San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_2] == -1) San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_2] = valid_work_vehicle_colors[random(sizeof(valid_work_vehicle_colors))];
-		
-		new vehicle_id = INVALID_VEHICLE_ID, respawn_time = 300;
-		
-		if(San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE] == VEHICLE_TYPE_WORK)
-		{
-			if(work_info[ San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE_IN] ][work_info_TYPE] == WORK_TYPE_FAMILY)
-			{
-				respawn_time = 2700;
-			}
-		}
-		
-		vehicle_id = CreateVehicle(San_Andreas_Vehicles[i][san_andreas_vehicle_MODELID], San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_X], San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_Y], San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_Z], San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_ANGLE], San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_1], San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_2], respawn_time, false);
-		if(vehicle_id == INVALID_VEHICLE_ID) continue;
-		
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VALID] = true;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] = San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] = San_Andreas_Vehicles[i][san_andreas_vehicle_MODELID];
-		format(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_NUMBER_PLATE], 32, "%c%c%c-%04d", getRandomLetter(), getRandomLetter(), getRandomLetter(), random(9999));
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X] = San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_X];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y] = San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_Y];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z] = San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_Z];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_ANGLE] = San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_ANGLE];
-		
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][0] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][1] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][2] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z];
-		
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_HEALTH] = 1000.0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_PANELS] = 0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_DOORS] = 0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_LIGHTS] = 0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_TIRES] = 0;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_1] = San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_1];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_2] = San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_2];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_PAINTJOB] = 3; // No paintjob
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS] = VEHICLE_INFO[ GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_MAX_GAS];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_GAS] = frandom(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS], GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS] / 3, 2);
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_STATE] = VEHICLE_STATE_NORMAL;
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VIP] = San_Andreas_Vehicles[i][san_andreas_vehicle_vip];
-		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_WORLD] = San_Andreas_Vehicles[i][san_andreas_vehicle_WORLD];
-		
-		if(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] == VEHICLE_TYPE_WORK)
-		{
-			WORK_VEHICLES[vehicle_id][work_vehicle_VALID] = true;
-			WORK_VEHICLES[vehicle_id][work_vehicle_WORK] = San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE_IN];
-			WORK_VEHICLES[vehicle_id][work_vehicle_EXP] = San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE_IN_EXP];
-			WORK_VEHICLES[vehicle_id][work_vehicle_NEED_DUTY] = work_info[ WORK_VEHICLES[vehicle_id][work_vehicle_WORK] ][work_info_NEED_DUTY];
-		}
-		
-		SetVehicleToRespawnEx(vehicle_id);
-		CallLocalFunction("OnSanAndreasVehicleLoad", "i", vehicle_id);
-	}
-	CallLocalFunction("OnSanAndreasVehiclesLoad", "");
-	
-	//Barreras
-	for(new i = 0; i != sizeof San_Andreas_Barriers; i ++)
-	{
-		new tmpobjid = CreateDynamicObject(966, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z], 0.0, 0.0, San_Andreas_Barriers[i][barrier_ROTATION], San_Andreas_Barriers[i][barrier_WORLD], San_Andreas_Barriers[i][barrier_INTERIOR], .streamdistance = 600.0, .drawdistance = 600.0);
-		SetDynamicObjectMaterial(tmpobjid, 0, 9514, "711_sfw", "ws_carpark2", 0xFFFFFFFF);
-		SetDynamicObjectMaterial(tmpobjid, 1, 9514, "711_sfw", "ws_carpark2", 0x00000000);
-		tmpobjid = CreateDynamicObject(968, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z] + 0.72967, 0.0, -90.0, San_Andreas_Barriers[i][barrier_ROTATION], San_Andreas_Barriers[i][barrier_WORLD], San_Andreas_Barriers[i][barrier_INTERIOR], .streamdistance = 600.0, .drawdistance = 600.0);
-		SetDynamicObjectMaterial(tmpobjid, 0, 16640, "a51", "ws_carparkwall2", 0xFFFFFFFF);
-		SetDynamicObjectMaterial(tmpobjid, 1, 16640, "a51", "ws_carparkwall2", 0x00000000);
-		San_Andreas_Barriers[i][barrier_OBJECT_ID] = tmpobjid;
-
-		new label_str[256];
-		
-		if(San_Andreas_Barriers[i][barrier_PRICE] > 0) format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}Peaje\n\n{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para pagar {"#PRIMARY_COLOR"}%s$", number_format_thousand(San_Andreas_Barriers[i][barrier_PRICE]));
-		else {
-			if(San_Andreas_Barriers[i][barrier_VEHICLE_TYPE]) format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%c%s\n\n{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para que te abran", toupper(work_info[ San_Andreas_Barriers[i][barrier_VEHICLE_TYPE_IN] ][work_info_NAME][0]), work_info[ San_Andreas_Barriers[i][barrier_VEHICLE_TYPE_IN] ][work_info_NAME][1]);
-			else format(label_str, sizeof label_str, "{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para que te abran");
-		}
-
-		CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z] + 1.5, 15.0, .worldid = San_Andreas_Barriers[i][barrier_WORLD], .interiorid = San_Andreas_Barriers[i][barrier_INTERIOR], .testlos = true);
-
-		San_Andreas_Barriers[i][barrier_PLAYER_X] = San_Andreas_Barriers[i][barrier_X] + (3.4 * floatsin(-(San_Andreas_Barriers[i][barrier_ROTATION] + 90.0), degrees));
-		San_Andreas_Barriers[i][barrier_PLAYER_Y] = San_Andreas_Barriers[i][barrier_Y] + (3.4 * floatcos(-(San_Andreas_Barriers[i][barrier_ROTATION] + 90.0), degrees));
-		San_Andreas_Barriers[i][barrier_PLAYER_Z] = San_Andreas_Barriers[i][barrier_Z];
-	}
-	
-	//polciais
-	for(new i = 0; i != sizeof POLICE_GARAGE_DOORS; i ++)
-	{
-		POLICE_GARAGE_DOORS[i][police_gdoor_OBJECT_ID] = CreateDynamicObject(POLICE_GARAGE_DOORS[i][police_gdoor_MODELID], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_X], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_Y], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_Z], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_RX], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_RY], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_RZ], 0, 0);
-	}
-	for(new i = 0; i != sizeof POLICE_DOORS; i ++)
-	{
-		POLICE_DOORS[i][police_door_OBJECT_ID] = CreateDynamicObject(POLICE_DOORS[i][police_door_MODELID], POLICE_DOORS[i][police_door_X], POLICE_DOORS[i][police_door_Y], POLICE_DOORS[i][police_door_Z], 0.0, 0.0, POLICE_DOORS[i][police_door_RZ], POLICE_DOORS[i][police_door_WORLD], POLICE_DOORS[i][police_door_INTERIOR]);
-		CreateDynamic3DTextLabel("Pulsa {"#PRIMARY_COLOR"} [ ENTER ] {FFFFFF}para abrir la puerta", 0xFFFFFFFF, POLICE_DOORS[i][police_door_X], POLICE_DOORS[i][police_door_Y], POLICE_DOORS[i][police_door_Z] + 1.25, 5.0, .testlos = false, .interiorid = POLICE_DOORS[i][police_door_INTERIOR], .worldid = POLICE_DOORS[i][police_door_WORLD]);
-	}
-
-	for(new i = 0; i != sizeof POLICE_START_WORK; i ++)
-	{
-		CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, POLICE_START_WORK[i][police_start_X], POLICE_START_WORK[i][police_start_Y], POLICE_START_WORK[i][police_start_Z], 5.0, .testlos = true, .worldid = POLICE_START_WORK[i][police_start_WORLD], .interiorid = POLICE_START_WORK[i][police_start_INTERIOR]);
-		new start_working = CreateDynamicPickup(0, 1, POLICE_START_WORK[i][police_start_X], POLICE_START_WORK[i][police_start_Y], POLICE_START_WORK[i][police_start_Z] + 0.10, POLICE_START_WORK[i][police_start_WORLD], POLICE_START_WORK[i][police_start_INTERIOR]), info[3];
-		info[0] = PICKUP_TYPE_POLICE_WORK;
-		info[1] = i; // Index
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, start_working, E_STREAMER_EXTRA_ID, info);
-	}
-
-	for(new i = 0; i != sizeof POLICE_EQUIP; i ++)
-	{
-		CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para equiparte", 0xFFFFFFFF, POLICE_EQUIP[i][police_equip_X], POLICE_EQUIP[i][police_equip_Y], POLICE_EQUIP[i][police_equip_Z], 5.0, .testlos = true, .worldid = POLICE_EQUIP[i][police_equip_WORLD], .interiorid = POLICE_EQUIP[i][police_equip_INTERIOR]);
-		new equipment_pickup = CreateDynamicPickup(0, 1, POLICE_EQUIP[i][police_equip_X], POLICE_EQUIP[i][police_equip_Y], POLICE_EQUIP[i][police_equip_Z] + 0.10, POLICE_EQUIP[i][police_equip_WORLD], POLICE_EQUIP[i][police_equip_INTERIOR]), info[3];
-		info[0] = PICKUP_TYPE_EQUIPMENT;
-		info[1] = i; // Index
-		info[2] = 0; // Nada
-		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, equipment_pickup, E_STREAMER_EXTRA_ID, info);
-	}
-	
-	Jail_Areas[0] = CreateDynamicRectangle(258.236938, 72.319061, 273.117279, 95.841438, -1, 6);
-	Jail_Areas[1] = CreateDynamicRectangle(211.001739, 117.171920, 236.010986, 104.004219, -1, 10);
-	Jail_Areas[2] = CreateDynamicRectangle(204.957885, 180.868392, 183.743148, 168.624618, -1, 3);
-	Jail_Areas[3] = CreateDynamicRectangle(366.3146, 1951.8367, 17.6406, 78.4408, -1, 13);
-
-	//Safe Zones
-	for(new i = 0; i != sizeof SAFE_ZONES; i ++)
-	{
-		SAFE_ZONES[i][safe_zone_AREA_ID] = CreateDynamicRectangle(SAFE_ZONES[i][safe_zone_MIN_X], SAFE_ZONES[i][safe_zone_MIN_Y], SAFE_ZONES[i][safe_zone_MAX_X], SAFE_ZONES[i][safe_zone_MAX_Y], SAFE_ZONES[i][safe_zone_WORLD], SAFE_ZONES[i][safe_zone_INTERIOR]);
-
-		new info[2];
-		info[0] = AREA_TYPE_SAFE_ZONE;
-		info[1] = i;
-		Streamer_SetArrayData(STREAMER_TYPE_AREA, SAFE_ZONES[i][safe_zone_AREA_ID], E_STREAMER_EXTRA_ID, info);
-		SAFE_ZONES[i][safe_zone_GANG_ZONE] = GangZoneCreate(SAFE_ZONES[i][safe_zone_MIN_X], SAFE_ZONES[i][safe_zone_MIN_Y], SAFE_ZONES[i][safe_zone_MAX_X], SAFE_ZONES[i][safe_zone_MAX_Y]);
-	}
-
-	//Trabajos
-	for(new i = 1; i < E_WORKS; i ++)
-	{
-		if(!obtain_work_coords[i][obtain_work_AVAILABLE]) continue;
-		switch(work_info[i][work_info_TYPE])
-		{
-			case WORK_TYPE_NORMAL:
-			{
-				if(obtain_work_coords[i][obtain_work_LABELS])
-				{
-					new label_str[256];
-
-					format(label_str, sizeof label_str, "{"#BLUE_COLOR"}%s\n\n{FFFFFF}Nivel: {"#GOLD_COLOR"}%d {ffffff}En adelante\n"COME_INTERACTION_MESSAGE"para trabajar aqui", work_info[i][work_info_NAME], work_info[i][work_info_LEVEL]);
-					CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, obtain_work_coords[i][obtain_work_X], obtain_work_coords[i][obtain_work_Y], obtain_work_coords[i][obtain_work_Z], 10.0, .testlos = true, .interiorid = obtain_work_coords[i][obtain_work_INTERIOR]);
-
-					new work_pickup = CreateDynamicPickup(1314, 1, obtain_work_coords[i][obtain_work_X], obtain_work_coords[i][obtain_work_Y], obtain_work_coords[i][obtain_work_Z], -1, obtain_work_coords[i][obtain_work_INTERIOR]), info[3];
-					info[0] = PICKUP_TYPE_OBTAIN_WORK;
-					info[1] = i; // Index
-					info[2] = 0; // Nada
-					Streamer_SetArrayData(STREAMER_TYPE_PICKUP, work_pickup, E_STREAMER_EXTRA_ID, info);
-				}
-				if(obtain_work_coords[i][obtain_work_MAP_ICON]) CreateDynamicMapIcon(obtain_work_coords[i][obtain_work_MAP_ICON_X], obtain_work_coords[i][obtain_work_MAP_ICON_Y], obtain_work_coords[i][obtain_work_MAP_ICON_Z], obtain_work_coords[i][obtain_work_MAP_ICON_ID], -1, 0, 0);
-			}
-		}
-	}
-
-	//Random taximeters
-	for(new i = 0; i != MAX_VEHICLES; i++) TAXI_METER_VEHICLE[i][veh_taxi_meter_PRICE] = minrand(2, 8);
-
-	//Carga camioneros
-	for(new i = 0; i != sizeof LoadTrucksPoints; i ++)
-	{
-		CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/cargar {FFFFFF}para cargar el camion", 0xFFFFFFFF, LoadTrucksPoints[i][0], LoadTrucksPoints[i][1], LoadTrucksPoints[i][2], 10.0, .testlos = true, .interiorid = 0);
-		CreateDynamicPickup(19135, 1, LoadTrucksPoints[i][0], LoadTrucksPoints[i][1], LoadTrucksPoints[i][2], -1, 0);
-	}
-
-	//Mecánico
-	Mechanic_Areas[0] = CreateDynamicRectangle(1808.799194, -1450.352661, 1837.703979, -1414.697753, 0, 0);
-	Streamer_SetArrayData(STREAMER_TYPE_AREA, Mechanic_Areas[0], E_STREAMER_EXTRA_ID, { AREA_TYPE_MECHANIC });
-
-	for(new i; i != sizeof MechanicStartWorkingCoords; i++)
-		CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/mecanico {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, MechanicStartWorkingCoords[i][0], MechanicStartWorkingCoords[i][1], MechanicStartWorkingCoords[i][2], 5.0, .testlos = true, .interiorid = 0);
-
-	for(new i; i != sizeof MechanicBuyPiecesCoords; i++)
-		CreateDynamic3DTextLabel("Piezas de mecánico\nEscribe {"#PRIMARY_COLOR"}/piezas [cantidad] {FFFFFF}para comprar piezas\nPrecio de pieza: {"#PRIMARY_COLOR"}50$", 0xFFFFFFFF, MechanicBuyPiecesCoords[i][0], MechanicBuyPiecesCoords[i][1], MechanicBuyPiecesCoords[i][2], 5.0, .testlos = true, .interiorid = 0);
-
-	for(new i; i != sizeof MechanicBuyKitsCoords; i++)
-		CreateDynamic3DTextLabel("Kits de reparacion\n\nEscribe {"#PRIMARY_COLOR"}/kit {FFFFFF}para comprar un kit de reparacion\nPrecio del kit: {"#PRIMARY_COLOR"}1.000$", 0xFFFFFFFF, MechanicBuyKitsCoords[i][0], MechanicBuyKitsCoords[i][1], MechanicBuyKitsCoords[i][2], 5.0, .testlos = true, .interiorid = 0);
-
-	//talador
-	CreateDynamicPickup(19793, 1, -527.670349, -97.338562, 63.176174, 0, 0);
-	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/talar {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, -527.670349, -97.338562, 63.176174, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
-
-	//Pizzero
-	CreateDynamicPickup(1582, 1, 2097.355712, -1818.040771, 13.382812, 0, 0);
-	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/pizzero {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, 2097.355712, -1818.040771, 13.382812, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
-
-	//Medico
-	CreateDynamicPickup(1275, 1, -2029.751342, -114.503044, 1035.171875, -1, 3);
-	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/medico {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, -2029.751342, -114.503044, 1035.171875, 5.0, .testlos = true, .interiorid = 3);
-
-	for(new i; i != sizeof MedicalBuyKitsCoords; i++)
-		CreateDynamic3DTextLabel("Botiquines\n\nEscribe {"#PRIMARY_COLOR"}/botiquin {FFFFFF}para comprar un botiquín\nPrecio del botiquín: {"#PRIMARY_COLOR"}5.000$", 0xFFFFFFFF, MedicalBuyKitsCoords[i][0], MedicalBuyKitsCoords[i][1], MedicalBuyKitsCoords[i][2], 5.0, .testlos = true);
-
-	//Trash
-	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/basurero {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, -1906.577514, -1756.457519, 22.079319, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
-
-	//Ruta 0
-	CreateTrashCheckpoint(0, 1440, -1812.46228, -558.37744, 15.73948,   0.00000, 0.00000, 274.24359);
-	CreateTrashCheckpoint(0, 1440, -1793.84106, -312.50452, 24.46057,   0.00000, 0.00000, 268.49271);
-	CreateTrashCheckpoint(0, 1440, -1801.20825, 115.39587, 14.55550,   0.00000, 0.00000, 280.09882);
-	CreateTrashCheckpoint(0, 1440, -1750.40051, 323.11810, 6.61720,   0.00000, 0.00000, 319.06424);
-	CreateTrashCheckpoint(0, 1440, -1814.43311, 511.15622, 28.66113,   0.00000, 9.00000, 304.31201);
-	CreateTrashCheckpoint(0, 1440, -1982.79871, 614.85687, 34.61121,   0.00000, 0.00000, 0.00000);
-	CreateTrashCheckpoint(0, 1440, -2229.42896, 575.27448, 34.58952,   0.00000, 0.00000, 0.00000);
-	CreateTrashCheckpoint(0, 1440, -2385.20020, 513.64594, 28.11606,   0.00000, 0.00000, 282.48959);
-	CreateTrashCheckpoint(0, 1440, -2258.51782, 221.79150, 34.74878,   0.00000, 0.00000, 90.00000);
-	CreateTrashCheckpoint(0, 1440, -2266.30273, -206.86926, 34.86986,   0.00000, 0.00000, 90.00000);
-	CreateTrashCheckpoint(0, 1440, -1995.48499, -771.90076, 31.56746,   0.00000, 0.00000, 90.00000);
-		//Ruta 1
-	CreateTrashCheckpoint(1, 1440, -2211.24414, -964.98248, 38.68247,   0.00000, 2.50000, 286.39740);
-	CreateTrashCheckpoint(1, 1440, -2424.54443, -595.71997, 131.88649,   0.00000, -4.50000, 303.65921);
-	CreateTrashCheckpoint(1, 1440, -2602.82544, -478.18484, 68.15035,   0.00000, 0.00000, 21.71607);
-	CreateTrashCheckpoint(1, 1440, -2353.62256, -396.48764, 78.42006,   0.00000, -3.50000, 305.07410);
-	CreateTrashCheckpoint(1, 1440, -2756.29199, -500.66721, 6.77589,   0.00000, 0.00000, 316.44635);
-	CreateTrashCheckpoint(1, 1440, -2811.07056, -346.85269, 6.66456,   0.00000, 0.00000, 259.86459);
-	CreateTrashCheckpoint(1, 1440, -2415.51563, -128.34013, 34.82273,   0.00000, 0.00000, 250.60507);
-	CreateTrashCheckpoint(1, 1440, -2028.09985, -76.42242, 34.70956,   0.00000, 0.00000, 0.00000);
-		//Ruta 2
-	CreateTrashCheckpoint(2, 1440, -2193.88306, -2156.55347, 46.46848,   0.00000, -10.00000, 46.48320);
-	CreateTrashCheckpoint(2, 1440, -2208.01904, -2280.10645, 30.12751,   0.00000, 0.00000, 331.91882);
-	CreateTrashCheckpoint(2, 1440, -2125.33594, -2256.24902, 30.10599,   0.00000, 0.00000, 326.47290);
-	CreateTrashCheckpoint(2, 1440, -2101.86353, -2313.20093, 30.14946,   0.00000, 0.00000, 42.68287);
-	CreateTrashCheckpoint(2, 1440, -2183.69775, -2449.03003, 30.01783,   0.00000, 0.00000, 51.16318);
-	CreateTrashCheckpoint(2, 1440, -2328.98047, -2704.17358, 44.41791,   6.17998, 5.88000, 340.20822);
-	CreateTrashCheckpoint(2, 1440, -2601.78345, -2334.39746, 10.50614,   0.00000, 0.00000, 41.64481);
-	
-	//talador arboles
-	Lumberjack_Area = CreateDynamicRectangle(-613.953796, -209.777252, -381.961181, -6.355076, 0, 0);
-	for(new i = 0; i != sizeof LUMBER_TREES; i ++)
-	{
-		LUMBER_TREES[i][lumber_tree_OBJECT_ID] = CreateDynamicObject(LUMBER_TREES[i][lumber_tree_MODELID], LUMBER_TREES[i][lumber_tree_X], LUMBER_TREES[i][lumber_tree_Y], LUMBER_TREES[i][lumber_tree_Z], LUMBER_TREES[i][lumber_tree_RX], LUMBER_TREES[i][lumber_tree_RY], LUMBER_TREES[i][lumber_tree_RZ], 0, 0);
-		
-		new label_str[256];
-		format(label_str, sizeof label_str, "{f46530}Árbol (%d)\n\n{FFFFFF}Pulsa {f9d834}[ N ] {FFFFFF}para talar el árbol.", i);
-		LUMBER_TREES[i][lumber_tree_LABEL] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, LUMBER_TREES[i][lumber_tree_X], LUMBER_TREES[i][lumber_tree_Y], LUMBER_TREES[i][lumber_tree_Z] + 1.5, 5.0, .testlos = false, .worldid = 0, .interiorid = 0);
-	}
-	
-	//Agricultor
-	Farmer_Area = CreateDynamicCircle(1461.8894, -83.2621, 65.0, 0, 0);
-	CreateDynamicMapIcon(1461.8894, -83.2621, 65.0, 53, -1, 0, 0);
-	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/semillas {FFFFFF}para comprar semillas", 0xFFFFFFFF, 1566.521606, 31.370532, 24.16406, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
-	
-	//Cosechador
-	Harvest_Area = CreateDynamicRectangle(-428.336059, -1667.658569, -116.565414, -1220.122070, 0, 0);
-	
+	CreateTextDraws();
+	LoadEnterExits();
 	LoadServerInfo();
-
-	rcon_pass = random(1000000000);
-	SendRconCommandf("rcon_password %d", rcon_pass);
-	printf("Random RCON Password generated by server: %d", rcon_pass);
+	LoadAntiCheatInfo();
+	SetRandomRconPassword();
 
 	SetWorldMinutesForDay(180); // 3 horas reales = 24 horas en juego
 	DisableInteriorEnterExits();
@@ -7516,7 +7003,8 @@ CMD:casa(playerid, params[])
 {
 	if(PlayerTemp[playerid][pt_LAST_PICKUP_ID] == 0) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
 	
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_OWN_PROPERTY || PI[playerid][pSTATE] == ROLEPLAY_STATE_GUEST_PROPERTY) {
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_OWN_PROPERTY || PI[playerid][pSTATE] == ROLEPLAY_STATE_GUEST_PROPERTY) 
+	{
 		new index = GetPropertyIndexByID(PI[playerid][pLOCAL_INTERIOR]);
 		if(index == -1) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
 
@@ -7529,19 +7017,7 @@ CMD:casa(playerid, params[])
 			}
 			else SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
 		}
-		else if(PI[playerid][pSTATE] == ROLEPLAY_STATE_GUEST_PROPERTY)
-		{
-			if(PROPERTY_INFO[index][property_CREW])
-			{
-				if(PROPERTY_INFO[index][property_CREW_ID] != PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "Esta no es una propiedad de tu banda.");
-				if(!CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_PERMISSION][CREW_RANK_DELETE_PROPERTIES]) return SendClientMessagef(playerid, -1, "No tienes permiso.");
-				if(CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_FIGHTING]) return SendClientMessagef(playerid, -1, "No puedes liberar una propiedad cuando tu banda está en combate."); 
-				
-				PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] = index;
-				ShowDialog(playerid, DIALOG_CREW_LEAVE_PROPERTY);
-			}
-			else SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-		}
+		else if(PI[playerid][pSTATE] == ROLEPLAY_STATE_GUEST_PROPERTY) SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
 	}
 	else SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
 	return 1;
@@ -8693,14 +8169,6 @@ stock ShowDialog(playerid, dialogid)
 
 			new dialog[512];
 			format(dialog, sizeof dialog, "1. Cambiar nombre de la propiedad\n2. Echar a todo del mundo de mi propiedad\n");
-
-			if(PI[playerid][pCREW])
-			{
-				if(CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_PERMISSION][CREW_RANK_ADD_PROPERTIES])
-				{
-					strcat(dialog, "3. Pasar a propiedad de banda\n");
-				}
-			}
 
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Atrás");
 			return 1;
@@ -10536,11 +10004,6 @@ stock ShowDialog(playerid, dialogid)
 			mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnCrewInfoLoad);
 			return 1;
 		}
-		case DIALOG_CREW_PROPERTY_CONFIRM:
-		{
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Propiedad de banda", "¿Estás seguro que quieres pasar esta propiedad a banda?\nEsta opcion no se puede deshacer.", "Continuar", "Cancelar");
-			return 1;
-		}
 		case DIALOG_CREW_LEAVE_TERRITORY:
 		{
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Abandonar territorio", "¿Estás seguro que quieres abandonar este territorio?\nEsta opcion no se puede deshacer.", "Continuar", "Cancelar");
@@ -11945,9 +11408,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				
 				PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_SOLD] = true;
-				PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_CREW] = false;
 				PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_OWNER_ID] = PI[playerid][pID];
-				CreatePropertyInfo(PlayerTemp[playerid][pt_BUY_HOUSE_INDEX], PI[playerid][pID], PI[playerid][pNAME], 0, "");
+				CreatePropertyInfo(PlayerTemp[playerid][pt_BUY_HOUSE_INDEX], PI[playerid][pID], PI[playerid][pNAME]);
 				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = %d, id_territory = NULL WHERE id = %d;", PI[playerid][pID], PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_ID]);
 				mysql_tquery(handle_db, QUERY_BUFFER);
 				
@@ -12245,27 +11707,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(total == 0) SendClientMessagef(playerid, -1, "No hay nadie en tu propiedad.");
 						else SendClientMessagef(playerid, -1, "Has echado %d personas de tu propiedad.", total);
 					}
-					case 2:
-					{
-						if(!PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "No perteneces a ninguna banda.");
-						if(!CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_PERMISSION][CREW_RANK_ADD_PROPERTIES]) return SendClientMessagef(playerid, -1, "No tienes permiso.");
-						
-						
-						for(new i = 0; i != MAX_TERRITORIES; i ++)
-						{
-							if(!TERRITORIES[i][territory_VALID]) continue;
-							if(!TERRITORIES[i][territory_OCCUPIED]) continue;
-							if(TERRITORIES[i][territory_CREW_ID] != PI[playerid][pCREW]) continue;
-							
-							if(IsPointInDynamicArea(TERRITORIES[i][territory_AREA], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_X], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_Y], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_Z]))
-							{
-								PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] = i;
-								ShowDialog(playerid, DIALOG_CREW_PROPERTY_CONFIRM);
-								return 1;
-							}
-						}
-						SendClientMessagef(playerid, -1, "Esta propiedad no está dentro de un territorio de tu banda.");
-					}
 				}
 			}
 			return 1;
@@ -12421,7 +11862,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(PI[playerid][pBANK_ACCOUNT] == 0) return SendClientMessagef(playerid, -1, "Necesitas tener una cuenta bancaria para vender la propiedad.");
 
 				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_SOLD] = false;
-				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_CREW] = false;
 				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_OWNER_ID] = 0;
 				format(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_NAME], 24, "PROPIEDAD %d", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID]);
 				
@@ -12547,7 +11987,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					"\
 						Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
 						{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n\
-						{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
+						{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
 					", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID], PI[playerid][pNAME]
 				);
 				UpdateDynamic3DTextLabelText(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
@@ -15088,8 +14528,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				for(new i = 0; i != MAX_PROPERTIES; i ++)
 				{
 					if(!PROPERTY_INFO[i][property_VALID]) continue;
-					if(!PROPERTY_INFO[i][property_CREW]) continue;
-					if(PROPERTY_INFO[i][property_CREW_ID] != PI[playerid][pCREW]) continue;
 		
 					format
 					(
@@ -15098,7 +14536,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						"\
 							Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
 							{FFFFFF}Banda: {"#PRIMARY_COLOR"}%s\n\
-							{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
+							{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
 						", PROPERTY_INFO[i][property_ID], CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME]
 					);
 					
@@ -15695,34 +15133,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					TERRITORIES[ i ][territory_COLOR] = 0xCCCCCC55;
 					UpdateGangZoneColor(i);
 				}
-				
-				for(new i = 0; i != MAX_PROPERTIES; i ++)
-				{
-					if(!PROPERTY_INFO[i][property_VALID]) continue;
-					if(!PROPERTY_INFO[i][property_CREW]) continue;
-					if(PROPERTY_INFO[i][property_CREW_ID] != old_crew_id) continue;
-					
-					PROPERTY_INFO[ i ][property_SOLD] = false;
-					PROPERTY_INFO[ i ][property_CREW] = false;
-					PROPERTY_INFO[ i ][property_OWNER_ID] = 0;
-					PROPERTY_INFO[ i ][property_CREW_ID] = 0;
-					format(PROPERTY_INFO[ i ][property_NAME], 24, "PROPIEDAD %d", PROPERTY_INFO[ i ][property_ID]);
-					
-					new info[3];
-					UpdateUnnocupiedPropertyLabel(i);
-					
-					DestroyDynamicPickup(PROPERTY_INFO[ i ][property_EXT_PICKUP_ID]);
-					PROPERTY_INFO[ i ][property_EXT_PICKUP_ID] = INVALID_STREAMER_ID;
-					
-					PROPERTY_INFO[ i ][property_EXT_PICKUP_ID] = CreateDynamicPickup(1273, 1, PROPERTY_INFO[ i ][property_EXT_X], PROPERTY_INFO[ i ][property_EXT_Y], PROPERTY_INFO[ i ][property_EXT_Z], 0, PROPERTY_INFO[ i ][property_EXT_INTERIOR]);
-					info[0] = PICKUP_TYPE_PROPERTY;
-					info[1] = i; // Index
-					info[2] = 2; // Pickup Exterior
-					Streamer_SetArrayData(STREAMER_TYPE_PICKUP, PROPERTY_INFO[ i ][property_EXT_PICKUP_ID], E_STREAMER_EXTRA_ID, info);
-
-					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = NULL, id_territory = NULL WHERE id = %d;", PROPERTY_INFO[i][property_ID]);
-					mysql_tquery(handle_db, QUERY_BUFFER);
-				}
 
 				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM crews WHERE id = %d;", tmp_crew_id);
 				mysql_tquery(handle_db, QUERY_BUFFER);
@@ -15950,49 +15360,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			else ShowDialog(playerid, DIALOG_CREW_MODIFY_MEMBERS);
 			return 1;
 		}
-		case DIALOG_CREW_PROPERTY_CONFIRM:
-		{
-			if(!PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "No perteneces a ninguna banda.");
-			if(!CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_VALID]) return SendClientMessagef(playerid, -1, "La banda ya no existe.");
-			if(!CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_PERMISSION][CREW_RANK_ADD_PROPERTIES]) return SendClientMessagef(playerid, -1, "No tienes permiso.");
-			
-			if(response)
-			{
-				if(!TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_VALID]) return SendClientMessagef(playerid, -1, "La propiedad no está dentro de un territorio de tu banda.");
-				if(!TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_OCCUPIED]) return SendClientMessagef(playerid, -1, "La propiedad no está dentro de un territorio de tu banda.");
-				if(TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_CREW_ID] != PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "La propiedad no está dentro de un territorio de tu banda.");
-				if(!IsPointInDynamicArea(TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_AREA], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_X], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_Y], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_Z])) return SendClientMessagef(playerid, -1, "La propiedad no está dentro de un territorio de tu banda.");
-				if(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Esta no es tu propiedad.");
-				
-				
-				new index = PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED];
-				PROPERTY_INFO[ index ][property_CREW] = true;
-				PROPERTY_INFO[ index ][property_OWNER_ID] = 0;
-				PROPERTY_INFO[ index ][property_CREW_ID] = PI[playerid][pCREW];
-				format(PROPERTY_INFO[ index ][property_NAME], 24, "PROPIEDAD %d", PROPERTY_INFO[ index ][property_ID]);
-				
-				new label_str[256];
-				format
-				(
-					label_str, 
-					sizeof label_str, 
-					"\
-						Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
-						{FFFFFF}Banda: {"#PRIMARY_COLOR"}%s\n\
-						{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
-					", PROPERTY_INFO[index][property_ID], CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME]
-				);
-				UpdateDynamic3DTextLabelText(PROPERTY_INFO[ index ][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
-				
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = NULL, id_territory = %d WHERE id = %d;", TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_ID], PROPERTY_INFO[index][property_ID]);
-				mysql_tquery(handle_db, QUERY_BUFFER);
-				
-				new message[145];
-				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha agregado una nueva propiedad en %s.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_NAME]);
-				SendMessageToCrewMembers(PI[playerid][pCREW], -1, message);
-			}
-			return 1;
-		}
 		case DIALOG_CREW_LEAVE_TERRITORY:
 		{
 			if(!PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "No perteneces a ninguna banda.");
@@ -16019,15 +15386,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				for(new i = 0; i != MAX_PROPERTIES; i ++)
 				{
 					if(!PROPERTY_INFO[i][property_VALID]) continue;
-					if(!PROPERTY_INFO[i][property_CREW]) continue;
-					if(PROPERTY_INFO[i][property_CREW_ID] != PI[playerid][pCREW]) continue;
 					
 					if(IsPointInDynamicArea(TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_AREA], PROPERTY_INFO[i][property_EXT_X], PROPERTY_INFO[i][property_EXT_Y], PROPERTY_INFO[i][property_EXT_Z]))
 					{
 						PROPERTY_INFO[ i ][property_SOLD] = false;
-						PROPERTY_INFO[ i ][property_CREW] = false;
 						PROPERTY_INFO[ i ][property_OWNER_ID] = 0;
-						PROPERTY_INFO[ i ][property_CREW_ID] = 0;
 						format(PROPERTY_INFO[ i ][property_NAME], 24, "PROPIEDAD %d", PROPERTY_INFO[ i ][property_ID]);
 						
 						new info[3];
@@ -16059,43 +15422,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						}
 					}
 				}
-			}
-			return 1;
-		}
-		case DIALOG_CREW_LEAVE_PROPERTY:
-		{
-			if(!PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "No perteneces a ninguna banda.");
-			if(!CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_VALID]) return SendClientMessagef(playerid, -1, "La banda ya no existe.");
-			if(!CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_PERMISSION][CREW_RANK_DELETE_PROPERTIES]) return SendClientMessagef(playerid, -1, "No tienes permiso.");
-			
-			if(response)
-			{
-				if(!PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_CREW]) return SendClientMessagef(playerid, -1, "Esta no es una propiedad de tu banda.");
-				if(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_CREW_ID] != PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "Esta no es una propiedad de tu banda.");
-				if(CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_FIGHTING]) return SendClientMessagef(playerid, -1, "No puedes liberar una propiedad cuando tu banda está en combate.");
-			
-				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_SOLD] = false;
-				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_CREW] = false;
-				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_OWNER_ID] = 0;
-				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_CREW_ID] = 0;
-				format(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_NAME], 24, "PROPIEDAD %d", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID]);
-				
-				new info[3];
-				UpdateUnnocupiedPropertyLabel(PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED]);
-				
-				DestroyDynamicPickup(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_PICKUP_ID]);
-				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_PICKUP_ID] = INVALID_STREAMER_ID;
-				
-				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_PICKUP_ID] = CreateDynamicPickup(1273, 1, PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_X], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_Y], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_Z], 0, PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_INTERIOR]);
-				info[0] = PICKUP_TYPE_PROPERTY;
-				info[1] = PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED]; // Index
-				info[2] = 2; // Pickup Exterior
-				Streamer_SetArrayData(STREAMER_TYPE_PICKUP, PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_PICKUP_ID], E_STREAMER_EXTRA_ID, info);
-						
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = NULL, id_territory = NULL WHERE id = %d;", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID]);
-				mysql_tquery(handle_db, QUERY_BUFFER);
-				
-				SendClientMessagef(playerid, -1, "La propiedad ha sido liberada.");
 			}
 			return 1;
 		}
@@ -16442,7 +15768,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										"\
 											Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
 											{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n\
-											{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
+											{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
 										", PROPERTY_INFO[i][property_ID], PI[playerid][pNAME]
 									);
 									UpdateDynamic3DTextLabelText(PROPERTY_INFO[i][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
@@ -18968,7 +18294,7 @@ LoadEnterExits()
 	return 1;
 }
 
-CreatePropertyInfo(i, pid, const pname[], cid, const cname[])
+CreatePropertyInfo(i, pid, const pname[])
 {
 	if(PROPERTY_INFO[i][property_EXT_LABEL_ID] != Text3D:INVALID_STREAMER_ID)
 	{
@@ -18996,20 +18322,8 @@ CreatePropertyInfo(i, pid, const pname[], cid, const cname[])
 	{
 		pickup_modelid = 0;
 		PROPERTY_INFO[i][property_SOLD] = true;
-		PROPERTY_INFO[i][property_CREW] = false;
 		PROPERTY_INFO[i][property_OWNER_ID] = pid;
-		PROPERTY_INFO[i][property_CREW_ID] = 0;
-		format(label_str, sizeof label_str, "Propiedad {"#PRIMARY_COLOR"}#%d\n\n{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.", PROPERTY_INFO[i][property_ID], pname);
-	}
-	else if(cid)
-	{
-		pickup_modelid = 0;
-		PROPERTY_INFO[i][property_SOLD] = true;
-		PROPERTY_INFO[i][property_CREW] = true;
-		PROPERTY_INFO[i][property_CREW_ID] = cid;
-		PROPERTY_INFO[i][property_OWNER_ID] = 0;
-		format(PROPERTY_INFO[i][property_NAME], 24, "Propiedad %d", PROPERTY_INFO[i][property_ID]);
-		format(label_str, sizeof label_str, "Propiedad {"#PRIMARY_COLOR"}#%d\n\n{FFFFFF}Banda: {"#PRIMARY_COLOR"}%s\n{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.", PROPERTY_INFO[i][property_ID], cname);
+		format(label_str, sizeof label_str, "Propiedad {"#PRIMARY_COLOR"}#%d\n\n{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.", PROPERTY_INFO[i][property_ID], pname);
 	}
 	else
 	{
@@ -19053,97 +18367,64 @@ CreatePropertyInfo(i, pid, const pname[], cid, const cname[])
 }
 
 forward OnPropertiesLoaded();
-LoadProperties()
+callbackp:LoadProperties()
 {
-	inline OnPropertiesLoad()
+	new rows;
+	if(cache_get_row_count(rows))
 	{
-		new rows;
-		if(cache_get_row_count(rows))
+		for(new i = 0; i != rows; i ++)
 		{
-			for(new i = 0; i != rows; i ++)
+			if(i >= MAX_PROPERTIES)
 			{
-				if(i >= MAX_PROPERTIES)
-				{
-					printf("---> Límite superado en array 'PROPERTY_INFO' al intentar cargar de la base de datos.");
-					break;
-				}
-
-				TOTAL_PROPERTIES_LOADED ++;
-
-				new bool:isnull_name;
-				PROPERTY_INFO[i][property_VALID] = true;
-				cache_get_value_name_int(i, "id", PROPERTY_INFO[i][property_ID]);
-				cache_is_value_name_null(i, "name", isnull_name);
-				if(!isnull_name) cache_get_value_name(i, "name", PROPERTY_INFO[i][property_NAME]);
-				cache_get_value_name_float(i, "ext_x", PROPERTY_INFO[i][property_EXT_X]);
-				cache_get_value_name_float(i, "ext_y", PROPERTY_INFO[i][property_EXT_Y]);
-				cache_get_value_name_float(i, "ext_z", PROPERTY_INFO[i][property_EXT_Z]);
-				cache_get_value_name_float(i, "ext_angle", PROPERTY_INFO[i][property_EXT_ANGLE]);
-				cache_get_value_name_int(i, "ext_interior", PROPERTY_INFO[i][property_EXT_INTERIOR]);
-				cache_get_value_name_int(i, "ext_freeze", PROPERTY_INFO[i][property_EXT_FREEZE]);
-				cache_get_value_name_int(i, "id_interior", PROPERTY_INFO[i][property_ID_INTERIOR]);
-				cache_get_value_name_int(i, "price", PROPERTY_INFO[i][property_PRICE]);
-				cache_get_value_name_int(i, "level", PROPERTY_INFO[i][property_LEVEL]);
-				cache_get_value_name_int(i, "extra", PROPERTY_INFO[i][property_EXTRA]);
-				cache_get_value_name_int(i, "vip_level", PROPERTY_INFO[i][property_VIP_LEVEL]);
-				cache_get_value_name_int(i, "dis_default_interior", PROPERTY_INFO[i][property_DIS_DEFAULT_INTERIOR]);
-
-				if(PROPERTY_INFO[i][property_EXTRA]) PROPERTY_INFO[i][property_PRICE] = 0;
-				if(PROPERTY_INFO[i][property_VIP_LEVEL]) PROPERTY_INFO[i][property_LEVEL] = 1;
-
-				new id_player, pname[24], tid, bool:isnull_id_player, bool:isnull_pname, bool:isnull_tid;
-				cache_is_value_name_null(i, "id_player", isnull_id_player);
-				if(!isnull_id_player) cache_get_value_name_int(i, "id_player", id_player);
-				cache_is_value_name_null(i, "pname", isnull_pname);
-				if(!isnull_pname) cache_get_value_name(i, "pname", pname);
-				cache_is_value_name_null(i, "tid", isnull_tid);
-				if(!isnull_tid) cache_get_value_name_int(i, "tid", tid);
-				if(id_player) CreatePropertyInfo(i, id_player, pname, 0, "");
-				else if(tid)
-				{
-					inline OnCrewInfoLoad()
-					{
-						new crows;
-						if(cache_get_row_count(crows))
-						{
-							if(crows)
-							{
-								new cid, cname[24];
-								cache_get_value_index_int(0, 0, cid);
-								cache_get_value_index(0, 1, cname);
-								if(cid) CreatePropertyInfo(i, 0, "", cid, cname);
-								else CreatePropertyInfo(i, 0, "", 0, "");
-							}
-						}
-					}
-					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT crews.id, crews.name FROM territories INNER JOIN crews ON territories.id_crew = crews.id WHERE territories.id = %d;", tid);
-					mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnCrewInfoLoad);
-				}
-				else CreatePropertyInfo(i, 0, "", 0, "");
-
-				inline OnPropertyClosetLoad()
-				{
-					new crows;
-					if(cache_get_row_count(crows))
-					{
-						for(new x = 0; x != crows; x ++)
-						{
-							PROPERTY_CLOSET[i][x][property_closet_VALID] = true;
-							cache_get_value_name_int(x, "id", PROPERTY_CLOSET[i][x][property_closet_OBJECT_ID]);
-							cache_get_value_name_int(x, "type", PROPERTY_CLOSET[i][x][property_closet_TYPE]);
-							cache_get_value_name_int(x, "int", PROPERTY_CLOSET[i][x][property_closet_INT]);
-							cache_get_value_name_int(x, "int_extra", PROPERTY_CLOSET[i][x][property_closet_INT_EXTRA]);
-						}
-					}
-				}
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM property_closet WHERE id_property = %d LIMIT %d;", PROPERTY_INFO[i][property_ID], MAX_CLOSET_SLOTS);
-				mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPropertyClosetLoad);
+				printf("---> Límite superado en array 'PROPERTY_INFO' al intentar cargar de la base de datos.");
+				break;
 			}
-			CallLocalFunction("OnPropertiesLoaded", "");
-			LoadCrews();
+
+			TOTAL_PROPERTIES_LOADED ++;
+
+			new bool:isnull_name;
+			PROPERTY_INFO[i][property_VALID] = true;
+			cache_get_value_name_int(i, "id", PROPERTY_INFO[i][property_ID]);
+			cache_is_value_name_null(i, "name", isnull_name);
+			if(!isnull_name) cache_get_value_name(i, "name", PROPERTY_INFO[i][property_NAME]);
+			cache_get_value_name_float(i, "ext_x", PROPERTY_INFO[i][property_EXT_X]);
+			cache_get_value_name_float(i, "ext_y", PROPERTY_INFO[i][property_EXT_Y]);
+			cache_get_value_name_float(i, "ext_z", PROPERTY_INFO[i][property_EXT_Z]);
+			cache_get_value_name_float(i, "ext_angle", PROPERTY_INFO[i][property_EXT_ANGLE]);
+			cache_get_value_name_int(i, "ext_interior", PROPERTY_INFO[i][property_EXT_INTERIOR]);
+			cache_get_value_name_int(i, "ext_freeze", PROPERTY_INFO[i][property_EXT_FREEZE]);
+			cache_get_value_name_int(i, "id_interior", PROPERTY_INFO[i][property_ID_INTERIOR]);
+			cache_get_value_name_int(i, "price", PROPERTY_INFO[i][property_PRICE]);
+			cache_get_value_name_int(i, "level", PROPERTY_INFO[i][property_LEVEL]);
+			cache_get_value_name_int(i, "extra", PROPERTY_INFO[i][property_EXTRA]);
+			cache_get_value_name_int(i, "vip_level", PROPERTY_INFO[i][property_VIP_LEVEL]);
+			cache_get_value_name_int(i, "dis_default_interior", PROPERTY_INFO[i][property_DIS_DEFAULT_INTERIOR]);
+
+			if(PROPERTY_INFO[i][property_EXTRA]) PROPERTY_INFO[i][property_PRICE] = 0;
+			if(PROPERTY_INFO[i][property_VIP_LEVEL]) PROPERTY_INFO[i][property_LEVEL] = 1;
+
+			CreatePropertyInfo(i, 0, "");
+
+			inline OnPropertyClosetLoad()
+			{
+				new crows;
+				if(cache_get_row_count(crows))
+				{
+					for(new x = 0; x != crows; x ++)
+					{
+						PROPERTY_CLOSET[i][x][property_closet_VALID] = true;
+						cache_get_value_name_int(x, "id", PROPERTY_CLOSET[i][x][property_closet_OBJECT_ID]);
+						cache_get_value_name_int(x, "type", PROPERTY_CLOSET[i][x][property_closet_TYPE]);
+						cache_get_value_name_int(x, "int", PROPERTY_CLOSET[i][x][property_closet_INT]);
+						cache_get_value_name_int(x, "int_extra", PROPERTY_CLOSET[i][x][property_closet_INT_EXTRA]);
+					}
+				}
+			}
+			mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM property_closet WHERE id_property = %d LIMIT %d;", PROPERTY_INFO[i][property_ID], MAX_CLOSET_SLOTS);
+			mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPropertyClosetLoad);
 		}
+		CallLocalFunction("OnPropertiesLoaded", "");
 	}
-	mysql_tquery_inline(handle_db, "SELECT properties.*, player.id AS pid, player.name AS pname, territories.id AS tid FROM properties LEFT JOIN player ON properties.id_player = player.id LEFT JOIN territories ON properties.id_territory = territories.id;", using inline OnPropertiesLoad);
 	return 1;
 }
 
@@ -19165,171 +18446,152 @@ GetOwnerIntProperty(id_house)
 	return -1;
 }
 
-LoadCrews()
+callbackp:LoadCrews()
 {
-	inline OnCrewsLoad()
+	new rows;
+	if(cache_get_row_count(rows))
 	{
-		new rows;
-		if(cache_get_row_count(rows))
+		for(new i = 0; i != rows; i ++)
 		{
-			for(new i = 0; i != rows; i ++)
+			if(i >= MAX_CREWS)
 			{
-				if(i >= MAX_CREWS)
-				{
-					printf("---> Límite superado en array 'CREW_INFO' al intentar cargar de la base de datos.");
-					break;
-				}
-
-				CREW_INFO[i][crew_VALID] = true;
-				cache_get_value_name_int(i, "id", CREW_INFO[i][crew_ID]);
-				cache_get_value_name(i, "name", CREW_INFO[i][crew_NAME]);
-				cache_get_value_name_int(i, "color", CREW_INFO[i][crew_COLOR]);
-				CREW_INFO[i][crew_ONLINE_MEMBERS] = 0;
-
-				//count
-				inline OnCountQueryLoad()
-				{
-					new crows;
-					if(cache_get_row_count(crows))
-					{
-						if(crows)
-						{
-							cache_get_value_index_int(0, 0, CREW_INFO[i][crew_MEMBERS]);
-						}
-					}
-				}
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT COUNT(id) FROM player WHERE crew = %d;", CREW_INFO[i][crew_ID]);
-				mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnCountQueryLoad);
-
-				//ranks
-				inline OnCrewRanksLoad()
-				{
-					new crows;
-					if(cache_get_row_count(crows))
-					{
-						for(new x = 0; x != crows; x ++)
-						{
-							new rank_pos;
-							cache_get_value_name_int(x, "rank_pos", rank_pos);
-							if(rank_pos < 0 || rank_pos > MAX_CREW_RANKS) continue;
-
-							CREW_RANK_INFO[i][rank_pos][crew_rank_VALID] = true;
-							cache_get_value_name_int(x, "id", CREW_RANK_INFO[i][rank_pos][crew_rank_ID]);
-							cache_get_value_name(x, "rank_name", CREW_RANK_INFO[i][rank_pos][crew_rank_NAME]);
-							cache_get_value_name_int(x, "permission0", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][0]);
-							cache_get_value_name_int(x, "permission1", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][1]);
-							cache_get_value_name_int(x, "permission2", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][2]);
-							cache_get_value_name_int(x, "permission3", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][3]);
-							cache_get_value_name_int(x, "permission4", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][4]);
-							cache_get_value_name_int(x, "permission5", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][5]);
-							cache_get_value_name_int(x, "permission6", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][6]);
-							cache_get_value_name_int(x, "permission7", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][7]);
-							cache_get_value_name_int(x, "permission8", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][8]);
-							cache_get_value_name_int(x, "permission9", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][9]);
-
-							if(rank_pos == 0) {
-								for(new j = 0; j < CREW_RANK_SIZE; j ++)
-								CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][j] = 1;
-							}
-						}
-					}
-				}
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM crew_ranks WHERE id_crew = %d;", CREW_INFO[i][crew_ID]);
-				mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnCrewRanksLoad);
+				printf("---> Límite superado en array 'CREW_INFO' al intentar cargar de la base de datos.");
+				break;
 			}
-			LoadGangZones();
+
+			CREW_INFO[i][crew_VALID] = true;
+			cache_get_value_name_int(i, "id", CREW_INFO[i][crew_ID]);
+			cache_get_value_name(i, "name", CREW_INFO[i][crew_NAME]);
+			cache_get_value_name_int(i, "color", CREW_INFO[i][crew_COLOR]);
+			CREW_INFO[i][crew_ONLINE_MEMBERS] = 0;
+
+			//count
+			inline OnCountQueryLoad()
+			{
+				new crows;
+				if(cache_get_row_count(crows))
+				{
+					if(crows)
+					{
+						cache_get_value_index_int(0, 0, CREW_INFO[i][crew_MEMBERS]);
+					}
+				}
+			}
+			mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT COUNT(id) FROM player WHERE crew = %d;", CREW_INFO[i][crew_ID]);
+			mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnCountQueryLoad);
+
+			//ranks
+			inline OnCrewRanksLoad()
+			{
+				new crows;
+				if(cache_get_row_count(crows))
+				{
+					for(new x = 0; x != crows; x ++)
+					{
+						new rank_pos;
+						cache_get_value_name_int(x, "rank_pos", rank_pos);
+						if(rank_pos < 0 || rank_pos > MAX_CREW_RANKS) continue;
+
+						CREW_RANK_INFO[i][rank_pos][crew_rank_VALID] = true;
+						cache_get_value_name_int(x, "id", CREW_RANK_INFO[i][rank_pos][crew_rank_ID]);
+						cache_get_value_name(x, "rank_name", CREW_RANK_INFO[i][rank_pos][crew_rank_NAME]);
+						cache_get_value_name_int(x, "permission0", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][0]);
+						cache_get_value_name_int(x, "permission1", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][1]);
+						cache_get_value_name_int(x, "permission2", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][2]);
+						cache_get_value_name_int(x, "permission3", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][3]);
+						cache_get_value_name_int(x, "permission4", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][4]);
+						cache_get_value_name_int(x, "permission5", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][5]);
+						cache_get_value_name_int(x, "permission6", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][6]);
+						cache_get_value_name_int(x, "permission7", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][7]);
+						cache_get_value_name_int(x, "permission8", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][8]);
+						cache_get_value_name_int(x, "permission9", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][9]);
+
+						if(rank_pos == 0) {
+							for(new j = 0; j < CREW_RANK_SIZE; j ++)
+							CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][j] = 1;
+						}
+					}
+				}
+			}
+			mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM crew_ranks WHERE id_crew = %d;", CREW_INFO[i][crew_ID]);
+			mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnCrewRanksLoad);
 		}
 	}
-	mysql_tquery_inline(handle_db, "SELECT * FROM crews;", using inline OnCrewsLoad);
 	return 1;
 }
 
 
-LoadGangZones()
+callbackp:LoadGangZones()
 {
-	inline OnSaZonesLoad()
+	new rows;
+	if(cache_get_row_count(rows))
 	{
-		new rows;
-		if(cache_get_row_count(rows))
+		for(new i = 0; i != rows; i ++)
 		{
-			for(new i = 0; i != rows; i ++)
+			if(i >= MAX_TERRITORIES)
 			{
-				if(i >= MAX_TERRITORIES)
-				{
-					printf("---> Límite superado en array 'TERRITORIES' al intentar cargar de la base de datos.");
-					break;
-				}
+				printf("---> Límite superado en array 'TERRITORIES' al intentar cargar de la base de datos.");
+				break;
+			}
 
-				new crewid, color, bool:isnull_crewid;
-				TERRITORIES[i][territory_VALID] = true;
-				cache_get_value_name_int(i, "id", TERRITORIES[i][territory_ID]);
-				cache_get_value_name(i, "name", TERRITORIES[i][territory_NAME]);
-				cache_get_value_name_float(i, "min_x", TERRITORIES[i][territory_MIN_X]);
-				cache_get_value_name_float(i, "min_y", TERRITORIES[i][territory_MIN_Y]);
-				cache_get_value_name_float(i, "min_z", TERRITORIES[i][territory_MIN_Z]);
-				cache_get_value_name_float(i, "max_x", TERRITORIES[i][territory_MAX_X]);
-				cache_get_value_name_float(i, "max_y", TERRITORIES[i][territory_MAX_Y]);
-				cache_get_value_name_float(i, "max_z", TERRITORIES[i][territory_MAX_Z]);
-				cache_is_value_name_null(i, "id_crew", isnull_crewid);
-				if(!isnull_crewid) {
-					cache_get_value_name_int(i, "id_crew", crewid);
-					cache_get_value_name_int(i, "color", color);
-				}
-				TERRITORIES[i][territory_WAR] = false;
-				TERRITORIES[i][territory_ATTACKER_CREW_INDEX] = 0;
+			new crewid, color, bool:isnull_crewid;
+			TERRITORIES[i][territory_VALID] = true;
+			cache_get_value_name_int(i, "id", TERRITORIES[i][territory_ID]);
+			cache_get_value_name(i, "name", TERRITORIES[i][territory_NAME]);
+			cache_get_value_name_float(i, "min_x", TERRITORIES[i][territory_MIN_X]);
+			cache_get_value_name_float(i, "min_y", TERRITORIES[i][territory_MIN_Y]);
+			cache_get_value_name_float(i, "min_z", TERRITORIES[i][territory_MIN_Z]);
+			cache_get_value_name_float(i, "max_x", TERRITORIES[i][territory_MAX_X]);
+			cache_get_value_name_float(i, "max_y", TERRITORIES[i][territory_MAX_Y]);
+			cache_get_value_name_float(i, "max_z", TERRITORIES[i][territory_MAX_Z]);
+			cache_is_value_name_null(i, "id_crew", isnull_crewid);
+			if(!isnull_crewid) {
+				cache_get_value_name_int(i, "id_crew", crewid);
+				cache_get_value_name_int(i, "color", color);
+			}
+			TERRITORIES[i][territory_WAR] = false;
+			TERRITORIES[i][territory_ATTACKER_CREW_INDEX] = 0;
 
-				if(crewid)
-				{
-					TERRITORIES[i][territory_OCCUPIED] = true;
-					TERRITORIES[i][territory_CREW_ID] = crewid;
-					
-					new r, g, b, a;
-					HexToRGBA(color, r, g, b, a);
-					TERRITORIES[i][territory_COLOR] = RGBAToHex(r, g, b, 135);
-					TERRITORIES[i][territory_CREW_INDEX] = GetCrewIndexById(crewid);
-				}
-				else
-				{
-					TERRITORIES[i][territory_OCCUPIED] = false;
-					TERRITORIES[i][territory_CREW_ID] = 0;
-					TERRITORIES[i][territory_CREW_INDEX] = 0;
-					TERRITORIES[i][territory_COLOR] = 0xCCCCCC55;
-				}
-
-				TERRITORIES[i][territory_AREA] = CreateDynamicCube(TERRITORIES[i][territory_MIN_X], TERRITORIES[i][territory_MIN_Y], TERRITORIES[i][territory_MIN_Z], TERRITORIES[i][territory_MAX_X], TERRITORIES[i][territory_MAX_Y], TERRITORIES[i][territory_MAX_Z], 0, 0);
-
-				new info[2];
-				info[0] = AREA_TYPE_GANGZONE;
-				info[1] = i;
-				Streamer_SetArrayData(STREAMER_TYPE_AREA, TERRITORIES[i][territory_AREA], E_STREAMER_EXTRA_ID, info);
-				TERRITORIES[i][territory_GANG_ZONE] = GangZoneCreate(TERRITORIES[i][territory_MIN_X], TERRITORIES[i][territory_MIN_Y], TERRITORIES[i][territory_MAX_X], TERRITORIES[i][territory_MAX_Y]);
+			if(crewid)
+			{
+				TERRITORIES[i][territory_OCCUPIED] = true;
+				TERRITORIES[i][territory_CREW_ID] = crewid;
 				
-				TERRITORIES[i][territory_TEXTDRAW] = TextDrawCreate(320.000000, 406.000000, "Conquista:_0");
-				TextDrawLetterSize(TERRITORIES[i][territory_TEXTDRAW], 0.286000, 1.276444);
-				TextDrawAlignment(TERRITORIES[i][territory_TEXTDRAW], 2);
-				TextDrawColor(TERRITORIES[i][territory_TEXTDRAW], -76);
-				TextDrawSetShadow(TERRITORIES[i][territory_TEXTDRAW], 0);
-				TextDrawSetOutline(TERRITORIES[i][territory_TEXTDRAW], 0);
-				TextDrawBackgroundColor(TERRITORIES[i][territory_TEXTDRAW], 255);
-				TextDrawFont(TERRITORIES[i][territory_TEXTDRAW], 1);
-				TextDrawSetProportional(TERRITORIES[i][territory_TEXTDRAW], 1);
-				TextDrawSetShadow(TERRITORIES[i][territory_TEXTDRAW], 0);
+				new r, g, b, a;
+				HexToRGBA(color, r, g, b, a);
+				TERRITORIES[i][territory_COLOR] = RGBAToHex(r, g, b, 135);
+				TERRITORIES[i][territory_CREW_INDEX] = GetCrewIndexById(crewid);
 			}
-			CallLocalFunction("OnTerritoriesLoaded", "");
-			SetTimerEx("server_loaded_request", 1000, false, "b", true);
-		}
-	}
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT territories.*, crews.id AS crewid, crews.color FROM territories LEFT JOIN crews ON territories.id_crew = crews.id WHERE territories.gangzone = 1 LIMIT %d;", MAX_TERRITORIES);
-	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnSaZonesLoad);
-	return 1;
-}
+			else
+			{
+				TERRITORIES[i][territory_OCCUPIED] = false;
+				TERRITORIES[i][territory_CREW_ID] = 0;
+				TERRITORIES[i][territory_CREW_INDEX] = 0;
+				TERRITORIES[i][territory_COLOR] = 0xCCCCCC55;
+			}
 
-forward server_loaded_request(bool:toggle);
-public server_loaded_request(bool:toggle) {
-	server_loaded = toggle;
-	if(toggle) {
-		SendRconCommand("hostname "SERVER_HOSTNAME"");
+			TERRITORIES[i][territory_AREA] = CreateDynamicCube(TERRITORIES[i][territory_MIN_X], TERRITORIES[i][territory_MIN_Y], TERRITORIES[i][territory_MIN_Z], TERRITORIES[i][territory_MAX_X], TERRITORIES[i][territory_MAX_Y], TERRITORIES[i][territory_MAX_Z], 0, 0);
+
+			new info[2];
+			info[0] = AREA_TYPE_GANGZONE;
+			info[1] = i;
+			Streamer_SetArrayData(STREAMER_TYPE_AREA, TERRITORIES[i][territory_AREA], E_STREAMER_EXTRA_ID, info);
+			TERRITORIES[i][territory_GANG_ZONE] = GangZoneCreate(TERRITORIES[i][territory_MIN_X], TERRITORIES[i][territory_MIN_Y], TERRITORIES[i][territory_MAX_X], TERRITORIES[i][territory_MAX_Y]);
+			
+			TERRITORIES[i][territory_TEXTDRAW] = TextDrawCreate(320.000000, 406.000000, "Conquista:_0");
+			TextDrawLetterSize(TERRITORIES[i][territory_TEXTDRAW], 0.286000, 1.276444);
+			TextDrawAlignment(TERRITORIES[i][territory_TEXTDRAW], 2);
+			TextDrawColor(TERRITORIES[i][territory_TEXTDRAW], -76);
+			TextDrawSetShadow(TERRITORIES[i][territory_TEXTDRAW], 0);
+			TextDrawSetOutline(TERRITORIES[i][territory_TEXTDRAW], 0);
+			TextDrawBackgroundColor(TERRITORIES[i][territory_TEXTDRAW], 255);
+			TextDrawFont(TERRITORIES[i][territory_TEXTDRAW], 1);
+			TextDrawSetProportional(TERRITORIES[i][territory_TEXTDRAW], 1);
+			TextDrawSetShadow(TERRITORIES[i][territory_TEXTDRAW], 0);
+		}
+		CallLocalFunction("OnTerritoriesLoaded", "");
 	}
+	return 1;
 }
 
 GetCrewIndexById(id)
@@ -19888,12 +19150,10 @@ callbackp:EnterExit(playerid)
 					return 1;
 				}
 				if(!PROPERTY_INFO[info[1]][property_SOLD]) return SendMessage(playerid, "Esta propiedad está en venta.");
-				if(PROPERTY_INFO[info[1]][property_CREW])
+
+				if(PROPERTY_INFO[info[1]][property_OWNER_ID] == PI[playerid][pID])
 				{
-					if(!PI[playerid][pCREW]) return SendMessage(playerid, "Solo miembros de la banda pueden entrar.");
-					if(PI[playerid][pCREW] != PROPERTY_INFO[info[1]][property_CREW_ID]) return SendMessage(playerid, "Solo miembros de la banda pueden entrar.");
-								
-					PI[playerid][pSTATE] = ROLEPLAY_STATE_GUEST_PROPERTY;
+					PI[playerid][pSTATE] = ROLEPLAY_STATE_OWN_PROPERTY;
 					PI[playerid][pLOCAL_INTERIOR] = PROPERTY_INFO[info[1]][property_ID];
 					PlayerTemp[playerid][pt_PROPERTY_INDEX] = info[1];
 
@@ -19907,35 +19167,18 @@ callbackp:EnterExit(playerid)
 				}
 				else
 				{
-					if(PROPERTY_INFO[info[1]][property_OWNER_ID] == PI[playerid][pID])
-					{
-						PI[playerid][pSTATE] = ROLEPLAY_STATE_OWN_PROPERTY;
-						PI[playerid][pLOCAL_INTERIOR] = PROPERTY_INFO[info[1]][property_ID];
-						PlayerTemp[playerid][pt_PROPERTY_INDEX] = info[1];
-
-						new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Z];
-						if(PROPERTY_INFO[info[1]][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
-						SetPlayerPosEx(playerid, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Y], z_pos, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_ANGLE], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_INTERIOR], PROPERTY_INFO[info[1]][property_ID], false /*PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_FREEZE]*/, true);
-						FreezePlayer(playerid);
-
-						PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
-						PlayerTemp[playerid][pt_LAST_PICKUP_CHECKED] = gettime() + 3;
-					}
-					else
-					{
-						if(gettime() < PlayerTemp[playerid][pt_ANTIFLOOD_KNOCK_PROPERTY] + 10) return 1;//SendClientMessagef(playerid, -1, "Espera para volver a tocar, si no te quieren abrir, vete.");
-									
-						new owner_playerid = GetOwnerIntProperty(PROPERTY_INFO[info[1]][property_ID]);
-						if(owner_playerid == -1) return SendMessage(playerid, "Esta no es tu propiedad y el propietario no está dentro para dejarte entrar.");
-									
-						PlayerTemp[playerid][pt_ANTIFLOOD_KNOCK_PROPERTY] = gettime();
-						PlayerTemp[owner_playerid][pt_KNOCK_PLAYER_ID] = playerid;
-						SendMessagef(owner_playerid, "%s está tocando la puerta, para dejarle entrar ve a la puerta y usa /puerta.", PlayerTemp[playerid][pt_RP_NAME]);
-						SendMessage(playerid, "Has tocado en la puerta, espera para que te abran o vete.");
-					
-						PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
-						PlayerTemp[playerid][pt_LAST_PICKUP_CHECKED] = gettime() + 3;
-					}
+					if(gettime() < PlayerTemp[playerid][pt_ANTIFLOOD_KNOCK_PROPERTY] + 10) return 1;//SendClientMessagef(playerid, -1, "Espera para volver a tocar, si no te quieren abrir, vete.");
+								
+					new owner_playerid = GetOwnerIntProperty(PROPERTY_INFO[info[1]][property_ID]);
+					if(owner_playerid == -1) return SendMessage(playerid, "Esta no es tu propiedad y el propietario no está dentro para dejarte entrar.");
+								
+					PlayerTemp[playerid][pt_ANTIFLOOD_KNOCK_PROPERTY] = gettime();
+					PlayerTemp[owner_playerid][pt_KNOCK_PLAYER_ID] = playerid;
+					SendMessagef(owner_playerid, "%s está tocando la puerta, para dejarle entrar ve a la puerta y usa /puerta.", PlayerTemp[playerid][pt_RP_NAME]);
+					SendMessage(playerid, "Has tocado en la puerta, espera para que te abran o vete.");
+				
+					PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
+					PlayerTemp[playerid][pt_LAST_PICKUP_CHECKED] = gettime() + 3;
 				}
 			}
 			else return 1;
@@ -23101,7 +22344,7 @@ Create_PlayerPropertyConstructo(playerid)
 	inline OnPropertyInserted()
 	{
 		PROPERTY_INFO[slot][property_ID] = cache_insert_id();
-		CreatePropertyInfo(slot, 0, "", 0, "");
+		CreatePropertyInfo(slot, 0, "");
 
 		SendClientMessagef(playerid, -1, "Propiedad creada, id: %d (%d/%d).", PROPERTY_INFO[slot][property_ID], slot, MAX_PROPERTIES);
 		ExitPlayerPropertyConstructor(playerid);
@@ -28028,7 +27271,7 @@ CMD:setname(playerid, params[])
 						"\
 							Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
 							{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n\
-							{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
+							{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
 						", PROPERTY_INFO[i][property_ID], PI[to_playerid][pNAME]
 					);
 					UpdateDynamic3DTextLabelText(PROPERTY_INFO[i][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
@@ -28057,11 +27300,8 @@ CMD:exproperty(playerid, params[])
 	
 	if(!PROPERTY_INFO[index][property_SOLD]) return SendClientMessagef(playerid, -1, "Esta propiedad ya está en venta.");
 	
-	
 	PROPERTY_INFO[ index ][property_SOLD] = false;
-	PROPERTY_INFO[ index ][property_CREW] = false;
 	PROPERTY_INFO[ index ][property_OWNER_ID] = 0;
-	PROPERTY_INFO[ index ][property_CREW_ID] = 0;
 	format(PROPERTY_INFO[ index ][property_NAME], 24, "PROPIEDAD %d", PROPERTY_INFO[ index ][property_ID]);
 	
 	new info[3];
@@ -29306,8 +28546,6 @@ public UpdateTerritoryAttack(territory_index)
 	
 	if(TERRITORIES[territory_index][territory_WAR_TIME_LEFT] <= 0)
 	{
-		new old_crew = TERRITORIES[territory_index][territory_CREW_ID];
-		
 		CREW_INFO[ TERRITORIES[territory_index][territory_CREW_INDEX] ][crew_FIGHTING] = false;
 		TERRITORIES[territory_index][territory_CREW_ID] = CREW_INFO[ TERRITORIES[territory_index][territory_ATTACKER_CREW_INDEX] ][crew_ID];
 		TERRITORIES[territory_index][territory_CREW_INDEX] = TERRITORIES[territory_index][territory_ATTACKER_CREW_INDEX];
@@ -29318,35 +28556,6 @@ public UpdateTerritoryAttack(territory_index)
 		
 		new message[145];
 		format(message, sizeof message, "{"#PRIMARY_COLOR"}[BANDAS] {FFFFFF}La banda '%s' ha conquistado un nuevo territorio.", CREW_INFO[ TERRITORIES[territory_index][territory_ATTACKER_CREW_INDEX] ][crew_NAME]);
-	
-		new label_str[256];
-		if(TERRITORIES[territory_index][territory_OCCUPIED])
-		{
-			for(new i = 0; i != MAX_PROPERTIES; i ++)
-			{
-				if(!PROPERTY_INFO[i][property_VALID]) continue;
-				if(!PROPERTY_INFO[i][property_CREW]) continue;
-				if(PROPERTY_INFO[i][property_CREW_ID] != old_crew) continue;
-				
-				if(IsPointInDynamicArea(TERRITORIES[territory_index][territory_AREA], PROPERTY_INFO[i][property_EXT_X], PROPERTY_INFO[i][property_EXT_Y], PROPERTY_INFO[i][property_EXT_Z]))
-				{
-					PROPERTY_INFO[i][property_CREW_ID] = TERRITORIES[territory_index][territory_CREW_ID];
-					
-					format
-					(
-						label_str, 
-						sizeof label_str, 
-						"\
-							Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
-							{FFFFFF}Banda: {"#PRIMARY_COLOR"}%s\n\
-							{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
-						", PROPERTY_INFO[i][property_ID], CREW_INFO[ TERRITORIES[territory_index][territory_CREW_INDEX] ][crew_NAME]
-					);
-					
-					UpdateDynamic3DTextLabelText(PROPERTY_INFO[i][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
-				}
-			}
-		}
 		
 		mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE territories SET id_crew = %d WHERE id = %d;", CREW_INFO[ TERRITORIES[territory_index][territory_ATTACKER_CREW_INDEX] ][crew_ID], TERRITORIES[territory_index][territory_ID]);
 		mysql_tquery(handle_db, QUERY_BUFFER);
@@ -29469,8 +28678,529 @@ SetPlayerColorEx(playerid, color)
 	PlayerTemp[playerid][pt_PLAYER_COLOR] = color;
 	return SetPlayerColor(playerid, color);
 }
+
+stock SetDatabaseInfo()
+{
+	new MySQLOpt:MySQLOpt = mysql_init_options();
+	mysql_set_option(MySQLOpt, AUTO_RECONNECT, true);
+	mysql_set_option(MySQLOpt, SERVER_PORT, 3306);
+	handle_db = mysql_connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DB, MySQLOpt);
+	mysql_set_charset("latin1", handle_db);
+	return 1;
+}
+
+stock SetRandomRconPassword()
+{
+	rcon_pass = random(1000000000);
+	SendRconCommandf("rcon_password %d", rcon_pass);
+	printf("Random RCON Password generated by server: %d", rcon_pass);
+	return 1;
+}
+
+stock LoadServerInfo()
+{
+	Loop(i, sizeof(Help_Actors), 0)
+	{
+		CreateDynamicActor(26, Help_Actors[i][0], Help_Actors[i][1], Help_Actors[i][2], Help_Actors[i][3], true, 100.0, -1, -1);
+		CreateDynamic3DTextLabel("Ayuda\n"COME_INTERACTION_MESSAGE"para saber un poco mas sobre {"#GOLD_COLOR"}"SERVER_NAME".", 0xFFFFFFFF, Help_Actors[i][0], Help_Actors[i][1], Help_Actors[i][2], 15.0, .testlos = true, .worldid = -1, .interiorid = -1);
+		new help_actor_pickup = CreateDynamicPickup(0, 1, Help_Actors[i][0], Help_Actors[i][1], Help_Actors[i][2], -1, -1), info[3];
+
+		info[0] = PICKUP_TYPE_HELP;
+		info[1] = 0; // Nada
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, help_actor_pickup, E_STREAMER_EXTRA_ID, info);	
+	}
 	
-LoadServerInfo()
+	//autoescuela
+	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/examen {FFFFFF}para realizar el examen por 500$.", 0xFFFFFFFF, 1063.718994, -343.093566, 2797.699951, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
+
+	//3d texts armarios
+	for(new i = 0; i < sizeof PROPERTY_CLOSET_POS; i++)
+	{
+		CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}Armario\n\n{FFFFFF}Escribe {"#PRIMARY_COLOR"}/armario {FFFFFF}para verlo", 0xFFFFFFFF, PROPERTY_CLOSET_POS[i][property_closet_X], PROPERTY_CLOSET_POS[i][property_closet_Y], PROPERTY_CLOSET_POS[i][property_closet_Z] + 0.25, 10.0, .testlos = true, .interiorid = PROPERTY_INTERIORS[i][property_INT_INTERIOR]);
+		if(PROPERTY_INTERIORS[i][property_EMPTY_INTERIOR]) CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}Armario\n\n{FFFFFF}Escribe {"#PRIMARY_COLOR"}/armario {FFFFFF}para verlo", 0xFFFFFFFF, PROPERTY_CLOSET_POS[i][property_closet_X], PROPERTY_CLOSET_POS[i][property_closet_Y], PROPERTY_CLOSET_POS[i][property_closet_Z] + 0.25 + PROPERTY_EMPTY_INTERIOR_Z_OFFSET, 10.0, .testlos = true, .interiorid = PROPERTY_INTERIORS[i][property_INT_INTERIOR]);
+	}
+
+	// 3D Texts Ropas
+	for(new i = 0; i < sizeof Clothing_Shop_Positions; i++)
+	{
+		new label_str[256];
+		format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%s\n"COME_INTERACTION_MESSAGE"para ver las opciones disponibles", Clothing_Shop_Positions[i][clothing_shop_NAME]);
+		CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, Clothing_Shop_Positions[i][clothing_shop_X], Clothing_Shop_Positions[i][clothing_shop_Y], Clothing_Shop_Positions[i][clothing_shop_Z] + 0.25, 10.0, .testlos = true, .interiorid = Clothing_Shop_Positions[i][clothing_shop_INTERIOR]);
+	
+		new chop_pickup_id = CreateDynamicPickup(1275, 1, Clothing_Shop_Positions[i][clothing_shop_X], Clothing_Shop_Positions[i][clothing_shop_Y], Clothing_Shop_Positions[i][clothing_shop_Z] + 0.10, -1, Clothing_Shop_Positions[i][clothing_shop_INTERIOR]), info[3];
+		info[0] = PICKUP_TYPE_CLOTHING_SHOP;
+		info[1] = i; // Index
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, chop_pickup_id, E_STREAMER_EXTRA_ID, info);
+	}
+	
+	// 3D Texts Pedir comida
+	for(new i = 0; i < sizeof Fast_Food_Positions; i++)
+	{
+		new label_str[128];
+		format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%s\n"COME_INTERACTION_MESSAGE"para alimentarte", Fast_Food_Positions[i][fast_food_NAME]);
+		CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, Fast_Food_Positions[i][fast_food_X], Fast_Food_Positions[i][fast_food_Y], Fast_Food_Positions[i][fast_food_Z] + 0.25, 10.0, .testlos = true, .interiorid = Fast_Food_Positions[i][fast_food_INTERIOR]);
+
+		new fast_food_pickup_id = CreateDynamicPickup(1239, 1, Fast_Food_Positions[i][fast_food_X], Fast_Food_Positions[i][fast_food_Y], Fast_Food_Positions[i][fast_food_Z] + 0.10, -1, Fast_Food_Positions[i][fast_food_INTERIOR]), info[3];
+		info[0] = PICKUP_TYPE_FAST_FOOD;
+		info[1] = i; // Index
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, fast_food_pickup_id, E_STREAMER_EXTRA_ID, info);	
+	}
+	
+	// 3D Texts Bank
+	for(new i = 0; i < sizeof Bank_Interior_Positions; i++)
+	{
+		CreateDynamic3DTextLabel("Banco\n"COME_INTERACTION_MESSAGE"para realizar una operacion", 0xFFFFFFFF, Bank_Interior_Positions[i][bank_X], Bank_Interior_Positions[i][bank_Y], Bank_Interior_Positions[i][bank_Z] + 0.25, 10.0, .testlos = true, .worldid = Bank_Interior_Positions[i][bank_WORLD], .interiorid = Bank_Interior_Positions[i][bank_INTERIOR]);
+
+		new bank_pickup_id = CreateDynamicPickup(1212, 1, Bank_Interior_Positions[i][bank_X], Bank_Interior_Positions[i][bank_Y], Bank_Interior_Positions[i][bank_Z] + 0.10, Bank_Interior_Positions[i][bank_WORLD], Bank_Interior_Positions[i][bank_INTERIOR]), info[3];
+		info[0] = PICKUP_TYPE_BANK;
+		info[1] = i; // Index
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, bank_pickup_id, E_STREAMER_EXTRA_ID, info);	
+	}
+
+	for(new i = 0; i < sizeof BUY_PROPERTIES_SITES; i++)
+	{
+		CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para comprar una propiedad", 0xFFFFFFFF, BUY_PROPERTIES_SITES[i][site_X], BUY_PROPERTIES_SITES[i][site_Y], BUY_PROPERTIES_SITES[i][site_Z] + 0.25, 10.0, .testlos = true, .worldid = BUY_PROPERTIES_SITES[i][site_WORLD], .interiorid = BUY_PROPERTIES_SITES[i][site_INTERIOR]);
+
+		new bp_pckp = CreateDynamicPickup(0, 1, BUY_PROPERTIES_SITES[i][site_X], BUY_PROPERTIES_SITES[i][site_Y], BUY_PROPERTIES_SITES[i][site_Z] + 0.10, BUY_PROPERTIES_SITES[i][site_WORLD], BUY_PROPERTIES_SITES[i][site_INTERIOR]), info[3];
+		info[0] = PICKUP_TYPE_BUY_PROPERTY;
+		info[1] = i; // Index
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, bp_pckp, E_STREAMER_EXTRA_ID, info);	
+	}
+	
+	//Cajeros
+	for(new i = 0; i < sizeof ATM_BANK; i ++)
+	{
+		CreateDynamicObject(ATM_BANK[i][atm_modelid], ATM_BANK[i][atm_X], ATM_BANK[i][atm_Y], ATM_BANK[i][atm_Z], ATM_BANK[i][atm_RX], ATM_BANK[i][atm_RY], ATM_BANK[i][atm_RZ], 0, 0);
+		
+		ATM_BANK[i][atm_X] += (-0.5 * floatsin(-(ATM_BANK[i][atm_RZ] - 90.0), degrees));
+		ATM_BANK[i][atm_Y] += (-0.5 * floatcos(-(ATM_BANK[i][atm_RZ] - 90.0), degrees));
+		CreateDynamicMapIcon(ATM_BANK[i][atm_X], ATM_BANK[i][atm_Y], ATM_BANK[i][atm_Z], 52, -1, 0, 0);
+		CreateDynamic3DTextLabel("Cajero automático\n"COME_INTERACTION_MESSAGE"para realizar operaciones", 0xFFFFFFFF, ATM_BANK[i][atm_X], ATM_BANK[i][atm_Y], ATM_BANK[i][atm_Z] + 0.25, 10.0, .testlos = true, .worldid = 0, .interiorid = 0);
+	
+		new atm_pickup_id = CreateDynamicPickup(0, 1, ATM_BANK[i][atm_X], ATM_BANK[i][atm_Y], ATM_BANK[i][atm_Z] + 0.10, 0, 0), info[3];
+		info[0] = PICKUP_TYPE_ATM;
+		info[1] = i; // Index
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, atm_pickup_id, E_STREAMER_EXTRA_ID, info);
+	}
+	
+	// 3D Texts Gasolinera
+	for(new i = 0; i < sizeof Fuel_Stations; i++)
+	{
+		CreateDynamic3DTextLabel("{"#RED_COLOR"}Gasolinera\n\n{FFFFFF}Precio: {"#RED_COLOR"}5$/Litro\n"COME_INTERACTION_MESSAGE"para ver las opciones o pulsa {"#GOLD_COLOR"}'H'{ffffff} si estas en un vehiculo", 0xFFFFFFFF, Fuel_Stations[i][fs_X], Fuel_Stations[i][fs_Y], Fuel_Stations[i][fs_Z] + 0.25, 10.0, .testlos = true, .worldid = 0, .interiorid = 0);
+	
+		new fs_pickup_id = CreateDynamicPickup(1650, 1, Fuel_Stations[i][fs_X], Fuel_Stations[i][fs_Y], Fuel_Stations[i][fs_Z] + 0.10, 0, 0), info[3];
+		info[0] = PICKUP_TYPE_FUELSTATION;
+		info[1] = 0; // Nada
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, fs_pickup_id, E_STREAMER_EXTRA_ID, info);	
+	}
+
+	//24/7 Int
+	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para ver los productos disponibles", 0xFFFFFFFF, -27.964675, -89.948631, 1003.546875 + 0.25, 10.0, .testlos = true, .interiorid = 18);
+	new prd_lst_pickup = CreateDynamicPickup(19592, 1, -27.964675, -89.948631, 1003.546875 + 0.10, -1, 18), prd_info[3];
+	prd_info[0] = PICKUP_TYPE_PRODUCT_LIST;
+	prd_info[1] = 0; // Nada
+	prd_info[2] = 0; // Nada
+	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, prd_lst_pickup, E_STREAMER_EXTRA_ID, prd_info);
+
+	//Vehs venta
+	for(new i = 0; i != sizeof SELL_INFO_VEHICLES; i ++)
+	{
+		if(SELL_INFO_VEHICLES[i][sell_info_COLOR_1] == -1) SELL_INFO_VEHICLES[i][sell_info_COLOR_1] = valid_work_vehicle_colors[random(sizeof(valid_work_vehicle_colors))];
+		if(SELL_INFO_VEHICLES[i][sell_info_COLOR_2] == -1) SELL_INFO_VEHICLES[i][sell_info_COLOR_2] = valid_work_vehicle_colors[random(sizeof(valid_work_vehicle_colors))];
+		
+		new vehicle_id = INVALID_VEHICLE_ID;
+		vehicle_id = CreateVehicle(SELL_INFO_VEHICLES[i][sel_info_vehicle_MODELID], SELL_INFO_VEHICLES[i][sell_info_SPAWN_X], SELL_INFO_VEHICLES[i][sell_info_SPAWN_Y], SELL_INFO_VEHICLES[i][sell_info_SPAWN_Z], SELL_INFO_VEHICLES[i][sell_info_SPAWN_ANGLE], SELL_INFO_VEHICLES[i][sell_info_COLOR_1], SELL_INFO_VEHICLES[i][sell_info_COLOR_2], -1, false);
+		
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VALID] = true;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] = VEHICLE_TYPE_SELL;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] = SELL_INFO_VEHICLES[i][sel_info_vehicle_MODELID];
+		format(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_NUMBER_PLATE], 32, "EN VENTA");
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X] = SELL_INFO_VEHICLES[i][sell_info_SPAWN_X];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y] = SELL_INFO_VEHICLES[i][sell_info_SPAWN_Y];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z] = SELL_INFO_VEHICLES[i][sell_info_SPAWN_Z];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_ANGLE] = SELL_INFO_VEHICLES[i][sell_info_SPAWN_ANGLE];
+		
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][0] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][1] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][2] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z];
+		
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_HEALTH] = 1000.0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_PANELS] = 0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_DOORS] = 0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_LIGHTS] = 0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_TIRES] = 0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_1] = SELL_INFO_VEHICLES[i][sell_info_COLOR_1];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_2] = SELL_INFO_VEHICLES[i][sell_info_COLOR_2];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_PAINTJOB] = 3; // No paintjob
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS] = 0.0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_GAS] = 0.0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_STATE] = VEHICLE_STATE_NORMAL;
+
+		SELL_VEHICLES[vehicle_id][sell_vehicle_VALID] = true;
+		SELL_VEHICLES[vehicle_id][sell_vehicle_SHOP] = SELL_INFO_VEHICLES[i][sell_info_SHOP];
+		SELL_VEHICLES[vehicle_id][sell_vehicle_PRICE] = VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_PRICE];
+		SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL] = 1; /*VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_LEVEL];*/
+		SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA] = VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_COINS];
+		SELL_VEHICLES[vehicle_id][sell_vehicle_VIP_LEVEL] = VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_VIP_LEVEL];
+		
+		if(SELL_VEHICLES[vehicle_id][sell_vehicle_VIP_LEVEL]) SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL] = 1;
+		if(SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA]) SELL_VEHICLES[vehicle_id][sell_vehicle_PRICE] = 0;
+		
+		SetVehicleToRespawnEx(vehicle_id);
+		
+		
+		new label_str[256];
+		
+		if(SELL_VEHICLES[vehicle_id][sell_vehicle_VIP_LEVEL])
+		{
+			if(SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA])
+			{
+				format
+				(
+					label_str, 
+						sizeof label_str, 
+						"\
+							{"#PRIMARY_COLOR"}Membresía VIP requerida\n\
+							\n\
+							{"#PRIMARY_COLOR"}%s\n\n\
+							{FFFFFF}Coste: {"#PRIMARY_COLOR"}%d "SERVER_COIN"\n\
+							{FFFFFF}Nivel: {"#PRIMARY_COLOR"}%d\
+						", VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_NAME], SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA], SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL]
+				);
+			}
+			else
+			{
+				format
+				(
+					label_str, 
+						sizeof label_str, 
+						"\
+							{"#PRIMARY_COLOR"}Membresía VIP requerida\n\
+							\n\
+							{"#PRIMARY_COLOR"}%s\n\n\
+							{FFFFFF}Precio: {"#PRIMARY_COLOR"}%s$\n\
+							{FFFFFF}Nivel: {"#PRIMARY_COLOR"}%d\
+						", VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_NAME], number_format_thousand(SELL_VEHICLES[vehicle_id][sell_vehicle_PRICE]), SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL]
+				);
+			}
+		}
+		else
+		{
+			if(SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA])
+			{
+				format
+				(
+					label_str, 
+						sizeof label_str, 
+						"\
+							{"#PRIMARY_COLOR"}%s\n\n\
+							{FFFFFF}Coste: {"#PRIMARY_COLOR"}%d "SERVER_COIN"\n\
+							{FFFFFF}Nivel: {"#PRIMARY_COLOR"}%d\
+						", VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_NAME], SELL_VEHICLES[vehicle_id][sell_vehicle_EXTRA], SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL]
+				);
+			}
+			else
+			{
+				format
+				(
+					label_str, 
+						sizeof label_str, 
+						"\
+							{"#PRIMARY_COLOR"}%s\n\n\
+							{FFFFFF}Precio: {"#PRIMARY_COLOR"}%s$\n\
+							{FFFFFF}Nivel: {"#PRIMARY_COLOR"}%d\
+						", VEHICLE_INFO[GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_NAME], number_format_thousand(SELL_VEHICLES[vehicle_id][sell_vehicle_PRICE]), SELL_VEHICLES[vehicle_id][sell_vehicle_LEVEL]
+				);
+			}
+		}
+		
+		
+		SELL_VEHICLES[vehicle_id][sell_vehicle_LABEL_ID] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, 0.0, 0.0, 1.5, 10.0, .attachedvehicle = vehicle_id, .testlos = true, .worldid = 0, .interiorid = 0);
+	}
+	
+	//Concesionarios
+	for(new i = 0; i < sizeof SELL_VEHICLES_SHOPS_SPAWN; i++)
+	{
+		CreateDynamicMapIcon(SELL_VEHICLES_SHOPS_SPAWN[i][0], SELL_VEHICLES_SHOPS_SPAWN[i][1], SELL_VEHICLES_SHOPS_SPAWN[i][2], 55, -1, 0, 0);
+		CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}SALIDA DE VEHICULOS", 0xFFFFFFFF, SELL_VEHICLES_SHOPS_SPAWN[i][0], SELL_VEHICLES_SHOPS_SPAWN[i][1], SELL_VEHICLES_SHOPS_SPAWN[i][2], 10.0, .testlos = true, .worldid = 0, .interiorid = 0);
+	}
+	
+	//Notario
+	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para vender\nalguna propiedad o vehículo", 0xFFFFFFFF, -474.596282, 289.679107, 2004.584960, 10.0, .testlos = true, .interiorid = 20);
+	new nto_pickup = CreateDynamicPickup(0, 1, -474.596282, 289.679107, 2004.584960 + 0.10, -1, 20), nto_info[3];
+	nto_info[0] = PICKUP_TYPE_NOTARY;
+	nto_info[1] = 0; // Nada
+	nto_info[2] = 0; // Nada
+	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, nto_pickup, E_STREAMER_EXTRA_ID, nto_info);
+
+	//Grua
+	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para solicitar\nel servicio de grua a un vehículo", 0xFFFFFFFF, -508.645385, 322.147644, 2004.585937, 10.0, .testlos = true, .interiorid = 20);
+	new crane_pickup = CreateDynamicPickup(0, 1, -508.645385, 322.147644, 2004.585937 + 0.10, -1, 20), crn_info[3];
+	crn_info[0] = PICKUP_TYPE_CRANE;
+	crn_info[1] = 0; // Nada
+	crn_info[2] = 0; // Nada
+	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, crane_pickup, E_STREAMER_EXTRA_ID, crn_info);	
+	
+	//San Andreas Vehicles
+	for(new i = 0; i != sizeof San_Andreas_Vehicles; i ++)
+	{
+		
+		if(San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_1] == -1) San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_1] = valid_work_vehicle_colors[random(sizeof(valid_work_vehicle_colors))];
+		if(San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_2] == -1) San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_2] = valid_work_vehicle_colors[random(sizeof(valid_work_vehicle_colors))];
+		
+		new vehicle_id = INVALID_VEHICLE_ID, respawn_time = 300;
+		
+		if(San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE] == VEHICLE_TYPE_WORK)
+		{
+			if(work_info[ San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE_IN] ][work_info_TYPE] == WORK_TYPE_FAMILY)
+			{
+				respawn_time = 2700;
+			}
+		}
+		
+		vehicle_id = CreateVehicle(San_Andreas_Vehicles[i][san_andreas_vehicle_MODELID], San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_X], San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_Y], San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_Z], San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_ANGLE], San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_1], San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_2], respawn_time, false);
+		if(vehicle_id == INVALID_VEHICLE_ID) continue;
+		
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VALID] = true;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] = San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] = San_Andreas_Vehicles[i][san_andreas_vehicle_MODELID];
+		format(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_NUMBER_PLATE], 32, "%c%c%c-%04d", getRandomLetter(), getRandomLetter(), getRandomLetter(), random(9999));
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X] = San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_X];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y] = San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_Y];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z] = San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_Z];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_ANGLE] = San_Andreas_Vehicles[i][san_andreas_vehicle_SPAWN_ANGLE];
+		
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][0] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][1] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][2] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z];
+		
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_HEALTH] = 1000.0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_PANELS] = 0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_DOORS] = 0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_LIGHTS] = 0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_TIRES] = 0;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_1] = San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_1];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_2] = San_Andreas_Vehicles[i][san_andreas_vehicle_COLOR_2];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_PAINTJOB] = 3; // No paintjob
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS] = VEHICLE_INFO[ GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_MAX_GAS];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_GAS] = frandom(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS], GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS] / 3, 2);
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_STATE] = VEHICLE_STATE_NORMAL;
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VIP] = San_Andreas_Vehicles[i][san_andreas_vehicle_vip];
+		GLOBAL_VEHICLES[vehicle_id][gb_vehicle_WORLD] = San_Andreas_Vehicles[i][san_andreas_vehicle_WORLD];
+		
+		if(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] == VEHICLE_TYPE_WORK)
+		{
+			WORK_VEHICLES[vehicle_id][work_vehicle_VALID] = true;
+			WORK_VEHICLES[vehicle_id][work_vehicle_WORK] = San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE_IN];
+			WORK_VEHICLES[vehicle_id][work_vehicle_EXP] = San_Andreas_Vehicles[i][san_andreas_vehicle_TYPE_IN_EXP];
+			WORK_VEHICLES[vehicle_id][work_vehicle_NEED_DUTY] = work_info[ WORK_VEHICLES[vehicle_id][work_vehicle_WORK] ][work_info_NEED_DUTY];
+		}
+		
+		SetVehicleToRespawnEx(vehicle_id);
+		CallLocalFunction("OnSanAndreasVehicleLoad", "i", vehicle_id);
+	}
+	CallLocalFunction("OnSanAndreasVehiclesLoad", "");
+	
+	//Barreras
+	for(new i = 0; i != sizeof San_Andreas_Barriers; i ++)
+	{
+		new tmpobjid = CreateDynamicObject(966, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z], 0.0, 0.0, San_Andreas_Barriers[i][barrier_ROTATION], San_Andreas_Barriers[i][barrier_WORLD], San_Andreas_Barriers[i][barrier_INTERIOR], .streamdistance = 600.0, .drawdistance = 600.0);
+		SetDynamicObjectMaterial(tmpobjid, 0, 9514, "711_sfw", "ws_carpark2", 0xFFFFFFFF);
+		SetDynamicObjectMaterial(tmpobjid, 1, 9514, "711_sfw", "ws_carpark2", 0x00000000);
+		tmpobjid = CreateDynamicObject(968, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z] + 0.72967, 0.0, -90.0, San_Andreas_Barriers[i][barrier_ROTATION], San_Andreas_Barriers[i][barrier_WORLD], San_Andreas_Barriers[i][barrier_INTERIOR], .streamdistance = 600.0, .drawdistance = 600.0);
+		SetDynamicObjectMaterial(tmpobjid, 0, 16640, "a51", "ws_carparkwall2", 0xFFFFFFFF);
+		SetDynamicObjectMaterial(tmpobjid, 1, 16640, "a51", "ws_carparkwall2", 0x00000000);
+		San_Andreas_Barriers[i][barrier_OBJECT_ID] = tmpobjid;
+
+		new label_str[256];
+		
+		if(San_Andreas_Barriers[i][barrier_PRICE] > 0) format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}Peaje\n\n{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para pagar {"#PRIMARY_COLOR"}%s$", number_format_thousand(San_Andreas_Barriers[i][barrier_PRICE]));
+		else {
+			if(San_Andreas_Barriers[i][barrier_VEHICLE_TYPE]) format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%c%s\n\n{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para que te abran", toupper(work_info[ San_Andreas_Barriers[i][barrier_VEHICLE_TYPE_IN] ][work_info_NAME][0]), work_info[ San_Andreas_Barriers[i][barrier_VEHICLE_TYPE_IN] ][work_info_NAME][1]);
+			else format(label_str, sizeof label_str, "{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para que te abran");
+		}
+
+		CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z] + 1.5, 15.0, .worldid = San_Andreas_Barriers[i][barrier_WORLD], .interiorid = San_Andreas_Barriers[i][barrier_INTERIOR], .testlos = true);
+
+		San_Andreas_Barriers[i][barrier_PLAYER_X] = San_Andreas_Barriers[i][barrier_X] + (3.4 * floatsin(-(San_Andreas_Barriers[i][barrier_ROTATION] + 90.0), degrees));
+		San_Andreas_Barriers[i][barrier_PLAYER_Y] = San_Andreas_Barriers[i][barrier_Y] + (3.4 * floatcos(-(San_Andreas_Barriers[i][barrier_ROTATION] + 90.0), degrees));
+		San_Andreas_Barriers[i][barrier_PLAYER_Z] = San_Andreas_Barriers[i][barrier_Z];
+	}
+	
+	//polciais
+	for(new i = 0; i != sizeof POLICE_GARAGE_DOORS; i ++)
+	{
+		POLICE_GARAGE_DOORS[i][police_gdoor_OBJECT_ID] = CreateDynamicObject(POLICE_GARAGE_DOORS[i][police_gdoor_MODELID], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_X], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_Y], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_Z], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_RX], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_RY], POLICE_GARAGE_DOORS[i][police_gdoor_CLOSED_RZ], 0, 0);
+	}
+	for(new i = 0; i != sizeof POLICE_DOORS; i ++)
+	{
+		POLICE_DOORS[i][police_door_OBJECT_ID] = CreateDynamicObject(POLICE_DOORS[i][police_door_MODELID], POLICE_DOORS[i][police_door_X], POLICE_DOORS[i][police_door_Y], POLICE_DOORS[i][police_door_Z], 0.0, 0.0, POLICE_DOORS[i][police_door_RZ], POLICE_DOORS[i][police_door_WORLD], POLICE_DOORS[i][police_door_INTERIOR]);
+		CreateDynamic3DTextLabel("Pulsa {"#PRIMARY_COLOR"} [ ENTER ] {FFFFFF}para abrir la puerta", 0xFFFFFFFF, POLICE_DOORS[i][police_door_X], POLICE_DOORS[i][police_door_Y], POLICE_DOORS[i][police_door_Z] + 1.25, 5.0, .testlos = false, .interiorid = POLICE_DOORS[i][police_door_INTERIOR], .worldid = POLICE_DOORS[i][police_door_WORLD]);
+	}
+
+	for(new i = 0; i != sizeof POLICE_START_WORK; i ++)
+	{
+		CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, POLICE_START_WORK[i][police_start_X], POLICE_START_WORK[i][police_start_Y], POLICE_START_WORK[i][police_start_Z], 5.0, .testlos = true, .worldid = POLICE_START_WORK[i][police_start_WORLD], .interiorid = POLICE_START_WORK[i][police_start_INTERIOR]);
+		new start_working = CreateDynamicPickup(0, 1, POLICE_START_WORK[i][police_start_X], POLICE_START_WORK[i][police_start_Y], POLICE_START_WORK[i][police_start_Z] + 0.10, POLICE_START_WORK[i][police_start_WORLD], POLICE_START_WORK[i][police_start_INTERIOR]), info[3];
+		info[0] = PICKUP_TYPE_POLICE_WORK;
+		info[1] = i; // Index
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, start_working, E_STREAMER_EXTRA_ID, info);
+	}
+
+	for(new i = 0; i != sizeof POLICE_EQUIP; i ++)
+	{
+		CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para equiparte", 0xFFFFFFFF, POLICE_EQUIP[i][police_equip_X], POLICE_EQUIP[i][police_equip_Y], POLICE_EQUIP[i][police_equip_Z], 5.0, .testlos = true, .worldid = POLICE_EQUIP[i][police_equip_WORLD], .interiorid = POLICE_EQUIP[i][police_equip_INTERIOR]);
+		new equipment_pickup = CreateDynamicPickup(0, 1, POLICE_EQUIP[i][police_equip_X], POLICE_EQUIP[i][police_equip_Y], POLICE_EQUIP[i][police_equip_Z] + 0.10, POLICE_EQUIP[i][police_equip_WORLD], POLICE_EQUIP[i][police_equip_INTERIOR]), info[3];
+		info[0] = PICKUP_TYPE_EQUIPMENT;
+		info[1] = i; // Index
+		info[2] = 0; // Nada
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, equipment_pickup, E_STREAMER_EXTRA_ID, info);
+	}
+	
+	Jail_Areas[0] = CreateDynamicRectangle(258.236938, 72.319061, 273.117279, 95.841438, -1, 6);
+	Jail_Areas[1] = CreateDynamicRectangle(211.001739, 117.171920, 236.010986, 104.004219, -1, 10);
+	Jail_Areas[2] = CreateDynamicRectangle(204.957885, 180.868392, 183.743148, 168.624618, -1, 3);
+	Jail_Areas[3] = CreateDynamicRectangle(366.3146, 1951.8367, 17.6406, 78.4408, -1, 13);
+
+	//Safe Zones
+	for(new i = 0; i != sizeof SAFE_ZONES; i ++)
+	{
+		SAFE_ZONES[i][safe_zone_AREA_ID] = CreateDynamicRectangle(SAFE_ZONES[i][safe_zone_MIN_X], SAFE_ZONES[i][safe_zone_MIN_Y], SAFE_ZONES[i][safe_zone_MAX_X], SAFE_ZONES[i][safe_zone_MAX_Y], SAFE_ZONES[i][safe_zone_WORLD], SAFE_ZONES[i][safe_zone_INTERIOR]);
+
+		new info[2];
+		info[0] = AREA_TYPE_SAFE_ZONE;
+		info[1] = i;
+		Streamer_SetArrayData(STREAMER_TYPE_AREA, SAFE_ZONES[i][safe_zone_AREA_ID], E_STREAMER_EXTRA_ID, info);
+		SAFE_ZONES[i][safe_zone_GANG_ZONE] = GangZoneCreate(SAFE_ZONES[i][safe_zone_MIN_X], SAFE_ZONES[i][safe_zone_MIN_Y], SAFE_ZONES[i][safe_zone_MAX_X], SAFE_ZONES[i][safe_zone_MAX_Y]);
+	}
+
+	//Trabajos
+	for(new i = 1; i < E_WORKS; i ++)
+	{
+		if(!obtain_work_coords[i][obtain_work_AVAILABLE]) continue;
+		switch(work_info[i][work_info_TYPE])
+		{
+			case WORK_TYPE_NORMAL:
+			{
+				if(obtain_work_coords[i][obtain_work_LABELS])
+				{
+					new label_str[256];
+
+					format(label_str, sizeof label_str, "{"#BLUE_COLOR"}%s\n\n{FFFFFF}Nivel: {"#GOLD_COLOR"}%d {ffffff}En adelante\n"COME_INTERACTION_MESSAGE"para trabajar aqui", work_info[i][work_info_NAME], work_info[i][work_info_LEVEL]);
+					CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, obtain_work_coords[i][obtain_work_X], obtain_work_coords[i][obtain_work_Y], obtain_work_coords[i][obtain_work_Z], 10.0, .testlos = true, .interiorid = obtain_work_coords[i][obtain_work_INTERIOR]);
+
+					new work_pickup = CreateDynamicPickup(1314, 1, obtain_work_coords[i][obtain_work_X], obtain_work_coords[i][obtain_work_Y], obtain_work_coords[i][obtain_work_Z], -1, obtain_work_coords[i][obtain_work_INTERIOR]), info[3];
+					info[0] = PICKUP_TYPE_OBTAIN_WORK;
+					info[1] = i; // Index
+					info[2] = 0; // Nada
+					Streamer_SetArrayData(STREAMER_TYPE_PICKUP, work_pickup, E_STREAMER_EXTRA_ID, info);
+				}
+				if(obtain_work_coords[i][obtain_work_MAP_ICON]) CreateDynamicMapIcon(obtain_work_coords[i][obtain_work_MAP_ICON_X], obtain_work_coords[i][obtain_work_MAP_ICON_Y], obtain_work_coords[i][obtain_work_MAP_ICON_Z], obtain_work_coords[i][obtain_work_MAP_ICON_ID], -1, 0, 0);
+			}
+		}
+	}
+
+	//Random taximeters
+	for(new i = 0; i != MAX_VEHICLES; i++) TAXI_METER_VEHICLE[i][veh_taxi_meter_PRICE] = minrand(2, 8);
+
+	//Carga camioneros
+	for(new i = 0; i != sizeof LoadTrucksPoints; i ++)
+	{
+		CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/cargar {FFFFFF}para cargar el camion", 0xFFFFFFFF, LoadTrucksPoints[i][0], LoadTrucksPoints[i][1], LoadTrucksPoints[i][2], 10.0, .testlos = true, .interiorid = 0);
+		CreateDynamicPickup(19135, 1, LoadTrucksPoints[i][0], LoadTrucksPoints[i][1], LoadTrucksPoints[i][2], -1, 0);
+	}
+
+	//Mecánico
+	Mechanic_Areas[0] = CreateDynamicRectangle(1808.799194, -1450.352661, 1837.703979, -1414.697753, 0, 0);
+	Streamer_SetArrayData(STREAMER_TYPE_AREA, Mechanic_Areas[0], E_STREAMER_EXTRA_ID, { AREA_TYPE_MECHANIC });
+
+	for(new i; i != sizeof MechanicStartWorkingCoords; i++)
+		CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/mecanico {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, MechanicStartWorkingCoords[i][0], MechanicStartWorkingCoords[i][1], MechanicStartWorkingCoords[i][2], 5.0, .testlos = true, .interiorid = 0);
+
+	for(new i; i != sizeof MechanicBuyPiecesCoords; i++)
+		CreateDynamic3DTextLabel("Piezas de mecánico\nEscribe {"#PRIMARY_COLOR"}/piezas [cantidad] {FFFFFF}para comprar piezas\nPrecio de pieza: {"#PRIMARY_COLOR"}50$", 0xFFFFFFFF, MechanicBuyPiecesCoords[i][0], MechanicBuyPiecesCoords[i][1], MechanicBuyPiecesCoords[i][2], 5.0, .testlos = true, .interiorid = 0);
+
+	for(new i; i != sizeof MechanicBuyKitsCoords; i++)
+		CreateDynamic3DTextLabel("Kits de reparacion\n\nEscribe {"#PRIMARY_COLOR"}/kit {FFFFFF}para comprar un kit de reparacion\nPrecio del kit: {"#PRIMARY_COLOR"}1.000$", 0xFFFFFFFF, MechanicBuyKitsCoords[i][0], MechanicBuyKitsCoords[i][1], MechanicBuyKitsCoords[i][2], 5.0, .testlos = true, .interiorid = 0);
+
+	//talador
+	CreateDynamicPickup(19793, 1, -527.670349, -97.338562, 63.176174, 0, 0);
+	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/talar {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, -527.670349, -97.338562, 63.176174, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
+
+	//Pizzero
+	CreateDynamicPickup(1582, 1, 2097.355712, -1818.040771, 13.382812, 0, 0);
+	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/pizzero {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, 2097.355712, -1818.040771, 13.382812, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
+
+	//Medico
+	CreateDynamicPickup(1275, 1, -2029.751342, -114.503044, 1035.171875, -1, 3);
+	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/medico {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, -2029.751342, -114.503044, 1035.171875, 5.0, .testlos = true, .interiorid = 3);
+
+	for(new i; i != sizeof MedicalBuyKitsCoords; i++)
+		CreateDynamic3DTextLabel("Botiquines\n\nEscribe {"#PRIMARY_COLOR"}/botiquin {FFFFFF}para comprar un botiquín\nPrecio del botiquín: {"#PRIMARY_COLOR"}5.000$", 0xFFFFFFFF, MedicalBuyKitsCoords[i][0], MedicalBuyKitsCoords[i][1], MedicalBuyKitsCoords[i][2], 5.0, .testlos = true);
+
+	//Trash
+	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/basurero {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, -1906.577514, -1756.457519, 22.079319, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
+
+	//Ruta 0
+	CreateTrashCheckpoint(0, 1440, -1812.46228, -558.37744, 15.73948,   0.00000, 0.00000, 274.24359);
+	CreateTrashCheckpoint(0, 1440, -1793.84106, -312.50452, 24.46057,   0.00000, 0.00000, 268.49271);
+	CreateTrashCheckpoint(0, 1440, -1801.20825, 115.39587, 14.55550,   0.00000, 0.00000, 280.09882);
+	CreateTrashCheckpoint(0, 1440, -1750.40051, 323.11810, 6.61720,   0.00000, 0.00000, 319.06424);
+	CreateTrashCheckpoint(0, 1440, -1814.43311, 511.15622, 28.66113,   0.00000, 9.00000, 304.31201);
+	CreateTrashCheckpoint(0, 1440, -1982.79871, 614.85687, 34.61121,   0.00000, 0.00000, 0.00000);
+	CreateTrashCheckpoint(0, 1440, -2229.42896, 575.27448, 34.58952,   0.00000, 0.00000, 0.00000);
+	CreateTrashCheckpoint(0, 1440, -2385.20020, 513.64594, 28.11606,   0.00000, 0.00000, 282.48959);
+	CreateTrashCheckpoint(0, 1440, -2258.51782, 221.79150, 34.74878,   0.00000, 0.00000, 90.00000);
+	CreateTrashCheckpoint(0, 1440, -2266.30273, -206.86926, 34.86986,   0.00000, 0.00000, 90.00000);
+	CreateTrashCheckpoint(0, 1440, -1995.48499, -771.90076, 31.56746,   0.00000, 0.00000, 90.00000);
+		//Ruta 1
+	CreateTrashCheckpoint(1, 1440, -2211.24414, -964.98248, 38.68247,   0.00000, 2.50000, 286.39740);
+	CreateTrashCheckpoint(1, 1440, -2424.54443, -595.71997, 131.88649,   0.00000, -4.50000, 303.65921);
+	CreateTrashCheckpoint(1, 1440, -2602.82544, -478.18484, 68.15035,   0.00000, 0.00000, 21.71607);
+	CreateTrashCheckpoint(1, 1440, -2353.62256, -396.48764, 78.42006,   0.00000, -3.50000, 305.07410);
+	CreateTrashCheckpoint(1, 1440, -2756.29199, -500.66721, 6.77589,   0.00000, 0.00000, 316.44635);
+	CreateTrashCheckpoint(1, 1440, -2811.07056, -346.85269, 6.66456,   0.00000, 0.00000, 259.86459);
+	CreateTrashCheckpoint(1, 1440, -2415.51563, -128.34013, 34.82273,   0.00000, 0.00000, 250.60507);
+	CreateTrashCheckpoint(1, 1440, -2028.09985, -76.42242, 34.70956,   0.00000, 0.00000, 0.00000);
+		//Ruta 2
+	CreateTrashCheckpoint(2, 1440, -2193.88306, -2156.55347, 46.46848,   0.00000, -10.00000, 46.48320);
+	CreateTrashCheckpoint(2, 1440, -2208.01904, -2280.10645, 30.12751,   0.00000, 0.00000, 331.91882);
+	CreateTrashCheckpoint(2, 1440, -2125.33594, -2256.24902, 30.10599,   0.00000, 0.00000, 326.47290);
+	CreateTrashCheckpoint(2, 1440, -2101.86353, -2313.20093, 30.14946,   0.00000, 0.00000, 42.68287);
+	CreateTrashCheckpoint(2, 1440, -2183.69775, -2449.03003, 30.01783,   0.00000, 0.00000, 51.16318);
+	CreateTrashCheckpoint(2, 1440, -2328.98047, -2704.17358, 44.41791,   6.17998, 5.88000, 340.20822);
+	CreateTrashCheckpoint(2, 1440, -2601.78345, -2334.39746, 10.50614,   0.00000, 0.00000, 41.64481);
+	
+	//talador arboles
+	Lumberjack_Area = CreateDynamicRectangle(-613.953796, -209.777252, -381.961181, -6.355076, 0, 0);
+	for(new i = 0; i != sizeof LUMBER_TREES; i ++)
+	{
+		LUMBER_TREES[i][lumber_tree_OBJECT_ID] = CreateDynamicObject(LUMBER_TREES[i][lumber_tree_MODELID], LUMBER_TREES[i][lumber_tree_X], LUMBER_TREES[i][lumber_tree_Y], LUMBER_TREES[i][lumber_tree_Z], LUMBER_TREES[i][lumber_tree_RX], LUMBER_TREES[i][lumber_tree_RY], LUMBER_TREES[i][lumber_tree_RZ], 0, 0);
+		
+		new label_str[256];
+		format(label_str, sizeof label_str, "{f46530}Árbol (%d)\n\n{FFFFFF}Pulsa {f9d834}[ N ] {FFFFFF}para talar el árbol.", i);
+		LUMBER_TREES[i][lumber_tree_LABEL] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, LUMBER_TREES[i][lumber_tree_X], LUMBER_TREES[i][lumber_tree_Y], LUMBER_TREES[i][lumber_tree_Z] + 1.5, 5.0, .testlos = false, .worldid = 0, .interiorid = 0);
+	}
+	
+	//Agricultor
+	Farmer_Area = CreateDynamicCircle(1461.8894, -83.2621, 65.0, 0, 0);
+	CreateDynamicMapIcon(1461.8894, -83.2621, 65.0, 53, -1, 0, 0);
+	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/semillas {FFFFFF}para comprar semillas", 0xFFFFFFFF, 1566.521606, 31.370532, 24.16406, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
+	
+	//Cosechador
+	Harvest_Area = CreateDynamicRectangle(-428.336059, -1667.658569, -116.565414, -1220.122070, 0, 0);
+	return 1;
+}
+	
+LoadAntiCheatInfo()
 {
 	new File:AC = fopen("SERVER/AC.txt", io_read), ac_str[128], ac_num;
 	if(AC)
@@ -30362,9 +30092,7 @@ CMD:cleanproperties(playerid, params[])
 		if(PROPERTY_INFO[i][property_SOLD])
 		{
 			PROPERTY_INFO[i][property_SOLD] = false;
-			PROPERTY_INFO[i][property_CREW] = false;
 			PROPERTY_INFO[i][property_OWNER_ID] = 0;
-			PROPERTY_INFO[i][property_CREW_ID] = 0;
 			format(PROPERTY_INFO[i][property_NAME], 24, "PROPIEDAD %d", PROPERTY_INFO[i][property_ID]);
 			
 			new label_str[256], info[3];
@@ -30546,7 +30274,7 @@ CMD:osetname(playerid, params[])
 											"\
 												Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
 												{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n\
-												{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsta {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
+												{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
 											", PROPERTY_INFO[i][property_ID], new_name
 										);
 										UpdateDynamic3DTextLabelText(PROPERTY_INFO[i][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
