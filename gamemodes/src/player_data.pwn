@@ -27,7 +27,6 @@ stock ClearPlayerTempData(playerid)
     pTemp(playerid)[pt_SELECT_BANK_TRANSFER_ACCOUNT] = 0;
     pTemp(playerid)[pt_SELECT_BANK_TRANSFER_ID] = 0;
     pTemp(playerid)[pt_PLAYER_IN_ATM] = false;
-    pTemp(playerid)[pt_PHONE_COMMANDS_MESSAGE] = false;
     pTemp(playerid)[pt_PLAYER_IN_CALL] = false;
     pTemp(playerid)[pt_PLAYER_PHONE_CALL_STATE] = false;
     pTemp(playerid)[pt_PLAYER_PHONE_CALL_PLAYERID] = false;

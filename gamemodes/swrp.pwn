@@ -382,7 +382,7 @@ enum
 	DIALOG_TRICKS_MEDICINE,
 	DIALOG_TRICKS_CANNABIS,
 	DIALOG_TRICKS_CRACK,
-	DIALOG_TRICKS_VIP,
+	DIALOG_TRICKS_COINS,
 	DIALOG_TRICKS_WEAPON,
 	DIALOG_VEHICLE_BOOT,
 	DIALOG_VEHICLE_BOOT_DELETE_ALL,
@@ -471,7 +471,10 @@ enum
 	DIALOG_FUEL_STATION,
 	DIALOG_FUEL,
 	DIALOG_FUEL_DRUM_CONFIRM,
-	DIALOG_INVENTORY
+	DIALOG_INVENTORY,
+	DIALOG_PLAYER_POCKET,
+	DIALOG_PLAYER_POCKET_OPTIONS,
+	DIALOG_PLAYER_POCKET_DELETE_ALL
 }
 
 enum
@@ -2796,7 +2799,6 @@ enum Temp_Enum
 	pt_SELECT_BANK_TRANSFER_ACCOUNT,
 	pt_SELECT_BANK_TRANSFER_ID,
 	bool:pt_PLAYER_IN_ATM,
-	bool:pt_PHONE_COMMANDS_MESSAGE,
 	bool:pt_PLAYER_IN_CALL,
 	pt_PLAYER_PHONE_CALL_STATE,
 	pt_PLAYER_PHONE_CALL_PLAYERID,
@@ -2957,7 +2959,8 @@ enum Temp_Enum
 	pt_LAST_PICKUP_CHECKED,
 	pt_GLOBAL_TIMER,
 	pt_INVENTORY_SELECTED_PLAYER,
-	pt_INVENTORY_PLAYERID
+	pt_INVENTORY_PLAYERID,
+	pt_POCKET_SLOT_SELECTED
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3197,7 +3200,7 @@ new Supermarket_Product_List[][Supermarket_Enum] =
 	{PRODUCT_TYPE_PHONE, "Teléfono", 2500, 0.0, 0.0, 0, 0},
 	{PRODUCT_TYPE_PHONE_RESOLVER, "Guía telefonica", 1500, 0.0, 0.0, 0, 0},
 	{PRODUCT_TYPE_GPS, "Localizador GPS", 500, 0.0, 0.0, 0, 0},
-	{PRODUCT_TYPE_FOOD, "Snacks", 300, 1.2, 0.2, 0, 6},
+	{PRODUCT_TYPE_FOOD, "Snacks", 25, 1.2, 0.2, 0, 6},
 	{PRODUCT_TYPE_DRINK, "Agua mineral", 50, 0.0, 2.3, 0, 1}
 };
 
@@ -3993,6 +3996,18 @@ new PI[MAX_PLAYERS][enum_PI];
 forward OnPlayerRegister(playerid);
 forward OnPlayerLogin(playerid);
 
+#define MAX_PLAYER_POCKET_OBJECTS 10
+enum Player_Pocket_Enum
+{
+	bool:player_pocket_VALID,
+	player_pocket_object_ID,
+	player_pocket_object_NAME[24],
+	Float:player_pocket_object_HUNGRY,
+	Float:player_pocket_object_THIRST,
+	player_pocket_object_DRUNK,
+}
+new PLAYER_POCKET[MAX_PLAYERS][MAX_PLAYER_POCKET_OBJECTS][Player_Pocket_Enum]; // PP (PlayerPocket)
+
 new 
 	DIALOG_FOOD_PIZZA_String[800],
 	DIALOG_FOOD_CLUCKIN_String[800],
@@ -4299,6 +4314,9 @@ ResetPlayerVariables(playerid)
 	static const tmp_PI[enum_PI]; PI[playerid] = tmp_PI;
 
 	static const temp_PLAYER_TEMP[Temp_Enum]; PlayerTemp[playerid] = temp_PLAYER_TEMP;
+
+	static const temp_PLAYER_POCKET[Player_Pocket_Enum];
+	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++) PLAYER_POCKET[playerid][i] = temp_PLAYER_POCKET;
 
 	static const temp_PLAYER_TOYS[Player_Toys_Info];
 	for(new i = 0; i != MAX_VIP_TOYS; i ++) PLAYER_TOYS[playerid][i] = temp_PLAYER_TOYS;
@@ -6064,20 +6082,6 @@ CMD:ayuda(playerid, params[])
 	return 1;
 }
 
-CMD:accesorios(playerid, params[])
-{
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
-	ShowDialog(playerid, DIALOG_PLAYER_TOYS);
-	return 1;
-}
-
-CMD:armas(playerid, params[])
-{
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
-	ShowDialog(playerid, DIALOG_PLAYER_WEAPONS);
-	return 1;
-}
-
 CMD:toys(playerid, params[])
 {
 	if(PlayerTemp[playerid][pt_INTERIOR_INDEX] == -1) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
@@ -6160,24 +6164,11 @@ CMD:gcp(playerid, params[])
 CMD:movil(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
-	if(!PI[playerid][pPHONE_NUMBER])
-	{
-		SendMessage(playerid, "No tienes ningun teléfono, puedes ir a cualquier 24/7 para comprar uno.");
-		return 1;
-	}
-	if(PlayerTemp[playerid][pt_PLAYER_IN_CALL]) SendMessage(playerid, "Estás en una llamada.");
-	
-	if(!PlayerTemp[playerid][pt_PHONE_COMMANDS_MESSAGE])
-	{
-		PlayerTemp[playerid][pt_PHONE_COMMANDS_MESSAGE] = true;
-		SendClientMessagef(playerid, -1, "Recuerda que también puedes usar /agenda, /llamar, /sms.");
-	}
-	
-	Auto_SendPlayerAction(playerid, "mira su teléfono.");
-	ShowDialog(playerid, DIALOG_PHONE);
+	ShowPlayerInventoryMenu(playerid, playerid);
 	return 1;
 }
 alias:movil("celular", "telefono", "tlf");
+
 
 CMD:guia(playerid, params[])
 {
@@ -6561,249 +6552,305 @@ GetPropertyIndexByID(id)
 #define TIME_BETWEEN_GIVE_CASH	30 // segundos
 CMD:dar(playerid, params[])
 {
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
-	if(PI[playerid][pLEVEL] < 2) return SendClientMessagef(playerid, -1, "Debes ser al menos nivel 2 para usar este comando.");
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
+	if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para usar este comando.");
 	
 	new option[24], to_playerid, extra;
-	if(sscanf(params, "s[24]ud", option, to_playerid, extra)) return SendClientMessagef(playerid, -1, "Error en los parámetros, utilice {"#SILVER_COLOR"}/man dar.");
+	if(sscanf(params, "s[24]ud", option, to_playerid, extra)) return SendMessage(playerid, "Error en los parámetros, utilice {"#SILVER_COLOR"}/man dar.");
 	
-	if(!IsPlayerConnected(to_playerid)) return SendClientMessagef(playerid, -1, "El jugador no está conectado.");
+	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "El jugador no está conectado.");
 	new Float:pos[3]; GetPlayerPos(to_playerid, pos[0], pos[1], pos[2]);
 	if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
-	if(pTemp(to_playerid)[pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "No puedes darle nada a este jugador ahora.");
+	if(PLAYER_TEMP[to_playerid][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes darle nada a este jugador ahora.");
 	
 	switch(YHash(option, false))
 	{
 		case _I<dinero>:
 		{
-			if(gettime() < PlayerTemp[playerid][pt_LAST_GIVE_MONEY_TIME] + TIME_BETWEEN_GIVE_CASH)
+			if(gettime() < PLAYER_TEMP[playerid][pt_LAST_GIVE_MONEY_TIME] + TIME_BETWEEN_GIVE_CASH)
 			{
-				new time = TIME_BETWEEN_GIVE_CASH - (gettime() - PlayerTemp[playerid][pt_LAST_GIVE_MONEY_TIME]);
-				SendClientMessagef(playerid, -1, "Debes de esperar %s minutos para volver a dar dinero.", TimeConvert(time));
+				new time = TIME_BETWEEN_GIVE_CASH - (gettime() - PLAYER_TEMP[playerid][pt_LAST_GIVE_MONEY_TIME]);
+				SendMessagef(playerid, "Debes de esperar %s minutos para volver a dar dinero.", TimeConvert(time));
 				return 1;
 			}
 			
-			if(extra < 0 || extra > PI[playerid][pCASH]) return SendClientMessagef(playerid, -1, "Cantidad de dinero incorrecta.");
-			if(extra > 30000000) return SendClientMessagef(playerid, -1, "Para dar tanto dinero tienes que hacerlo a través de transferencias bancarias.");
+			if(extra < 0 || extra > PI[playerid][pCASH]) return SendMessage(playerid, "Cantidad de dinero incorrecta.");
+			if(extra > 30000000) return SendMessage(playerid, "Para dar tanto dinero tienes que hacerlo a través de transferencias bancarias.");
 			
 			if(GivePlayerCash(playerid, -extra, true, true) && GivePlayerCash(to_playerid, extra, true, false)) {
-				SendClientMessagef(playerid, -1, "Le has dado %s dolares a %s.", number_format_thousand(extra), pTemp(to_playerid)[pt_RP_NAME]);
-				SendClientMessagef(to_playerid, -1, "%s te ha dado %s dolares.", PlayerTemp[playerid][pt_RP_NAME], number_format_thousand(extra));
+				SendMessagef(playerid, "Le has dado ~g~%s dólares~w~ a %s.", number_format_thousand(extra), PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+				SendMessagef(to_playerid, "%s te ha dado ~g~%s dólares~w~.", PLAYER_TEMP[playerid][pt_RP_NAME], number_format_thousand(extra));
 				
 				new action[64];
-				format(action, sizeof action, "le da dinero a %s.", pTemp(to_playerid)[pt_RP_NAME]);
+				format(action, sizeof action, "le da dinero a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 				Auto_SendPlayerAction(playerid, action);
-				PlayerTemp[playerid][pt_LAST_GIVE_MONEY_TIME] = gettime();
+				PLAYER_TEMP[playerid][pt_LAST_GIVE_MONEY_TIME] = gettime();
 			}
+		}
+		case _I<alimento>:
+		{
+			if(extra < 1 || extra > MAX_PLAYER_POCKET_OBJECTS) return SendMessage(playerid, "~r~Modo de uso: ~w~/dar alimento [ID o Nombre] [Slot /n]");
+		
+			extra --;
+			
+			if(!PLAYER_POCKET[playerid][extra][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
+			
+			new to_player_slot = GetEmptyPlayerPocketSlot(to_playerid);
+			if(to_player_slot == -1)
+			{
+				PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
+				SendMessage(playerid, "El jugador no tiene más espacio entre sus alimentos.");
+				return 1;
+			}
+			
+			new action[64];
+			format(action, sizeof action, "le da su %s a %s.", PLAYER_POCKET[playerid][extra][player_pocket_object_NAME], PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			Auto_SendPlayerAction(playerid, action);
+			
+			TransferPlayerPocketObject(playerid, extra, to_playerid, to_player_slot);
 		}
 		case _I<medicamentos>:
 		{
-			if(extra <= 0 || extra > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pMEDICINE]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad.");
+			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(extra > PI[playerid][pMEDICINE]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
 			PI[playerid][pMEDICINE] -= extra;
 			PI[to_playerid][pMEDICINE] += extra;
 			
-			SendClientMessagef(playerid, -1, "Le has dado %d gramos de medicamentos a %s.", extra, pTemp(to_playerid)[pt_RP_NAME]);
-			SendClientMessagef(to_playerid, -1, "%s te ha dado %d gramos de medicamentos.", PlayerTemp[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado ~g~%d gramos~w~ de medicamentos a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado ~g~%d gramos~w~ de medicamentos.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
 	
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", pTemp(to_playerid)[pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		case _I<marihuana>:
 		{
-			if(extra <= 0 || extra > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pCANNABIS]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad.");
+			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(extra > PI[playerid][pCANNABIS]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
 			PI[playerid][pCANNABIS] -= extra;
 			PI[to_playerid][pCANNABIS] += extra;
 			
-			SendClientMessagef(playerid, -1, "Le has dado %dg de marihuana a %s.", extra, pTemp(to_playerid)[pt_RP_NAME]);
-			SendClientMessagef(to_playerid, -1, "%s te ha dado %dg de marihuana.", PlayerTemp[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado %dg de marihuana a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado %dg de marihuana.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
 			
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", pTemp(to_playerid)[pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		case _I<crack>:
 		{
-			if(extra <= 0 || extra > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pCRACK]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad.");
+			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(extra > PI[playerid][pCRACK]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
 			PI[playerid][pCRACK] -= extra;
 			PI[to_playerid][pCRACK] += extra;
 			
-			SendClientMessagef(playerid, -1, "Le has dado %d gramos de crack a %s.", extra, pTemp(to_playerid)[pt_RP_NAME]);
-			SendClientMessagef(to_playerid, -1, "%s te ha dado %d gramos de crack.", PlayerTemp[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado ~g~%d gramos~w~ de crack a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado ~g~%d gramos~w~ de crack.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
 			
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", pTemp(to_playerid)[pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		case _I<arma>:
 		{
-			if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendClientMessagef(playerid, -1, "Los policías no pueden dar armas.");
-			if(extra < 0 || extra >= sizeof PLAYER_WEAPONS[]) return ErrorCommandParams(playerid, "/dar arma [ID o Nombre] [Slot /armas]");
+			if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "Los policías no pueden dar armas.");
+			if(extra < 0 || extra >= sizeof PLAYER_WEAPONS[]) return SendMessage(playerid, "~r~Modo de uso: ~w~/dar arma [ID o Nombre] [Slot /armas]");
 		
-			if(!PLAYER_WEAPONS[playerid][extra][player_weapon_VALID]) return SendClientMessagef(playerid, -1, "No tienes nigun arma en ese slot.");
+			if(!PLAYER_WEAPONS[playerid][extra][player_weapon_VALID]) return SendMessage(playerid, "No tienes nigún arma en ese slot.");
 			
-			if(PI[to_playerid][pLEVEL] < 2) return SendClientMessagef(playerid, -1, "La otra persona tiene que ser al menos nivel 2.");
+			if(PI[to_playerid][pLEVEL] < 2) return SendMessage(playerid, "La otra persona tiene que ser al menos nivel 2.");
 			if(PLAYER_WEAPONS[to_playerid][extra][player_weapon_VALID])
 			{
 				PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-				SendClientMessagef(playerid, -1, "El jugador ya tiene un arma en ese slot.");
+				SendMessage(playerid, "El jugador ya tiene un arma en ese slot.");
 				return 1;
 			}
 			
-			SendClientMessagef(playerid, -1, "Le has dado tu '%s' a %s.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME], pTemp(to_playerid)[pt_RP_NAME]);
-			SendClientMessagef(to_playerid, -1, "%s te ha dado su '%s'.", PlayerTemp[playerid][pt_RP_NAME], WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME]);
+			SendMessagef(playerid, "~w~Le has dado tu ~g~'%s'~w~ a %s.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME], PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado su ~g~'%s'~w~.", PLAYER_TEMP[playerid][pt_RP_NAME], WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME]);
 			
 			new action[64];
-			format(action, sizeof action, "le da un arma a %s.", pTemp(to_playerid)[pt_RP_NAME]);
+			format(action, sizeof action, "le da un arma a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 			
 			TransferPlayerWeapon(playerid, extra, to_playerid);
 		}
 		case _I<kit>:
 		{
-			if(extra <= 0 || extra > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pMECHANIC_KITS]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad.");
+			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(extra > PI[playerid][pMECHANIC_KITS]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
 			PI[playerid][pMECHANIC_KITS] -= extra;
 			PI[to_playerid][pMECHANIC_KITS] += extra;
 			
-			SendClientMessagef(playerid, -1, "Le has dado %d kits de reparacion a %s.", extra, pTemp(to_playerid)[pt_RP_NAME]);
-			SendClientMessagef(to_playerid, -1, "%s te ha dado %d kits de reparacion.", PlayerTemp[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado %d kits de reparación a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado %d kits de reparación.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
 			
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", pTemp(to_playerid)[pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		case _I<botiquin>:
 		{
-			if(extra <= 0 || extra > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pMEDICAL_KITS]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad.");
+			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(extra > PI[playerid][pMEDICAL_KITS]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
 			PI[playerid][pMEDICAL_KITS] -= extra;
 			PI[to_playerid][pMEDICAL_KITS] += extra;
 			
-			SendClientMessagef(playerid, -1, "Le has dado %d botiquines a %s.", extra, pTemp(to_playerid)[pt_RP_NAME]);
-			SendClientMessagef(to_playerid, -1, "%s te ha dado %d botiquines.", PlayerTemp[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado %d botiquines a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado %d botiquines.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
 			
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", pTemp(to_playerid)[pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
-		default: SendClientMessagef(playerid, -1, "Error en los parámetros, utilice /man dar.");
+		default: SendMessage(playerid, "Error en los parámetros, utilice ~r~/man dar~w~.");
 	}
 	return 1;
 }
 
 CMD:vender(playerid, params[])
 {
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
-	if(PI[playerid][pLEVEL] < 2) return SendClientMessagef(playerid, -1, "Debes ser al menos nivel 2 para usar este comando.");
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
+	if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para usar este comando.");
 	
 	new option[24], to_playerid, extra, price;
-	if(sscanf(params, "s[24]udd", option, to_playerid, extra, price)) return SendClientMessagef(playerid, -1, "Error en los parámetros, utilice /man vender.");
+	if(sscanf(params, "s[24]udd", option, to_playerid, extra, price)) return SendMessage(playerid, "Error en los parámetros, utilice ~r~/man vender~w~.");
 	
-	if(price <= 0 || price > 10000000) return SendClientMessagef(playerid, -1, "El precio no es válido.");
-	if(!IsPlayerConnected(to_playerid)) return SendClientMessagef(playerid, -1, "El jugador no está conectado.");
+	if(price <= 0 || price > 10000000) return SendMessage(playerid, "El precio no es válido.");
+	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "El jugador no está conectado.");
 	new Float:pos[3]; GetPlayerPos(to_playerid, pos[0], pos[1], pos[2]);
 	if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
-	if(pTemp(to_playerid)[pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "No puedes venderle nada a este jugador ahora.");
+	if(PLAYER_TEMP[to_playerid][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes venderle nada a este jugador ahora.");
 	
 	if(price > PI[to_playerid][pCASH])
 	{
-		SendClientMessagef(playerid, -1, "Esta persona no tiene el dinero que pides.");
+		SendMessage(playerid, "Esta persona no tiene el dinero que pides.");
 		return 1;
 	}
 	
-	pTemp(to_playerid)[pt_TRICK_SELLER_PID] = playerid;
-	pTemp(to_playerid)[pt_TRICK_SELLER_AID] = PI[playerid][pID];
-	pTemp(to_playerid)[pt_TRICK_PRICE] = price;
-	pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] = extra;
-	pTemp(to_playerid)[pt_TRICK_TIME] = gettime();
+	PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_PID] = playerid;
+	PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_AID] = PI[playerid][pID];
+	PLAYER_TEMP[to_playerid][pt_TRICK_PRICE] = price;
+	PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] = extra;
+	PLAYER_TEMP[to_playerid][pt_TRICK_TIME] = gettime();
 
 	switch(YHash(option, false))
 	{
+		case _I<alimento>:
+		{
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] < 1 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > MAX_PLAYER_POCKET_OBJECTS) return SendMessage(playerid, "~r~Modo de uso: ~w~/vender alimento [ID o Nombre] [Slot /n] [precio]");
+			PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] --;
+			
+			if(!PLAYER_POCKET[playerid][ PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] ][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
+			
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			ShowDialog(to_playerid, DIALOG_TRICKS_FOOD);
+		}
 		case _I<medicamentos>:
 		{
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] <= 0 || pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] > PI[playerid][pMEDICINE]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad.");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pMEDICINE]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
-			SendClientMessagef(playerid, -1, "Le has ofrecido una venta a %s, espera a ver si la acepta.", pTemp(to_playerid)[pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_MEDICINE);
 		}
 		case _I<marihuana>:
 		{
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] <= 0 || pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] > PI[playerid][pCANNABIS]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad.");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCANNABIS]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
-			SendClientMessagef(playerid, -1, "Le has ofrecido una venta a %s, espera a ver si la acepta.", pTemp(to_playerid)[pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_CANNABIS);
 		}
 		case _I<crack>:
 		{
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] <= 0 || pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] > PI[playerid][pCRACK]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad.");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCRACK]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
-			SendClientMessagef(playerid, -1, "Le has ofrecido una venta a %s, espera a ver si la acepta.", pTemp(to_playerid)[pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_CRACK);
 		}
 		case _I<arma>:
 		{
-			if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendClientMessagef(playerid, -1, "Los policías no pueden vender armas.");
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] < 0 || pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] >= sizeof PLAYER_WEAPONS[]) return SendClientMessagef(playerid, -1, "Error en slot de /armas.");
+			if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "Los policías no pueden vender armas.");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] < 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] >= sizeof PLAYER_WEAPONS[]) return SendMessage(playerid, "Error en slot de /armas.");
 		
-			if(!PLAYER_WEAPONS[playerid][ pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] ][player_weapon_VALID]) return SendClientMessagef(playerid, -1, "No tienes nigun arma en ese slot.");
+			if(!PLAYER_WEAPONS[playerid][ PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] ][player_weapon_VALID]) return SendMessage(playerid, "No tienes nigún arma en ese slot.");
 			
-			if(PI[to_playerid][pLEVEL] < 2) return SendClientMessagef(playerid, -1, "La otra persona tiene que ser al menos nivel 2.");
+			if(PI[to_playerid][pLEVEL] < 2) return SendMessage(playerid, "La otra persona tiene que ser al menos nivel 2.");
 			
-			SendClientMessagef(playerid, -1, "Le has ofrecido una venta a %s, espera a ver si la acepta.", pTemp(to_playerid)[pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_WEAPON);
 		}
 		case _I<coins>:
 		{
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] <= 0 || pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] > 10000000) return SendClientMessagef(playerid, -1, "Cantidad incorrecta.");
-			if(pTemp(to_playerid)[pt_TRICK_SELLER_EXTRA] > PI[playerid][pCOINS]) return SendClientMessagef(playerid, -1, "No tienes esa cantidad de "SERVER_COIN".");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
+			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCOINS]) return SendMessage(playerid, "No tienes esa cantidad de "SERVER_COIN".");
 			
-			SendClientMessagef(playerid, -1, "Le has ofrecido una venta a %s, espera a ver si la acepta.", pTemp(to_playerid)[pt_RP_NAME]);
-			ShowDialog(to_playerid, DIALOG_TRICKS_VIP);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			ShowDialog(to_playerid, DIALOG_TRICKS_COINS);
 		}
-		default: SendClientMessagef(playerid, -1, "Error en los parámetros, utilice /man vender.");
+		default: SendMessage(playerid, "Error en los parámetros, utilice ~r~/man vender~w~.");
 	}
 	return 1;
 }
 
 CMD:consumir(playerid, params[])
 {
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
-	
-	new option[24];
-	if(!sscanf(params, "s[24]", option))
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
+	new option[24], slot;
+	if(!sscanf(params, "s[24]d", option, slot))	
+	{
+		if(!strcmp(option, "alimento", true))
+		{
+			if(slot < 1 || slot > MAX_PLAYER_POCKET_OBJECTS) return SendMessagef(playerid, "~r~Modo de uso: ~w~/consumir alimento [SLOT 1-%d]", MAX_PLAYER_POCKET_OBJECTS);
+		
+			slot --;
+			
+			if(!PLAYER_POCKET[playerid][slot][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
+			if(PI[playerid][pHUNGRY] >= 99.0 && PI[playerid][pTHIRST] >= 99.0) return SendMessage(playerid, "¿Es que quieres reventar?");
+
+			Add_Hungry_Thirst(playerid, PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST]);
+			GivePlayerDrunkLevel(playerid, PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK]);
+			
+			new action[64];
+			format(action, sizeof action, "consume %s.", PLAYER_POCKET[playerid][slot][player_pocket_object_NAME]);
+			Auto_SendPlayerAction(playerid, action);
+			
+			DeletePlayerPocketObject(playerid, slot);
+
+			ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 0, 0, 0, 0, 0, 0);
+			ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 4.1, false, true, true, false, 1000);
+		}
+		else SendMessage(playerid, "~r~Modo de uso: ~w~/consumir [medicamento - marihuana - crack - alimento]");
+	}
+	else if(!sscanf(params, "s[24]", option))
 	{
 		switch(YHash(option, false))
 		{
 			case _I<medicamento>:
 			{
-				if(PlayerTemp[playerid][pt_COOLDOWN_MEDICINE] > gettime()) return SendClientMessagef(playerid, -1, "Debes esperar %d segundos para volver a poder consumir medicamentos", PlayerTemp[playerid][pt_COOLDOWN_MEDICINE] - gettime());
+				if(PLAYER_TEMP[playerid][pt_COOLDOWN_MEDICINE] > gettime()) return SendMessagef(playerid, "Debes esperar %d segundos para volver a poder consumir medicamentos", PLAYER_TEMP[playerid][pt_COOLDOWN_MEDICINE] - gettime());
 
-				if(PI[playerid][pMEDICINE] <= 0) return SendClientMessagef(playerid, -1, "No tienes medicamentos.");
+				if(PI[playerid][pMEDICINE] <= 0) return SendMessage(playerid, "No tienes medicamentos.");
 				
-				PlayerTemp[playerid][pt_COOLDOWN_MEDICINE] = gettime() + 30;
+				PLAYER_TEMP[playerid][pt_COOLDOWN_MEDICINE] = gettime() + 30;
 				PI[playerid][pMEDICINE] --;
 				GivePlayerHealthEx(playerid, 25.0);
 				Auto_SendPlayerAction(playerid, "se toma un medicamento.");
 			}
 			case _I<marihuana>:
 			{
-				if(PlayerTemp[playerid][pt_COOLDOWN_WEED] > gettime()) return SendClientMessagef(playerid, -1, "Debes esperar %d segundos para volver a poder consumir marihuana", PlayerTemp[playerid][pt_COOLDOWN_WEED] - gettime());
+				if(PLAYER_TEMP[playerid][pt_COOLDOWN_WEED] > gettime()) return SendMessagef(playerid, "Debes esperar %d segundos para volver a poder consumir marihuana", PLAYER_TEMP[playerid][pt_COOLDOWN_WEED] - gettime());
 
-				if(PI[playerid][pCANNABIS] <= 0) return SendClientMessagef(playerid, -1, "No tienes marihuana.");
+				if(PI[playerid][pCANNABIS] <= 0) return SendMessage(playerid, "No tienes marihuana.");
 
-				PlayerTemp[playerid][pt_COOLDOWN_WEED] = gettime() + 30;
+				PLAYER_TEMP[playerid][pt_COOLDOWN_WEED] = gettime() + 30;
 				
 				PI[playerid][pCANNABIS] --;
 				GivePlayerHealthEx(playerid, 30.0);
@@ -6812,20 +6859,22 @@ CMD:consumir(playerid, params[])
 			}
 			case _I<crack>:
 			{
-				if(PlayerTemp[playerid][pt_COOLDOWN_CRACK] > gettime()) return SendClientMessagef(playerid, -1, "Debes esperar %d segundos para volver a poder consumir crack", PlayerTemp[playerid][pt_COOLDOWN_CRACK] - gettime());
+				if(PLAYER_TEMP[playerid][pt_COOLDOWN_CRACK] > gettime()) return SendMessagef(playerid, "Debes esperar %d segundos para volver a poder consumir crack", PLAYER_TEMP[playerid][pt_COOLDOWN_CRACK] - gettime());
 
-				if(PI[playerid][pCRACK] <= 0) return SendClientMessagef(playerid, -1, "No tienes crack.");
+				if(PI[playerid][pCRACK] <= 0) return SendMessage(playerid, "No tienes crack.");
 
-				PlayerTemp[playerid][pt_COOLDOWN_CRACK] = gettime() + 30;
+				PLAYER_TEMP[playerid][pt_COOLDOWN_CRACK] = gettime() + 30;
 				PI[playerid][pCRACK] --;
 				GivePlayerArmourEx(playerid, 20.0);
 				Auto_SendPlayerAction(playerid, "consume crack.");
 				GivePlayerDrunkLevel(playerid, 2000);
 			}
-			default: ErrorCommandParams(playerid, "/consumir [medicamento - marihuana - crack]");
+			case _I<alimento>: SendMessagef(playerid, "~r~Modo de uso: ~w~/consumir alimento [SLOT 1-%d]", MAX_PLAYER_POCKET_OBJECTS);
+			
+			default: SendMessage(playerid, "~r~Modo de uso: ~w~/consumir [medicamento - marihuana - crack - alimento]");
 		}
 	}
-	else ErrorCommandParams(playerid, "/consumir [medicamento - marihuana - crack]");
+	else SendMessage(playerid, "~r~Modo de uso: ~w~/consumir [medicamento - marihuana - crack - alimento]");
 	return 1;
 }
 
@@ -6912,7 +6961,7 @@ CMD:man(playerid, params[])
 							\n\
 							Esta es la lista de opciones:\n\
 							    - arma <playerid o nombre> <slot de /armas> <precio>\n\
-							    - alimento <playerid o nombre> <slot de /alimentos> <precio>\n\
+							    - alimento <playerid o nombre> <slot de /n> <precio>\n\
 							    - medicamentos <playerid o nombre> <cantidad> <precio>\n\
 							    - marihuana <playerid o nombre> <cantidad> <precio>\n\
 							    - crack <playerid o nombre> <cantidad> <precio>\n\
@@ -7399,7 +7448,7 @@ stock ShowDialog(playerid, dialogid)
 			}
 			strcat(dialog, "{c4290d}- Eliminar todo\n");
 			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Mis accesorios", dialog, "Continuar", "Cerrar");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Mis accesorios", dialog, "Continuar", "Atras");
 			return 1;
 		}
 		case DIALOG_PLAYER_TOY_MENU:
@@ -7613,6 +7662,34 @@ stock ShowDialog(playerid, dialogid)
 			return 1;
 		}
 		case DIALOG_247_LIST: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "24/7", DIALOG_247_LIST_String, "Continuar", "Cerrar");
+		case DIALOG_PLAYER_POCKET:
+		{
+			new dialog[50 * (MAX_PLAYER_POCKET_OBJECTS + 2)], line_str[50];
+			for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
+			{
+				if(PLAYER_POCKET[playerid][i][player_pocket_VALID])
+				{
+					format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\n", i + 1, PLAYER_POCKET[playerid][i][player_pocket_object_NAME]);
+					strcat(dialog, line_str);
+				}
+				else
+				{
+					format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
+					strcat(dialog, line_str);
+				}
+			}
+			strcat(dialog, "{c4290d}- Eliminar todo\n");
+			
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Alimentos", dialog, "Continuar", "Atras");
+			return 1;
+		}
+		case DIALOG_PLAYER_POCKET_OPTIONS:
+		{
+			new caption[64];
+			format(caption, sizeof caption, "Alimento - %s", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, "- Consumir\n- Dar\n- Vender\n- Eliminar", "Continuar", "Cerrar");
+			return 1;
+		}		
 		case DIALOG_PLAYER_WEAPONS_OPTIONS:
 		{
 			new caption[64];
@@ -7641,6 +7718,7 @@ stock ShowDialog(playerid, dialogid)
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog_body, "Continuar", "Cerrar");
 			return 1;
 		}
+		case DIALOG_PLAYER_POCKET_DELETE_ALL: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Alimentos - Eliminar todo", "¿Estás seguro de que quiere eliminar todos sus alimentos?\nEsta opción no se puede deshacer y perderás todos lo que haya.", "Eliminar", "Atrás");
 		case DIALOG_PHONE:
 		{
 			new caption[50];
@@ -7649,7 +7727,7 @@ stock ShowDialog(playerid, dialogid)
 			new dialog[200];
 			if(PI[playerid][pPHONE_STATE] == PHONE_STATE_ON) format(dialog, sizeof dialog, "{"#SILVER_COLOR"}1. Agenda\n{"#SILVER_COLOR"}2. Llamar\n{"#SILVER_COLOR"}3. Enviar mensaje\n{"#SILVER_COLOR"}4. Ver mensajes recibidos\n{"#SILVER_COLOR"}5. Ver mensajes enviados\n{"#SILVER_COLOR"}6. Apagar teléfono\n");
 			else format(dialog, sizeof dialog, "{"#SILVER_COLOR"}1. Encender teléfono\n{"#SILVER_COLOR"}2. Agenda\n{"#SILVER_COLOR"}3. Llamar\n{"#SILVER_COLOR"}4. Enviar mensaje\n{"#SILVER_COLOR"}5. Ver mensajes recibidos\n{"#SILVER_COLOR"}6. Ver mensajes enviados\n");
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Cerrar");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Atras");
 			return 1;
 		}
 		case DIALOG_PHONE_BOOK:
@@ -8817,7 +8895,7 @@ stock ShowDialog(playerid, dialogid)
 			strcat(dialog, "{c4290d}- Eliminar todo\n");
 			PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] = 13 + 20;
 			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Mis armas", dialog, "Continuar", "Cerrar");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Mis armas", dialog, "Continuar", "Atras");
 			return 1;
 		}
 		case DIALOG_PLAYER_WEAPONS_DELETE_A:
@@ -8834,6 +8912,18 @@ stock ShowDialog(playerid, dialogid)
 			return 1;
 		}
 		case DIALOG_ANIMS: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Animaciones", DIALOG_ANIMS_String, "Continuar", "X");
+		case DIALOG_TRICKS_FOOD:
+		{	
+			new dialog[150];
+			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: alimento\nNombre: %s\nPrecio: %s$\n\n¿Quieres comprárselo?",
+									PLAYER_TEMP[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pt_RP_NAME],
+									PLAYER_POCKET[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][ PLAYER_TEMP[playerid][pt_TRICK_SELLER_EXTRA] ][player_pocket_object_NAME],
+									number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE])
+								);
+			
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
+			return 1;
+		}		
 		case DIALOG_TRICKS_MEDICINE:
 		{	
 			new dialog[150];
@@ -8870,7 +8960,7 @@ stock ShowDialog(playerid, dialogid)
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
 			return 1;
 		}
-		case DIALOG_TRICKS_VIP:
+		case DIALOG_TRICKS_COINS:
 		{	
 			new dialog[150];
 			format(dialog, sizeof dialog, "%s te quiere vender %d "SERVER_COIN"\nPrecio: %s$\n\n¿Quieres comprárselo?",
@@ -9205,7 +9295,7 @@ stock ShowDialog(playerid, dialogid)
 					si los niveles llegan muy abajo tu personaje se empezará a sentir mal y empezarás a perder vida.\n\
 					Los niveles bajarán segun tu actividad física, corriendo te dará sed más pronto que caminando.\n\
 					Para alimentarte ve a un restaurante de comida rápida o a un {FF846A}24/7{FFFFFF} donde podrás comprar alimentos,\n\
-					que podrás consumir el cualquier momento con {"#SILVER_COLOR"}/alimentos{FFFFFF} o {"#SILVER_COLOR"}/consumir.\n\
+					que podrás consumir el cualquier momento con {"#SILVER_COLOR"}/n{FFFFFF} o {"#SILVER_COLOR"}/consumir.\n\
 					\n\
 					{FFFFFF}Puedes dar objetos con el comando {"#SILVER_COLOR"}/dar,{FFFFFF} para más informacion utiliza {"#SILVER_COLOR"}/man dar.\n\
 					{FFFFFF}Puedes deshacerte de tus objetos con el comando {"#SILVER_COLOR"}/tirar,{FFFFFF} para más informacion utiliza {"#SILVER_COLOR"}/man tirar.\n\
@@ -10448,23 +10538,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			else SendClientMessagef(playerid, -1, "Gracias por su visita a %s vuelva pronto.", ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_NAME]);
 			return 1;
 		}
-		case DIALOG_PLAYER_TOYS:
-		{
-			if(response)
-			{	
-				if(listitem == MAX_VIP_TOYS) return ShowDialog(playerid, DIALOG_PLAYER_TOY_DELETE_ALL);
-				if(!PI[playerid][pVIP] && listitem >= MAX_NU_TOYS)
-				{
-					SendClientMessagef(playerid, -1, "¡Los jugadores VIP pueden tener hasta %d accesorios! Usa /ayuda si quieres ser VIP.", MAX_VIP_TOYS);
-					ShowDialog(playerid, dialogid);
-					return 1;
-				}
-				
-				PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] = listitem;
-				ShowDialog(playerid, DIALOG_PLAYER_TOY_MENU);
-			}
-			return 1;
-		}
 		case DIALOG_PLAYER_TOY_MENU:
 		{
 			if(response)
@@ -11027,19 +11100,30 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						if(PI[playerid][pCASH] >= Supermarket_Product_List[listitem][product_PRICE])
 						{
-							/*if(GivePlayerCash(playerid, -Supermarket_Product_List[listitem][product_PRICE], true, true))
+							new slot = GetEmptyPlayerPocketSlot(playerid);
+							if(slot == -1)
 							{
-
-								SendClientMessagef(playerid, -1, "Has comprado un(a) %s por %d dolares.", Supermarket_Product_List[listitem][product_NAME], Supermarket_Product_List[listitem][product_PRICE]);
+								PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
+								SendMessage(playerid, "No tienes más espacio entre tus alimentos, elimina algo con ~g~/n~w~.");
+								return 1;
+							}
+							
+							if(GivePlayerCash(playerid, -Supermarket_Product_List[listitem][product_PRICE], true, true)) {
+								PLAYER_POCKET[playerid][slot][player_pocket_VALID] = true;
+								format(PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], 24, "%s", Supermarket_Product_List[listitem][product_NAME]);
+								PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY] = Supermarket_Product_List[listitem][product_HUNGRY];
+								PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST] = Supermarket_Product_List[listitem][product_THIRST];
+								PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK] = Supermarket_Product_List[listitem][product_DRUNK];
+								RegisterNewPlayerPocketObject(playerid, slot);
+								
+								SendMessagef(playerid, "Has comprado ~b~%s ~w~por ~g~%d$~w~, para consumirlo usa ~y~/n~w~.", Supermarket_Product_List[listitem][product_NAME], Supermarket_Product_List[listitem][product_PRICE]);
 								PlayerPlaySoundEx(playerid, 1058, 0.0, 0.0, 0.0);
-								PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-							}*/
+							}
 						}
 						else
 						{
 							PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-							SendClientMessagef(playerid, -1, "No tienes dinero suficiente, te faltan %s$ para poder comprar este producto.", number_format_thousand(Supermarket_Product_List[listitem][product_PRICE] - PI[playerid][pCASH]));
-							PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
+							SendMessagef(playerid, "No tienes dinero suficiente, te faltan ~r~%s$~w~ para poder comprar este producto.", number_format_thousand(Supermarket_Product_List[listitem][product_PRICE] - PI[playerid][pCASH]));
 						}
 					}
 					case PRODUCT_TYPE_PHONE:
@@ -11137,57 +11221,79 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			else PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 			return 1;
 		}
-		case DIALOG_PLAYER_WEAPONS_OPTIONS: 
-		{
-			return 1;
-		}
-		case DIALOG_PHONE:
+		case DIALOG_PLAYER_POCKET_OPTIONS:
 		{
 			if(response)
 			{
 				switch(listitem)
 				{
-					case 0: //Agenda
+					case 0: //Consumir
 					{
-						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF)
+						if(PI[playerid][pHUNGRY] >= 99.0 && PI[playerid][pTHIRST] >= 99.0) 
 						{
-							PI[playerid][pPHONE_STATE] = PHONE_STATE_ON;
-							ShowDialog(playerid, dialogid);
+							PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
+							SendMessage(playerid, "¿Es que quieres reventar?");
 							return 1;
 						}
-						ShowDialog(playerid, DIALOG_PHONE_BOOK);
-					}
-					case 1: //Llamar
-					{
-						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
-						ShowDialog(playerid, DIALOG_PHONE_CALL_NUMBER);
-					}
-					case 2: //Enviar mensaje
-					{
-						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
-						ShowDialog(playerid, DIALOG_PHONE_SMS_NUMBER);
-					}
-					case 3: //Ver mensajes recibidos
-					{
-						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
-						ShowDialog(playerid, DIALOG_PHONE_RECEIVED_MESSAGES);
-					}
-					case 4: //Ver mensajes enviados
-					{
-						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
-						ShowDialog(playerid, DIALOG_PHONE_SENT_MESSAGES);
-					}
-					case 5: //Apagar
-					{
-						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
+					
+						Add_Hungry_Thirst(playerid, PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_THIRST]);
+						GivePlayerDrunkLevel(playerid, PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_DRUNK]);
 						
-						if(PlayerTemp[playerid][pt_PLAYER_IN_CALL]) EndPhoneCall(playerid);
-						PI[playerid][pPHONE_STATE] = PHONE_STATE_OFF;
-						SendClientMessagef(playerid, -1, "Has apagado tu teléfono, ahora no recibirás llamadas.");
+						new action[64];
+						format(action, sizeof action, "consume %s.", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
+						Auto_SendPlayerAction(playerid, action);
+						
+						DeletePlayerPocketObject(playerid, PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]);
+						PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
+					
+						ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 0, 0, 0, 0, 0, 0);
+						ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 4.1, false, true, true, false, 1000);
+					}
+					case 1: return 1;  //ShowNearsPlayersToPlayer(playerid, NEAR_PLAYERS_POCKET_GIVE);
+					case 2: return 1; //ShowNearsPlayersToPlayer(playerid, NEAR_PLAYERS_POCKET_SELL);
+					case 3: //Eliminar
+					{
+						SendMessagef(playerid, "Has eliminado \"%s\" de tus alimentos.", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
+						DeletePlayerPocketObject(playerid, PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]);
+						PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
 					}
 				}
 			}
 			return 1;
+		}
+		case DIALOG_PLAYER_POCKET_DELETE_ALL:
+		{
+			if(response)
+			{
+				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pfoods WHERE id_player = %d;", PI[playerid][pID]);
+				mysql_query(handle_db, QUERY_BUFFER);
+				
+				new temp_PLAYER_POCKET[Player_Pocket_Enum];
+				for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++) PLAYER_POCKET[playerid][i] = temp_PLAYER_POCKET;
+				
+				SendMessage(playerid, "Has eliminado todo lo que tenías en tus alimentos.");
+			}
+			else ShowDialog(playerid, DIALOG_PLAYER_POCKET);
+			return 1;
+		}
+		case DIALOG_PLAYER_WEAPONS_OPTIONS: 
+		{
+			if(response) 
+			{
+				switch(listitem) 
+				{
+					case 0: return 1;
+					case 1: return 1;
+					case 2: ShowDialog(playerid, DIALOG_PLAYER_WEAPONS_DELETE);
+					case 3: 
+					{
+						//guardar
+						new command[128];
+						format(command, sizeof command, "/guardar arma %d", PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT]);
+						PC_EmulateCommand(playerid, command);
+					}
+				}
+			}
 		}
 		case DIALOG_PHONE_BOOK:
 		{
@@ -13115,23 +13221,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_PLAYER_WEAPONS:
-		{
-			if(response)
-			{
-				if(PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] == -1) return 1;
-				
-				if(PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] == 13 + 20) // Eliminar todo
-				{
-					ShowDialog(playerid, DIALOG_PLAYER_WEAPONS_DELETE_A);
-					return 1;
-				}
-				
-				PlayerTemp[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] = PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem];
-				ShowDialog(playerid, DIALOG_PLAYER_WEAPONS_OPTIONS);
-			}
-			return 1;
-		}
 		case DIALOG_PLAYER_WEAPONS_DELETE_A:
 		{
 			if(response)
@@ -13204,6 +13293,47 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 35: ApplyAnimation(playerid, "ped", "SEAT_down", 4.000000, 0, 1, 1, 1, 0);//asiento
 		        }
 				SendClientMessagef(playerid, -1, "Para detener la animacion utiliza /parar.");
+			}
+			return 1;
+		}
+		case DIALOG_TRICKS_FOOD:
+		{
+			if(response)
+			{
+				if(gettime() > PLAYER_TEMP[playerid][pt_TRICK_TIME] + 20) return SendMessage(playerid, "Has tardado mucho en aceptarlo.");
+				if(!IsPlayerConnected(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID])) return SendMessage(playerid, "El vendedor ya no está en el servidor.");
+				if(PI[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pID] != PLAYER_TEMP[playerid][pt_TRICK_SELLER_AID]) return SendMessage(playerid, "El vendedor ya no está en el servidor.");
+
+				new Float:pos[3]; GetPlayerPos(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendMessage(playerid, "El vendedor está demasiado lejos.");
+				if(PLAYER_TEMP[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "El vendedor no está disponible.");
+				
+
+				new to_player_slot = GetEmptyPlayerPocketSlot(playerid);
+				if(to_player_slot == -1)
+				{
+					PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
+					SendMessage(playerid, "No tienes espacio en tus ~r~/n~w~ para comprar esto.");
+					return 1;
+				}
+				
+				if(GivePlayerCash(playerid, -PLAYER_TEMP[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], PLAYER_TEMP[playerid][pt_TRICK_PRICE], true, false)) {
+					TransferPlayerPocketObject(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], PLAYER_TEMP[playerid][pt_TRICK_SELLER_EXTRA], playerid, to_player_slot);
+					SendMessagef(playerid, "Te has gastado ~g~%s$~w~ con esta compra.", number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE]));
+					SendMessagef(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], "Has ganado ~g~%s$~w~ con esta venta.", number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE]));
+					
+					new action[64];
+					format(action, sizeof action, "y %s llegan a un acuerdo.", PLAYER_TEMP[playerid][pt_RP_NAME]);
+					Auto_SendPlayerAction(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], action);
+				}
+			}
+			else
+			{
+				if(gettime() > PLAYER_TEMP[playerid][pt_TRICK_TIME] + 20) return 1;
+				if(!IsPlayerConnected(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID])) return 1;
+				if(PI[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pID] != PLAYER_TEMP[playerid][pt_TRICK_SELLER_AID]) return 1;
+
+				SendMessage(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], "El comprador no ha aceptado tu trato.");
 			}
 			return 1;
 		}
@@ -13310,7 +13440,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_TRICKS_VIP:
+		case DIALOG_TRICKS_COINS:
 		{
 			if(response)
 			{
@@ -17069,6 +17199,87 @@ GetEmptyPlayerPhoneBookSlot(playerid)
 	for(new i = 0; i != MAX_PHONE_CONTACTS; i ++)
 	{
 		if(!PLAYER_PHONE_BOOK[playerid][i][phone_book_contact_VALID]) return i;
+	}
+	return -1;
+}
+
+
+RegisterNewPlayerPocketObject(playerid, slot)
+{
+	inline OnPfoodInserted()
+	{
+		PLAYER_POCKET[playerid][slot][player_pocket_object_ID] = cache_insert_id();
+	}
+	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "INSERT INTO pfoods (id_player, name, hungry, thirst, drunk) VALUES (%d, '%e', %f, %f, %d);", PI[playerid][pID], PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST], PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK]);
+	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPfoodInserted);
+	return 1;
+}
+
+LoadPlayerPocketData(playerid)
+{
+	if(PI[playerid][pID] == 0) return 0;
+	
+	inline OnPfoodsLoad()
+	{
+		new rows;
+		if(cache_get_row_count(rows))
+		{
+			for(new i = 0; i != rows; i ++)
+			{
+				PLAYER_POCKET[playerid][i][player_pocket_VALID] = true;
+				cache_get_value_name_int(i, "id", PLAYER_POCKET[playerid][i][player_pocket_object_ID]);
+				cache_get_value_name(i, "name", PLAYER_POCKET[playerid][i][player_pocket_object_NAME]);
+				cache_get_value_name_float(i, "hungry", PLAYER_POCKET[playerid][i][player_pocket_object_HUNGRY]);
+				cache_get_value_name_float(i, "thirst", PLAYER_POCKET[playerid][i][player_pocket_object_THIRST]);
+				cache_get_value_name_int(i, "drunk", PLAYER_POCKET[playerid][i][player_pocket_object_DRUNK]);
+			}
+		}
+	}
+	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM pfoods WHERE id_player = %d;", PI[playerid][pID]);
+	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPfoodsLoad);
+	return 1;
+}
+
+TransferPlayerPocketObject(from_playerid, from_slot, to_playerid, to_slot)
+{
+	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pfoods SET id_player = %d WHERE id = %d;", PI[to_playerid][pID], PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID]);
+	mysql_tquery(handle_db, QUERY_BUFFER);
+	
+	PLAYER_POCKET[to_playerid][to_slot][player_pocket_VALID] = true;
+	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_ID] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID];
+	format(PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_NAME], 24, "%s", PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_NAME]);
+	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_HUNGRY] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_HUNGRY];
+	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_THIRST] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_THIRST];
+	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_DRUNK] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_DRUNK];
+	
+	PLAYER_POCKET[from_playerid][from_slot][player_pocket_VALID] = false;
+	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID] = 0;
+	format(PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_NAME], 24, "");
+	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_HUNGRY] = 0.0;
+	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_THIRST] = 0.0;
+	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_DRUNK] = 0;
+	return 1;
+}
+
+DeletePlayerPocketObject(playerid, slot)
+{
+	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pfoods WHERE id = %d;", PLAYER_POCKET[playerid][slot][player_pocket_object_ID]);
+	mysql_tquery(handle_db, QUERY_BUFFER);
+	
+	PLAYER_POCKET[playerid][slot][player_pocket_VALID] = false;
+	PLAYER_POCKET[playerid][slot][player_pocket_object_ID] = 0;
+	format(PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], 24, "");
+	PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY] = 0.0;
+	PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST] = 0.0;
+	PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK] = 0;
+	return 1;
+}
+
+GetEmptyPlayerPocketSlot(playerid)
+{
+	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
+	{
+		if(!PLAYER_POCKET[playerid][i][player_pocket_VALID]) return i;
 	}
 	return -1;
 }
@@ -23418,6 +23629,13 @@ ShowPlayerInventory(playerid, pid)
 		else format(line_str, sizeof line_str, "{"#RED_COLOR"}Armas {"#SILVER_COLOR"}(%d)\n", player_weapons);
 		strcat(dialog, line_str);
 	}
+
+	new pocket_objects = CountPlayerPocketObjects(pid);
+	if(pocket_objects > 0)
+	{
+		format(line_str, sizeof line_str, "Alimentos {"#SILVER_COLOR"}(%d)\n", pocket_objects);
+		strcat(dialog, line_str);
+	}
 	
 	if(PI[pid][pMECHANIC_PIECES] > 0)
 	{
@@ -23495,6 +23713,20 @@ CountPlayerToys(playerid)
 		}
 	}
 	return toys;
+}
+
+CountPlayerPocketObjects(playerid)
+{
+	new objects;
+	
+	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
+	{
+		if(PLAYER_POCKET[playerid][i][player_pocket_VALID])
+		{
+			objects ++;
+		}
+	}
+	return objects;
 }
 
 CountPlayerWeapons(playerid)
@@ -26146,7 +26378,7 @@ CMD:kick(playerid, params[])
 	SendClientMessagef(playerid, -1, "Jugador (nick: '%s' dbid: '%d', pid: '%d') expulsado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid);
 	
 	
-	new str[445]; format(str, 445, "el %s (%d) expulso a %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
+	new str[445]; format(str, 445, "el %s %s (%d) expulso a %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
 	SendAdminAd(0xFF0000FF, str);
 	return 1;
 }
@@ -30921,6 +31153,7 @@ public OnPlayerLogin(playerid)
 	LoadPlayerVehicles(playerid);
 	LoadPlayerPhoneBook(playerid);
 	LoadPlayerToys(playerid);
+	LoadPlayerPocketData(playerid);
 	LoadPlayerGPSData(playerid);
 	LoadPlayerWeaponsData(playerid);
 	LoadPlayerWorks(playerid);
