@@ -7322,7 +7322,7 @@ CMD:vertir(playerid, params[])
 	
 	PI[playerid][pFUEL_DRUM] -= floatround(amount);
 	GLOBAL_VEHICLES[vehicleid][gb_vehicle_GAS] += amount;
-	SendClientMessagef(playerid, -1, "Has vertido %.1f litros del bidon, te quedan %d.0 litros.", amount, PI[playerid][pFUEL_DRUM]);
+	SendClientMessagef(playerid, -1, "Has vertido {"#GOLD_COLOR"}%.1f{ffffff} litros del bidon, te quedan {"#GREEN_COLOR"}%d.0{ffffff} litros.", amount, PI[playerid][pFUEL_DRUM]);
 	Auto_SendPlayerAction(playerid, "ha repostado el vehículo.");
 	return 1;
 }
@@ -23153,7 +23153,7 @@ CMD:piezas(playerid, params[])
 		if(IsPlayerInRangeOfPoint(playerid, 1.0, MechanicBuyPiecesCoords[i][0], MechanicBuyPiecesCoords[i][1], MechanicBuyPiecesCoords[i][2]))
 		{
 			if(sscanf(params, "d", params[0])) return ErrorCommandParams(playerid, "/piezas [cantidad]");
-			if(params[0] <= 0 || params[0] >= 10000) return ErrorCommandParams(playerid, "/piezas [cantidad > 0]");
+			if(params[0] <= 0 || params[0] > 1000) return ErrorCommandParams(playerid, "/piezas [cantidad > 1000]");
 
 			new price = params[0] * 50;
 			if(price > PI[playerid][pCASH])
@@ -23163,9 +23163,9 @@ CMD:piezas(playerid, params[])
 			}
 			if(price < 0) return 1;
 
-			if(GivePlayerCash(playerid, -price, true, true)) {
+			if(GivePlayerCash(playerid, -price, true, true)) 
+			{
 				PI[playerid][pMECHANIC_PIECES] += params[0];
-
 				SendClientMessagef(playerid, -1, "Has comprado %s piezas por %s$, ahora tienes %s piezas.", number_format_thousand(params[0]), number_format_thousand(price), number_format_thousand(PI[playerid][pMECHANIC_PIECES]));
 			}
 			return 1;
@@ -29318,19 +29318,19 @@ stock LoadServerInfo()
 	for(new i = 0; i != sizeof San_Andreas_Barriers; i ++)
 	{
 		new tmpobjid = CreateDynamicObject(966, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z], 0.0, 0.0, San_Andreas_Barriers[i][barrier_ROTATION], San_Andreas_Barriers[i][barrier_WORLD], San_Andreas_Barriers[i][barrier_INTERIOR], .streamdistance = 600.0, .drawdistance = 600.0);
-		SetDynamicObjectMaterial(tmpobjid, 0, 9514, "711_sfw", "ws_carpark2", 0xFFFFFFFF);
-		SetDynamicObjectMaterial(tmpobjid, 1, 9514, "711_sfw", "ws_carpark2", 0x00000000);
+		/*SetDynamicObjectMaterial(tmpobjid, 0, 9514, "711_sfw", "ws_carpark2", 0xFFFFFFFF);
+		SetDynamicObjectMaterial(tmpobjid, 1, 9514, "711_sfw", "ws_carpark2", 0x00000000);*/
 		tmpobjid = CreateDynamicObject(968, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z] + 0.72967, 0.0, -90.0, San_Andreas_Barriers[i][barrier_ROTATION], San_Andreas_Barriers[i][barrier_WORLD], San_Andreas_Barriers[i][barrier_INTERIOR], .streamdistance = 600.0, .drawdistance = 600.0);
-		SetDynamicObjectMaterial(tmpobjid, 0, 16640, "a51", "ws_carparkwall2", 0xFFFFFFFF);
-		SetDynamicObjectMaterial(tmpobjid, 1, 16640, "a51", "ws_carparkwall2", 0x00000000);
+		/*SetDynamicObjectMaterial(tmpobjid, 0, 16640, "a51", "ws_carparkwall2", 0xFFFFFFFF);
+		SetDynamicObjectMaterial(tmpobjid, 1, 16640, "a51", "ws_carparkwall2", 0x00000000);*/
 		San_Andreas_Barriers[i][barrier_OBJECT_ID] = tmpobjid;
 
 		new label_str[256];
 		
-		if(San_Andreas_Barriers[i][barrier_PRICE] > 0) format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}Peaje\n\n{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para pagar {"#PRIMARY_COLOR"}%s$", number_format_thousand(San_Andreas_Barriers[i][barrier_PRICE]));
+		if(San_Andreas_Barriers[i][barrier_PRICE] > 0) format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}Peaje\n\n{FFFFFF}Pulsa el {"#GOLD_COLOR"}'Claxon [H]' {FFFFFF}para pagar {"#GREEN_COLOR"}%s$", number_format_thousand(San_Andreas_Barriers[i][barrier_PRICE]));
 		else {
-			if(San_Andreas_Barriers[i][barrier_VEHICLE_TYPE]) format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%c%s\n\n{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para que te abran", toupper(work_info[ San_Andreas_Barriers[i][barrier_VEHICLE_TYPE_IN] ][work_info_NAME][0]), work_info[ San_Andreas_Barriers[i][barrier_VEHICLE_TYPE_IN] ][work_info_NAME][1]);
-			else format(label_str, sizeof label_str, "{FFFFFF}Toca el {"#PRIMARY_COLOR"}claxon {FFFFFF}para que te abran");
+			if(San_Andreas_Barriers[i][barrier_VEHICLE_TYPE]) format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%c%s\n\n{FFFFFF}Pulsa el {"#GOLD_COLOR"}'Claxon [H]' {FFFFFF}para que te abran", toupper(work_info[ San_Andreas_Barriers[i][barrier_VEHICLE_TYPE_IN] ][work_info_NAME][0]), work_info[ San_Andreas_Barriers[i][barrier_VEHICLE_TYPE_IN] ][work_info_NAME][1]);
+			else format(label_str, sizeof label_str, "{FFFFFF}Pulsa el {"#PRIMARY_COLOR"}'Claxon [H]' {FFFFFF}para que te abran");
 		}
 
 		CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, San_Andreas_Barriers[i][barrier_X], San_Andreas_Barriers[i][barrier_Y], San_Andreas_Barriers[i][barrier_Z] + 1.5, 15.0, .worldid = San_Andreas_Barriers[i][barrier_WORLD], .interiorid = San_Andreas_Barriers[i][barrier_INTERIOR], .testlos = true);
