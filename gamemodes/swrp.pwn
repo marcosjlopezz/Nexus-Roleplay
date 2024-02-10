@@ -89,9 +89,9 @@ AntiAmx()
 #define	LIGHT_RED				"FF2D2D"
 #define	LIGHT_RED2				0xFF2D2DFF
 
-#define	POLICE_COLOR			"4632FF"
-#define	POLICE_COLOR2			0x4632FFFF
-#define PLAYER_POLICE_COLOR		0x4632FF00
+#define	POLICE_COLOR			"696eff"
+#define	POLICE_COLOR2			0x696effff
+#define PLAYER_POLICE_COLOR		0x696eff00
 
 #define COLOR_FADE1 			0xE6E6E6E6
 #define COLOR_FADE2 			0xC8C8C8C8
@@ -474,7 +474,11 @@ enum
 	DIALOG_INVENTORY,
 	DIALOG_PLAYER_POCKET,
 	DIALOG_PLAYER_POCKET_OPTIONS,
-	DIALOG_PLAYER_POCKET_DELETE_ALL
+	DIALOG_PLAYER_POCKET_DELETE_ALL,
+	DIALOG_PLAYER_POCKETS,
+	DIALOG_PLAYER_POCKETS_OPTION,
+	DIALOG_POCKETS_OPTION,
+	DIALOG_POCKETS_EXTRA
 }
 
 enum
@@ -2960,7 +2964,13 @@ enum Temp_Enum
 	pt_GLOBAL_TIMER,
 	pt_INVENTORY_SELECTED_PLAYER,
 	pt_INVENTORY_PLAYERID,
-	pt_POCKET_SLOT_SELECTED
+	pt_POCKET_SLOT_SELECTED,
+	pt_INVENTORY_POCKET_TYPE,
+	pt_INVENTORY_POCKET_OPTION,
+	pt_INVENTORY_POCKET_EXTRA_0,
+	pt_INVENTORY_POCKET_EXTRA_1,
+	Float:pt_INVENTORY_POCKET_EXTRA_2,
+	Float:pt_INVENTORY_POCKET_EXTRA_3
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -6164,7 +6174,12 @@ CMD:gcp(playerid, params[])
 CMD:movil(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
-	ShowPlayerInventoryMenu(playerid, playerid);
+
+	if(!PI[playerid][pPHONE_NUMBER]) return SendMessage(playerid, "No tienes ningun teléfono, puedes ir a cualquier 24/7 para comprar uno.");
+	if(PlayerTemp[playerid][pt_PLAYER_IN_CALL]) return SendMessage(playerid, "Estás en una llamada.");
+						
+	Auto_SendPlayerAction(playerid, "mira su teléfono.");
+	ShowDialog(playerid, DIALOG_PHONE);
 	return 1;
 }
 alias:movil("celular", "telefono", "tlf");
@@ -7727,7 +7742,7 @@ stock ShowDialog(playerid, dialogid)
 			new dialog[200];
 			if(PI[playerid][pPHONE_STATE] == PHONE_STATE_ON) format(dialog, sizeof dialog, "{"#SILVER_COLOR"}1. Agenda\n{"#SILVER_COLOR"}2. Llamar\n{"#SILVER_COLOR"}3. Enviar mensaje\n{"#SILVER_COLOR"}4. Ver mensajes recibidos\n{"#SILVER_COLOR"}5. Ver mensajes enviados\n{"#SILVER_COLOR"}6. Apagar teléfono\n");
 			else format(dialog, sizeof dialog, "{"#SILVER_COLOR"}1. Encender teléfono\n{"#SILVER_COLOR"}2. Agenda\n{"#SILVER_COLOR"}3. Llamar\n{"#SILVER_COLOR"}4. Enviar mensaje\n{"#SILVER_COLOR"}5. Ver mensajes recibidos\n{"#SILVER_COLOR"}6. Ver mensajes enviados\n");
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Atras");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Cerrar");
 			return 1;
 		}
 		case DIALOG_PHONE_BOOK:
@@ -11294,6 +11309,54 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 				}
 			}
+		}
+		case DIALOG_PHONE:
+		{
+			if(response)
+			{
+				switch(listitem)
+				{
+					case 0: //Agenda
+					{
+						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF)
+						{
+							PI[playerid][pPHONE_STATE] = PHONE_STATE_ON;
+							ShowDialog(playerid, dialogid);
+							return 1;
+						}
+						ShowDialog(playerid, DIALOG_PHONE_BOOK);
+					}
+					case 1: //Llamar
+					{
+						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
+						ShowDialog(playerid, DIALOG_PHONE_CALL_NUMBER);
+					}
+					case 2: //Enviar mensaje
+					{
+						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
+						ShowDialog(playerid, DIALOG_PHONE_SMS_NUMBER);
+					}
+					case 3: //Ver mensajes recibidos
+					{
+						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
+						ShowDialog(playerid, DIALOG_PHONE_RECEIVED_MESSAGES);
+					}
+					case 4: //Ver mensajes enviados
+					{
+						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
+						ShowDialog(playerid, DIALOG_PHONE_SENT_MESSAGES);
+					}
+					case 5: //Apagar
+					{
+						if(PI[playerid][pPHONE_STATE] == PHONE_STATE_OFF) return SendClientMessagef(playerid, -1, "Tu teléfono está apagado, enciéndelo para usarlo.");
+						
+						if(PlayerTemp[playerid][pt_PLAYER_IN_CALL]) EndPhoneCall(playerid);
+						PI[playerid][pPHONE_STATE] = PHONE_STATE_OFF;
+						SendClientMessagef(playerid, -1, "Has apagado tu teléfono, ahora no recibirás llamadas.");
+					}
+				}
+			}
+			return 1;
 		}
 		case DIALOG_PHONE_BOOK:
 		{
@@ -23582,126 +23645,137 @@ public DestroyFlashObject(objectid)
 	return DestroyObject(objectid);
 }
 
+enum
+{
+	INVENTORY_TYPE_CASH,
+	INVENTORY_TYPE_DRIVE_LICENCE,
+	INVENTORY_TYPE_PHONE,
+	INVENTORY_TYPE_GPS,
+	INVENTORY_TYPE_PHONE_RESOLVER,
+	INVENTORY_TYPE_MECHANIC_PIECES,
+	INVENTORY_TYPE_FUEL_DRUM,
+	INVENTORY_TYPE_SEED_MEDICINE,
+	INVENTORY_TYPE_SEED_CANNABIS,
+	INVENTORY_TYPE_SEED_CRACK,
+	INVENTORY_TYPE_MEDICINE,
+	INVENTORY_TYPE_CANNABIS,
+	INVENTORY_TYPE_CRACK,
+	INVENTORY_TYPE_MECHANIC_KITS,
+	INVENTORY_TYPE_MEDICAL_KITS
+}
+
 ShowPlayerInventory(playerid, pid)
 {
 	if(!IsPlayerConnected(pid)) return 0;
 	if(PI[pid][pID] == 0) return 0;
 	
 	new caption[48];
-	format(caption, sizeof caption, "Inventario de %s", pTemp(pid)[pt_RP_NAME]);
+	format(caption, sizeof caption, "Bolsillos de %s", pTemp(pid)[pt_RP_NAME]);
 	
 	new dialog[1800], line_str[128];
-	
-	format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Dinero {"#SILVER_COLOR"}(%s$)\n", number_format_thousand(PI[pid][pCASH]));
-	strcat(dialog, line_str);
+
+	if(PI[playerid][pCASH] > 0)
+	{
+		format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Dinero {"#SILVER_COLOR"}({"#GREEN_COLOR"}%s${"#SILVER_COLOR"})\n", number_format_thousand(PI[pid][pCASH]));
+		strcat(dialog, line_str);
+	}
+	else strcat(dialog, "{666666}Dinero (0$)\n");
 	
 	if(PI[pid][pDRIVE_LICENSE_POINTS])
 	{
-		format(line_str, sizeof line_str, "Licencia de conducir: {"#SILVER_COLOR"}sí, %d puntos\n", PI[pid][pDRIVE_LICENSE_POINTS]);
+		format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Licencia de conducir (%d púntos)\n", PI[pid][pDRIVE_LICENSE_POINTS]);
 		strcat(dialog, line_str);
 	}
-	else
-	{
-		format(line_str, sizeof line_str, "Licencia de conducir: {"#SILVER_COLOR"}no\n");
-		strcat(dialog, line_str);
-	}
+	else strcat(dialog, "{666666}Licencia de conducir (No)\n");
 
 	if(PI[pid][pPHONE_NUMBER])
 	{
-		format(line_str, sizeof line_str, "Teléfono {"#SILVER_COLOR"}(%d)\n", PI[pid][pPHONE_NUMBER]);
+		format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Teléfono {"#SILVER_COLOR"}(%d)\n", PI[pid][pPHONE_NUMBER]);
 		strcat(dialog, line_str);
 	}
-	
-	new toys = CountPlayerToys(pid);
-	if(toys > 0)
-	{
-		format(line_str, sizeof line_str, "Accesorios {"#SILVER_COLOR"}(%d)\n", toys);
-		strcat(dialog, line_str);
-	}
+	else strcat(dialog, "{666666}Teléfono\n");
 
 	if(PI[pid][pGPS]) strcat(dialog, "GPS\n");
-	if(PI[pid][pPHONE_RESOLVER]) strcat(dialog, "Guía telefonica\n");
-	
-	new player_weapons = CountPlayerWeapons(pid);
-	if(player_weapons > 0)
-	{
-		if(PLAYER_WORKS[pid][WORK_POLICE][pwork_SET]) format(line_str, sizeof line_str, "{"#PRIMARY_COLOR"}Armas {"#SILVER_COLOR"}(%d)\n", player_weapons);
-		else format(line_str, sizeof line_str, "{"#RED_COLOR"}Armas {"#SILVER_COLOR"}(%d)\n", player_weapons);
-		strcat(dialog, line_str);
-	}
+	else strcat(dialog, "{666666}GPS\n");
 
-	new pocket_objects = CountPlayerPocketObjects(pid);
-	if(pocket_objects > 0)
-	{
-		format(line_str, sizeof line_str, "Alimentos {"#SILVER_COLOR"}(%d)\n", pocket_objects);
-		strcat(dialog, line_str);
-	}
+	if(PI[pid][pPHONE_RESOLVER]) strcat(dialog, "{"#SILVER_COLOR"}Guía telefonica\n");
+	else strcat(dialog, "{666666}Guía telefonica\n");
 	
 	if(PI[pid][pMECHANIC_PIECES] > 0)
 	{
-		format(line_str, sizeof line_str, "Piezas de mecánico {"#SILVER_COLOR"}(%s)\n", number_format_thousand(PI[pid][pMECHANIC_PIECES]));
+		format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Piezas de mecánico {"#SILVER_COLOR"}(%s)\n", number_format_thousand(PI[pid][pMECHANIC_PIECES]));
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Piezas de mecánico (0)\n");
 	
 	if(PI[pid][pFUEL_DRUM] > 0)
 	{
-		format(line_str, sizeof line_str, "Bidon de gasolina {"#SILVER_COLOR"}(%d Litros)\n", PI[pid][pFUEL_DRUM]);
+		format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Bidon de gasolina {"#SILVER_COLOR"}(%d Litros)\n", PI[pid][pFUEL_DRUM]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Bidon de gasolina (0)\n");
 	
 	if(PI[pid][pSEED_MEDICINE] > 0)
 	{
-		format(line_str, sizeof line_str, "{"#BLUE_COLOR"}Semillas de medicina {"#SILVER_COLOR"}(%d)\n", PI[pid][pSEED_MEDICINE]);
+		format(line_str, sizeof line_str, "{"#GREEN_COLOR"}Semillas de medicina {"#SILVER_COLOR"}(%d)\n", PI[pid][pSEED_MEDICINE]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Semillas de medicina (0)\n");
 	
 	if(PI[pid][pSEED_CANNABIS] > 0)
 	{
 		format(line_str, sizeof line_str, "{"#RED_COLOR"}Semillas de marihuana {"#SILVER_COLOR"}(%d)\n", PI[pid][pSEED_CANNABIS]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Semillas de marihuana (0)\n");
 	
 	if(PI[pid][pSEED_CRACK] > 0)
 	{
 		format(line_str, sizeof line_str, "{"#RED_COLOR"}Semillas de coca {"#SILVER_COLOR"}(%d)\n", PI[pid][pSEED_CRACK]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Semillas de coca (0)\n");
 	
 	if(PI[pid][pMEDICINE] > 0)
 	{
-		format(line_str, sizeof line_str, "{"#BLUE_COLOR"}Medicamentos {"#SILVER_COLOR"}(%dg)\n", PI[pid][pMEDICINE]);
+		format(line_str, sizeof line_str, "{"#GREEN_COLOR"}Medicamentos {"#SILVER_COLOR"}(%dg)\n", PI[pid][pMEDICINE]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Medicamentos (0g)\n");
 	
 	if(PI[pid][pCANNABIS] > 0)
 	{
 		format(line_str, sizeof line_str, "{"#RED_COLOR"}Marihuana {"#SILVER_COLOR"}(%dg)\n", PI[pid][pCANNABIS]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Marihuana (0g)\n");
 	
 	if(PI[pid][pCRACK] > 0)
 	{
 		format(line_str, sizeof line_str, "{"#RED_COLOR"}Crack {"#SILVER_COLOR"}(%dg)\n", PI[pid][pCRACK]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Crack (0g)\n");
 
 	if(PI[pid][pMECHANIC_KITS] > 0)
 	{
-		format(line_str, sizeof line_str, "Kits de reparacion (%d)\n", PI[pid][pMECHANIC_KITS]);
+		format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Kits de reparacion (%d)\n", PI[pid][pMECHANIC_KITS]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Kits de reparacion (0)\n");
 
 	if(PI[pid][pMEDICAL_KITS] > 0)
 	{
-		format(line_str, sizeof line_str, "Botiquines (%d)\n", PI[pid][pMEDICAL_KITS]);
+		format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Botiquines (%d)\n", PI[pid][pMEDICAL_KITS]);
 		strcat(dialog, line_str);
 	}
+	else strcat(dialog, "{666666}Botiquines (0)\n");
 	
-	ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, caption, dialog, "Cerrar", "");	
+	ShowPlayerDialog(playerid, DIALOG_PLAYER_POCKETS, DIALOG_STYLE_TABLIST, caption, dialog, "Seleccionar", "Atras");	
 	return 1;
 }
 
-CountPlayerToys(playerid)
+stock CountPlayerToys(playerid)
 {
 	new toys;
 	
@@ -23715,7 +23789,7 @@ CountPlayerToys(playerid)
 	return toys;
 }
 
-CountPlayerPocketObjects(playerid)
+stock CountPlayerPocketObjects(playerid)
 {
 	new objects;
 	
@@ -23729,7 +23803,7 @@ CountPlayerPocketObjects(playerid)
 	return objects;
 }
 
-CountPlayerWeapons(playerid)
+stock CountPlayerWeapons(playerid)
 {
 	new weapons;
 	
@@ -25249,7 +25323,7 @@ CMD:revisar(playerid, params[])
 	if(PI[params[0]][pWANTED_LEVEL] == 0) return SendClientMessagef(playerid, -1, "Esta persona no tiene nivel de busqueda.");
 	if(!pTemp(params[0])[pt_CUFFED]) return SendClientMessagef(playerid, -1, "Para revisar a esta persona tiene que estar esposada.");
 	
-	ShowPlayerInventory(playerid, params[0]);
+	ShowPlayerInventoryMenu(playerid, params[0]);
 	
 	new action[64];
 	format(action, sizeof action, "revisa a %s.", pTemp(params[0])[pt_RP_NAME]);
@@ -26466,7 +26540,7 @@ CMD:pinv(playerid, params[])
 	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
 	if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
 	
-	ShowPlayerInventory(playerid, to_playerid);
+	ShowPlayerInventoryMenu(playerid, to_playerid);
 	return 1;
 }
 
