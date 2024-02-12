@@ -471,14 +471,9 @@ enum
 	DIALOG_FUEL_STATION,
 	DIALOG_FUEL,
 	DIALOG_FUEL_DRUM_CONFIRM,
-	DIALOG_INVENTORY,
 	DIALOG_PLAYER_POCKET,
 	DIALOG_PLAYER_POCKET_OPTIONS,
-	DIALOG_PLAYER_POCKET_DELETE_ALL,
-	DIALOG_PLAYER_POCKETS,
-	DIALOG_PLAYER_POCKETS_OPTION,
-	DIALOG_POCKETS_OPTION,
-	DIALOG_POCKETS_EXTRA
+	DIALOG_PLAYER_POCKET_DELETE_ALL
 }
 
 enum
@@ -2784,7 +2779,6 @@ enum Temp_Enum
 	pt_ANTIFLOOD_TALK,
 	pt_TIMERS[MAX_TIMERS_PER_PLAYER],
 	bool:pt_USER_VALID_NAME,
-	pt_RP_NAME[24],
 	pt_BAD_LOGIN_ATTEMP,
 	pt_DOUBT_CHANNEL_TIME,
 	pt_LAST_PICKUP_ID,
@@ -2962,15 +2956,7 @@ enum Temp_Enum
 	bool:pt_DIALOG_OPENED,
 	pt_LAST_PICKUP_CHECKED,
 	pt_GLOBAL_TIMER,
-	pt_INVENTORY_SELECTED_PLAYER,
-	pt_INVENTORY_PLAYERID,
-	pt_POCKET_SLOT_SELECTED,
-	pt_INVENTORY_POCKET_TYPE,
-	pt_INVENTORY_POCKET_OPTION,
-	pt_INVENTORY_POCKET_EXTRA_0,
-	pt_INVENTORY_POCKET_EXTRA_1,
-	Float:pt_INVENTORY_POCKET_EXTRA_2,
-	Float:pt_INVENTORY_POCKET_EXTRA_3
+	pt_POCKET_SLOT_SELECTED
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -4253,7 +4239,7 @@ public OnPlayerDisconnect(playerid, reason)
 
 		ResetPlayerWeaponsEx(playerid);
 
-		format(str_text, 190, "* %s ha perdido todas sus armas por desconectar estando en combate.", PlayerTemp[playerid][pt_RP_NAME]);
+		format(str_text, 190, "* %s ha perdido todas sus armas por desconectar estando en combate.", PlayerTemp[playerid][pt_NAME]);
 		ProxDetector(playerid, 25.0, str_text, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 85);
 	}
 
@@ -4302,9 +4288,9 @@ public OnPlayerDisconnect(playerid, reason)
 			new disconnect_message[128];
 			switch(reason)
 			{
-				case 0: format(disconnect_message, sizeof disconnect_message, "%s se ha desconectado.", PlayerTemp[playerid][pt_RP_NAME]);
-				case 1: format(disconnect_message, sizeof disconnect_message, "%s se ha desconectado.", PlayerTemp[playerid][pt_RP_NAME]);
-				case 2: format(disconnect_message, sizeof disconnect_message, "%s se ha desconectado.", PlayerTemp[playerid][pt_RP_NAME]);
+				case 0: format(disconnect_message, sizeof disconnect_message, "%s se ha desconectado.", PlayerTemp[playerid][pt_NAME]);
+				case 1: format(disconnect_message, sizeof disconnect_message, "%s se ha desconectado.", PlayerTemp[playerid][pt_NAME]);
+				case 2: format(disconnect_message, sizeof disconnect_message, "%s se ha desconectado.", PlayerTemp[playerid][pt_NAME]);
 			}
 			NearbyMessage(PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z], PI[playerid][pINTERIOR], GetPlayerVirtualWorld(playerid), 15.0, 0x909D95FF, disconnect_message);
 		}
@@ -4689,12 +4675,12 @@ CMD:cachear(playerid, params[])
 		strcat(dialog, line_str);
 	}
 
-	format(line_str, sizeof line_str, "Armas de %s", PlayerTemp[playerid][pt_RP_NAME]);
+	format(line_str, sizeof line_str, "Armas de %s", PlayerTemp[playerid][pt_NAME]);
 	
 	ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_TABLIST_HEADERS, line_str, dialog, "Continuar", "Cerrar");
 	
 	new action[64];
-	format(action, sizeof action, "cachea rápidamente a %s.", pTemp(params[0])[pt_RP_NAME]);
+	format(action, sizeof action, "cachea rápidamente a %s.", pTemp(params[0])[pt_NAME]);
 	Auto_SendPlayerAction(playerid, action);
 	return 1;
 }
@@ -4789,7 +4775,7 @@ hook OnPlayerDeath(playerid, killerid, reason)
 				GetPlayerZones(killerid, city, zone);
 
 				new message[145];
-				format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s ha causado un asesinato en {"#POLICE_COLOR"}%s, %s.", pTemp(killerid)[pt_RP_NAME], city, zone);
+				format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s ha causado un asesinato en {"#POLICE_COLOR"}%s, %s.", pTemp(killerid)[pt_NAME], city, zone);
 				SendPoliceRadioMessage(-1, -1, message);
 				
 				pTemp(killerid)[pt_LAST_SAFE_ZONE_WARNING] = gettime();
@@ -5796,8 +5782,8 @@ hook OnPlayerText(playerid, text[])
 	{
 		if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 		{
-			if(text[1] == '!') format(str_text, sizeof str_text, "** [Radio] (( %s: %s ))", PlayerTemp[playerid][pt_RP_NAME], text[2]);
-			else format(str_text, sizeof str_text, "{8D8DFF}** [Radio]{FF8C00} %s %s: {FFFFFF}%s", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_RP_NAME], text[1]);
+			if(text[1] == '!') format(str_text, sizeof str_text, "** [Radio] (( %s: %s ))", PlayerTemp[playerid][pt_NAME], text[2]);
+			else format(str_text, sizeof str_text, "{8D8DFF}** [Radio]{FF8C00} %s %s: {FFFFFF}%s", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME], text[1]);
 			
 			SendPoliceRadioMessage(PlayerTemp[playerid][pt_POLICE_RADIO], 0xCCCCCCCC, str_text);
 			return 0;
@@ -5805,8 +5791,8 @@ hook OnPlayerText(playerid, text[])
 		
 		if(PI[playerid][pCREW])
 		{
-			if(text[1] == '!') format(str_text, sizeof str_text, "** [Radio] (( %s: %s ))", PlayerTemp[playerid][pt_RP_NAME], text[2]);
-			else format(str_text, sizeof str_text, "{8D8DFF}** [Radio] %s %s: %s", PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], text[1]);
+			if(text[1] == '!') format(str_text, sizeof str_text, "** [Radio] (( %s: %s ))", PlayerTemp[playerid][pt_NAME], text[2]);
+			else format(str_text, sizeof str_text, "{8D8DFF}** [Radio] %s %s: %s", PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], text[1]);
 			
 			SendMessageToCrewMembers(PI[playerid][pCREW], 0xCCCCCCCC, str_text);
 			return 0;
@@ -5815,13 +5801,13 @@ hook OnPlayerText(playerid, text[])
 	
 	if(PlayerTemp[playerid][pt_PLAYER_PHONE_CALL_STATE] == CALL_STATE_ESTABLISHED)
 	{
-		format(str_text, 145, "%s dice (por teléfono): %s", PlayerTemp[playerid][pt_RP_NAME], text);
+		format(str_text, 145, "%s dice (por teléfono): %s", PlayerTemp[playerid][pt_NAME], text);
 		SendClientMessagef(PlayerTemp[playerid][pt_PLAYER_PHONE_CALL_PLAYERID], -1, "{"#SILVER_COLOR"}Teléfono: %s: %s", convertPhoneNumber(PlayerTemp[playerid][pt_PLAYER_PHONE_CALL_PLAYERID], PI[playerid][pPHONE_NUMBER]), text);
 	}
 	else
 	{
-		if(GetPlayerDrunkLevel(playerid) > 2000) format(str_text, 145, "%s dice (ebrio): %s", PlayerTemp[playerid][pt_RP_NAME], text);
-		else format(str_text, 145, "%s dice: %s", PlayerTemp[playerid][pt_RP_NAME], text);
+		if(GetPlayerDrunkLevel(playerid) > 2000) format(str_text, 145, "%s dice (ebrio): %s", PlayerTemp[playerid][pt_NAME], text);
+		else format(str_text, 145, "%s dice: %s", PlayerTemp[playerid][pt_NAME], text);
 	}
 	ProxDetector(playerid, 15.0, str_text, COLOR_FADE1, COLOR_FADE2, COLOR_FADE3, COLOR_FADE4, COLOR_FADE5, 85);
 	return 0;
@@ -5968,7 +5954,7 @@ CMD:g(playerid, params[])
 	if(isnull(params)) return ErrorCommandParams(playerid, "/gritar [TEXTO]");
 	
 	new str_text[190];
-	format(str_text, 190, "%s grita: ¡%s!", PlayerTemp[playerid][pt_RP_NAME], params);
+	format(str_text, 190, "%s grita: ¡%s!", PlayerTemp[playerid][pt_NAME], params);
 	ProxDetector(playerid, 25.0, str_text, COLOR_FADE1, COLOR_FADE2, COLOR_FADE3, COLOR_FADE4, COLOR_FADE5, 85);
 	return 1;
 }
@@ -5979,7 +5965,7 @@ CMD:s(playerid, params[])
 	if(isnull(params)) return ErrorCommandParams(playerid, "/susurrar [TEXTO]");
 	
 	new str_text[190];
-	format(str_text, sizeof(str_text), "%s susurra: %s", PlayerTemp[playerid][pt_RP_NAME], params);
+	format(str_text, sizeof(str_text), "%s susurra: %s", PlayerTemp[playerid][pt_NAME], params);
 	ProxDetector(playerid, 5.0, str_text, COLOR_FADE1, COLOR_FADE2, COLOR_FADE3, COLOR_FADE4, COLOR_FADE5, 85);
 	return 1;
 }
@@ -5991,7 +5977,7 @@ CMD:decir(playerid, params[])
 	
     new str_text[190];
 
-	format(str_text, 145, "%s dice: %s", PlayerTemp[playerid][pt_RP_NAME], params);
+	format(str_text, 145, "%s dice: %s", PlayerTemp[playerid][pt_NAME], params);
 	ProxDetector(playerid, 15.0, str_text, COLOR_FADE1, COLOR_FADE2, COLOR_FADE3, COLOR_FADE4, COLOR_FADE5, 85);
 	return 1;
 }
@@ -6002,7 +5988,7 @@ CMD:b(playerid, params[])
 	if(isnull(params)) return ErrorCommandParams(playerid, "/b [TEXTO]");
 	
     new str_text[190];
-    format(str_text, sizeof(str_text), "ID: %d | %s: (( %s ))", playerid, PlayerTemp[playerid][pt_RP_NAME], params);
+    format(str_text, sizeof(str_text), "ID: %d | %s: (( %s ))", playerid, PlayerTemp[playerid][pt_NAME], params);
 	ProxDetector(playerid, 15.0, str_text, COLOR_FADE1, COLOR_FADE2, COLOR_FADE3, COLOR_FADE4, COLOR_FADE5, 85);
 	return 1;
 }
@@ -6012,7 +5998,7 @@ CMD:do(playerid, params[])
 	if(isnull(params)) return ErrorCommandParams(playerid, "/do [TEXTO]");
 
     new str_text[190];
-    format(str_text, sizeof(str_text), "* %s (( %s ))", PlayerTemp[playerid][pt_RP_NAME], params);
+    format(str_text, sizeof(str_text), "* %s (( %s ))", PlayerTemp[playerid][pt_NAME], params);
 	ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
 	return 1;
 }
@@ -6200,7 +6186,7 @@ CMD:guia(playerid, params[])
 	if(!PI[params[0]][pPHONE_NUMBER]) return SendMessage(playerid, "Este jugador no tiene teléfono.");
 	if(!PI[params[0]][pPHONE_VISIBLE_NUMBER]) return SendClientMessagef(playerid, -1, "Este jugador ha decidido no mostrar su numero en la guía.");
 	
-	SendClientMessagef(playerid, GOLD_COLOR2, "[Agenda]: {ffffff}Nombre: {"#BLUE_COLOR"}%s {ffffff}Teléfono: {"#PURPLE_COLOR"}%d.", pTemp(params[0])[pt_RP_NAME], PI[params[0]][pPHONE_NUMBER]);
+	SendClientMessagef(playerid, GOLD_COLOR2, "[Agenda]: {ffffff}Nombre: {"#BLUE_COLOR"}%s {ffffff}Teléfono: {"#PURPLE_COLOR"}%d.", pTemp(params[0])[pt_NAME], PI[params[0]][pPHONE_NUMBER]);
 	return 1;
 }
 
@@ -6593,11 +6579,11 @@ CMD:dar(playerid, params[])
 			if(extra > 30000000) return SendMessage(playerid, "Para dar tanto dinero tienes que hacerlo a través de transferencias bancarias.");
 			
 			if(GivePlayerCash(playerid, -extra, true, true) && GivePlayerCash(to_playerid, extra, true, false)) {
-				SendMessagef(playerid, "Le has dado ~g~%s dólares~w~ a %s.", number_format_thousand(extra), PLAYER_TEMP[to_playerid][pt_RP_NAME]);
-				SendMessagef(to_playerid, "%s te ha dado ~g~%s dólares~w~.", PLAYER_TEMP[playerid][pt_RP_NAME], number_format_thousand(extra));
+				SendMessagef(playerid, "Le has dado ~g~%s dólares~w~ a %s.", number_format_thousand(extra), PLAYER_TEMP[to_playerid][pt_NAME]);
+				SendMessagef(to_playerid, "%s te ha dado ~g~%s dólares~w~.", PLAYER_TEMP[playerid][pt_NAME], number_format_thousand(extra));
 				
 				new action[64];
-				format(action, sizeof action, "le da dinero a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+				format(action, sizeof action, "le da dinero a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
 				Auto_SendPlayerAction(playerid, action);
 				PLAYER_TEMP[playerid][pt_LAST_GIVE_MONEY_TIME] = gettime();
 			}
@@ -6619,7 +6605,7 @@ CMD:dar(playerid, params[])
 			}
 			
 			new action[64];
-			format(action, sizeof action, "le da su %s a %s.", PLAYER_POCKET[playerid][extra][player_pocket_object_NAME], PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			format(action, sizeof action, "le da su %s a %s.", PLAYER_POCKET[playerid][extra][player_pocket_object_NAME], PLAYER_TEMP[to_playerid][pt_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 			
 			TransferPlayerPocketObject(playerid, extra, to_playerid, to_player_slot);
@@ -6632,11 +6618,11 @@ CMD:dar(playerid, params[])
 			PI[playerid][pMEDICINE] -= extra;
 			PI[to_playerid][pMEDICINE] += extra;
 			
-			SendMessagef(playerid, "Le has dado ~g~%d gramos~w~ de medicamentos a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado ~g~%d gramos~w~ de medicamentos.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado ~g~%d gramos~w~ de medicamentos a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado ~g~%d gramos~w~ de medicamentos.", PLAYER_TEMP[playerid][pt_NAME], extra);
 	
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		case _I<marihuana>:
@@ -6647,11 +6633,11 @@ CMD:dar(playerid, params[])
 			PI[playerid][pCANNABIS] -= extra;
 			PI[to_playerid][pCANNABIS] += extra;
 			
-			SendMessagef(playerid, "Le has dado %dg de marihuana a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado %dg de marihuana.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado %dg de marihuana a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado %dg de marihuana.", PLAYER_TEMP[playerid][pt_NAME], extra);
 			
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		case _I<crack>:
@@ -6662,11 +6648,11 @@ CMD:dar(playerid, params[])
 			PI[playerid][pCRACK] -= extra;
 			PI[to_playerid][pCRACK] += extra;
 			
-			SendMessagef(playerid, "Le has dado ~g~%d gramos~w~ de crack a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado ~g~%d gramos~w~ de crack.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado ~g~%d gramos~w~ de crack a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado ~g~%d gramos~w~ de crack.", PLAYER_TEMP[playerid][pt_NAME], extra);
 			
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		case _I<arma>:
@@ -6684,11 +6670,11 @@ CMD:dar(playerid, params[])
 				return 1;
 			}
 			
-			SendMessagef(playerid, "~w~Le has dado tu ~g~'%s'~w~ a %s.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME], PLAYER_TEMP[to_playerid][pt_RP_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado su ~g~'%s'~w~.", PLAYER_TEMP[playerid][pt_RP_NAME], WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME]);
+			SendMessagef(playerid, "~w~Le has dado tu ~g~'%s'~w~ a %s.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME], PLAYER_TEMP[to_playerid][pt_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado su ~g~'%s'~w~.", PLAYER_TEMP[playerid][pt_NAME], WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME]);
 			
 			new action[64];
-			format(action, sizeof action, "le da un arma a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			format(action, sizeof action, "le da un arma a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 			
 			TransferPlayerWeapon(playerid, extra, to_playerid);
@@ -6701,11 +6687,11 @@ CMD:dar(playerid, params[])
 			PI[playerid][pMECHANIC_KITS] -= extra;
 			PI[to_playerid][pMECHANIC_KITS] += extra;
 			
-			SendMessagef(playerid, "Le has dado %d kits de reparación a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado %d kits de reparación.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado %d kits de reparación a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado %d kits de reparación.", PLAYER_TEMP[playerid][pt_NAME], extra);
 			
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		case _I<botiquin>:
@@ -6716,11 +6702,11 @@ CMD:dar(playerid, params[])
 			PI[playerid][pMEDICAL_KITS] -= extra;
 			PI[to_playerid][pMEDICAL_KITS] += extra;
 			
-			SendMessagef(playerid, "Le has dado %d botiquines a %s.", extra, PLAYER_TEMP[to_playerid][pt_RP_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado %d botiquines.", PLAYER_TEMP[playerid][pt_RP_NAME], extra);
+			SendMessagef(playerid, "Le has dado %d botiquines a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
+			SendMessagef(to_playerid, "%s te ha dado %d botiquines.", PLAYER_TEMP[playerid][pt_NAME], extra);
 			
 			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			Auto_SendPlayerAction(playerid, action);
 		}
 		default: SendMessage(playerid, "Error en los parámetros, utilice ~r~/man dar~w~.");
@@ -6763,7 +6749,7 @@ CMD:vender(playerid, params[])
 			
 			if(!PLAYER_POCKET[playerid][ PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] ][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
 			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_FOOD);
 		}
 		case _I<medicamentos>:
@@ -6771,7 +6757,7 @@ CMD:vender(playerid, params[])
 			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
 			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pMEDICINE]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_MEDICINE);
 		}
 		case _I<marihuana>:
@@ -6779,7 +6765,7 @@ CMD:vender(playerid, params[])
 			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
 			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCANNABIS]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_CANNABIS);
 		}
 		case _I<crack>:
@@ -6787,7 +6773,7 @@ CMD:vender(playerid, params[])
 			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
 			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCRACK]) return SendMessage(playerid, "No tienes esa cantidad.");
 			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_CRACK);
 		}
 		case _I<arma>:
@@ -6799,7 +6785,7 @@ CMD:vender(playerid, params[])
 			
 			if(PI[to_playerid][pLEVEL] < 2) return SendMessage(playerid, "La otra persona tiene que ser al menos nivel 2.");
 			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_WEAPON);
 		}
 		case _I<coins>:
@@ -6807,7 +6793,7 @@ CMD:vender(playerid, params[])
 			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
 			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCOINS]) return SendMessage(playerid, "No tienes esa cantidad de "SERVER_COIN".");
 			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_RP_NAME]);
+			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
 			ShowDialog(to_playerid, DIALOG_TRICKS_COINS);
 		}
 		default: SendMessage(playerid, "Error en los parámetros, utilice ~r~/man vender~w~.");
@@ -7128,8 +7114,8 @@ CMD:echar(playerid, params[])
 			StopAudioStreamForPlayer(params[0]);
 			FreezePlayer(params[0]);
 			
-			SendClientMessagef(playerid, -1, "%s te ha echado de su propiedad.", PlayerTemp[playerid][pt_RP_NAME]);
-			SendClientMessagef(playerid, -1, "Has echado a %s de tu propiedad.", pTemp(params[0])[pt_RP_NAME]);
+			SendClientMessagef(playerid, -1, "%s te ha echado de su propiedad.", PlayerTemp[playerid][pt_NAME]);
+			SendClientMessagef(playerid, -1, "Has echado a %s de tu propiedad.", pTemp(params[0])[pt_NAME]);
 		}
 		else SendClientMessagef(playerid, -1, "Este jugador no está en tu propiedad.");
 		return 1;
@@ -7146,7 +7132,7 @@ CMD:echar(playerid, params[])
 		RemovePlayerFromVehicle(params[0]);
 		
 		new action[64];
-		format(action, sizeof action, "ha echado a %s de su vehículo.", pTemp(params[0])[pt_RP_NAME]);
+		format(action, sizeof action, "ha echado a %s de su vehículo.", pTemp(params[0])[pt_NAME]);
 		Auto_SendPlayerAction(playerid, action);
 		return 1;
 	}
@@ -7342,7 +7328,7 @@ CMD:setfdrum(playerid, params[])
 SendPlayerAction(playerid, const action[])
 {
 	new str_text[190];
-	format(str_text, sizeof str_text, "* %s %s", PlayerTemp[playerid][pt_RP_NAME], action);
+	format(str_text, sizeof str_text, "* %s %s", PlayerTemp[playerid][pt_NAME], action);
 	ProxDetector(playerid, 15.0, str_text, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 85);
 	return 1;
 }
@@ -7350,7 +7336,7 @@ SendPlayerAction(playerid, const action[])
 Auto_SendPlayerAction(playerid, const action[])
 {
 	new str_text[145];
-	format(str_text, 145, "* %s %s", PlayerTemp[playerid][pt_RP_NAME], action);
+	format(str_text, 145, "* %s %s", PlayerTemp[playerid][pt_NAME], action);
 	ProxDetector(playerid, 15.0, str_text, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF);
 	return 1;
 }
@@ -8448,7 +8434,7 @@ stock ShowDialog(playerid, dialogid)
 				Precio: %s$\n\n\
 				Balance tras la compra: %s$\n\n\
 				¿Quieres comprar esta propiedad?",
-				pTemp(PlayerTemp[playerid][pt_NOTARY_TO_PLAYER])[pt_RP_NAME],
+				pTemp(PlayerTemp[playerid][pt_NOTARY_TO_PLAYER])[pt_NAME],
 				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID],
 				number_format_thousand(PlayerTemp[playerid][pt_NOTARY_PRICE]),
 				number_format_thousand( PI[playerid][pBANK_MONEY] - PlayerTemp[playerid][pt_NOTARY_PRICE] )
@@ -8539,7 +8525,7 @@ stock ShowDialog(playerid, dialogid)
 				Precio: %s$\n\n\
 				Balance tras la compra: %s$\n\n\
 				¿Quieres comprar este vehículo?",
-				pTemp(PlayerTemp[playerid][pt_NOTARY_TO_PLAYER])[pt_RP_NAME],
+				pTemp(PlayerTemp[playerid][pt_NOTARY_TO_PLAYER])[pt_NAME],
 				VEHICLE_INFO[ GLOBAL_VEHICLES[ PlayerTemp[playerid][pt_PLAYER_VEHICLE_SELECTED] ][gb_vehicle_MODELID] - 400 ][vehicle_info_NAME],
 				GLOBAL_VEHICLES[ PlayerTemp[playerid][pt_PLAYER_VEHICLE_SELECTED] ][gb_vehicle_NUMBER_PLATE],
 				number_format_thousand(PlayerTemp[playerid][pt_NOTARY_PRICE]),
@@ -8741,7 +8727,7 @@ stock ShowDialog(playerid, dialogid)
 					{"#SILVER_COLOR"}Precio: %s$\n\
 					¿Quieres aceptarlo?\n\
 				",
-					pTemp(PlayerTemp[playerid][pt_MECHANIC_PID])[pt_RP_NAME],
+					pTemp(PlayerTemp[playerid][pt_MECHANIC_PID])[pt_NAME],
 					PlayerTemp[playerid][pt_MECHANIC_TEXT],
 					number_format_thousand(PlayerTemp[playerid][pt_MECHANIC_PRICE])
 			);
@@ -8931,7 +8917,7 @@ stock ShowDialog(playerid, dialogid)
 		{	
 			new dialog[150];
 			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: alimento\nNombre: %s\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PLAYER_TEMP[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pt_RP_NAME],
+									PLAYER_TEMP[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
 									PLAYER_POCKET[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][ PLAYER_TEMP[playerid][pt_TRICK_SELLER_EXTRA] ][player_pocket_object_NAME],
 									number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE])
 								);
@@ -8943,7 +8929,7 @@ stock ShowDialog(playerid, dialogid)
 		{	
 			new dialog[150];
 			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: medicamento\nCantidad: %dg\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_RP_NAME],
+									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
 									PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA],
 									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
 								);
@@ -8955,7 +8941,7 @@ stock ShowDialog(playerid, dialogid)
 		{	
 			new dialog[150];
 			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: marihuana\nCantidad: %dg\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_RP_NAME],
+									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
 									PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA],
 									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
 								);
@@ -8967,7 +8953,7 @@ stock ShowDialog(playerid, dialogid)
 		{	
 			new dialog[150];
 			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: crack\nCantidad: %dg\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_RP_NAME],
+									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
 									PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA],
 									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
 								);
@@ -8979,7 +8965,7 @@ stock ShowDialog(playerid, dialogid)
 		{	
 			new dialog[150];
 			format(dialog, sizeof dialog, "%s te quiere vender %d "SERVER_COIN"\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_RP_NAME],
+									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
 									PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA],
 									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
 								);
@@ -8991,7 +8977,7 @@ stock ShowDialog(playerid, dialogid)
 		{	
 			new dialog[180];
 			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: arma\nNombre: %s\nMunicion: %s\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_RP_NAME],
+									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
 									WEAPON_INFO[ PLAYER_WEAPONS[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][ PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA] ][player_weapon_ID] ][weapon_info_NAME],
 									number_format_thousand(PLAYER_WEAPONS[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][ PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA] ][player_weapon_AMMO]),
 									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
@@ -10122,7 +10108,7 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_POLICE_PENALTY:
 		{
 			new dialog[128];
-			format(dialog, sizeof dialog, "El policía %s te ha puesto una multa.\nImporte: %s$\n", PlayerTemp[ PlayerTemp[playerid][pt_POLICE_PEN_PID] ][pt_RP_NAME], number_format_thousand(PlayerTemp[playerid][pt_POLICE_PEN_IM]));
+			format(dialog, sizeof dialog, "El policía %s te ha puesto una multa.\nImporte: %s$\n", PlayerTemp[ PlayerTemp[playerid][pt_POLICE_PEN_PID] ][pt_NAME], number_format_thousand(PlayerTemp[playerid][pt_POLICE_PEN_IM]));
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Multa", dialog, "Pagar", "Cerrar");
 			return 1;
 		}
@@ -11868,7 +11854,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									pTemp(i)[pt_PROPERTY_INDEX] = -1;
 									SetPlayerPosEx(i, PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_X], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_Y], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_Z], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_ANGLE], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_INTERIOR], 0, PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_FREEZE], false);
 									StopAudioStreamForPlayer(i);
-									SendClientMessagef(i, -1, "%s te ha echado de su propiedad.", PlayerTemp[playerid][pt_RP_NAME]);
+									SendClientMessagef(i, -1, "%s te ha echado de su propiedad.", PlayerTemp[playerid][pt_NAME]);
 									total ++;
 								}
 							}
@@ -12123,7 +12109,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				SendClientMessagef(playerid, -1, "Tu oferta se ha enviado al comprador, espera para ver si la acepta.");
 				
-				new action[64]; format(action, sizeof action, "quiere llegar a un acuerdo con %s.", PlayerTemp[inputtext[0]][pt_RP_NAME]);
+				new action[64]; format(action, sizeof action, "quiere llegar a un acuerdo con %s.", PlayerTemp[inputtext[0]][pt_NAME]);
 				Auto_SendPlayerAction(playerid, action);
 				
 				PlayerTemp[inputtext[0]][pt_PLAYER_PROPERTY_SELECTED] = PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED];
@@ -12196,7 +12182,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PlayerPlaySoundEx(seller, 1058, 0.0, 0.0, 0.0);
 				PlayerPlaySoundEx(playerid, 1058, 0.0, 0.0, 0.0);
 				
-				new action[64]; format(action, sizeof action, "y %s han llegado a un acuerdo.", PlayerTemp[seller][pt_RP_NAME]);
+				new action[64]; format(action, sizeof action, "y %s han llegado a un acuerdo.", PlayerTemp[seller][pt_NAME]);
 				Auto_SendPlayerAction(playerid, action);
 			}
 			return 1;
@@ -12307,13 +12293,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(PI[inputtext[0]][pDRIVE_LICENSE_POINTS] == 0)
 				{
 					SendClientMessagef(playerid, -1, "Tu oferta se ha enviado al comprador, pero el no tiene licencia de conducir y no puede aceptar tu oferta.");
-					SendClientMessagef(inputtext[0], -1, "%s te ha ofrecido un vehículo, pero necesitas una licencia de conducir para aceptarlo.", PlayerTemp[playerid][pt_RP_NAME]);
+					SendClientMessagef(inputtext[0], -1, "%s te ha ofrecido un vehículo, pero necesitas una licencia de conducir para aceptarlo.", PlayerTemp[playerid][pt_NAME]);
 					return 1;
 				}
 
 				SendClientMessagef(playerid, -1, "Tu oferta se ha enviado al comprador, espera para ver si la acepta.");
 				
-				new action[64]; format(action, sizeof action, "quiere llegar a un acuerdo con %s.", PlayerTemp[inputtext[0]][pt_RP_NAME]);
+				new action[64]; format(action, sizeof action, "quiere llegar a un acuerdo con %s.", PlayerTemp[inputtext[0]][pt_NAME]);
 				Auto_SendPlayerAction(playerid, action);
 				
 				PlayerTemp[inputtext[0]][pt_PLAYER_VEHICLE_SELECTED] = PlayerTemp[playerid][pt_PLAYER_VEHICLE_SELECTED];
@@ -12375,7 +12361,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PlayerPlaySoundEx(seller, 1058, 0.0, 0.0, 0.0);
 				PlayerPlaySoundEx(playerid, 1058, 0.0, 0.0, 0.0);
 				
-				new action[64]; format(action, sizeof action, "y %s han llegado a un acuerdo.", PlayerTemp[seller][pt_RP_NAME]);
+				new action[64]; format(action, sizeof action, "y %s han llegado a un acuerdo.", PlayerTemp[seller][pt_NAME]);
 				Auto_SendPlayerAction(playerid, action);
 				
 				if(!PI[seller][pVIP]) ReLockPlayerVehicles(seller);
@@ -12651,7 +12637,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					PlayerTemp[buyer][pt_MECHANIC_TIME] = gettime();
 					
 					ShowDialog(buyer, DIALOG_MECHANIC_ACCEPT);
-					SendClientMessagef(playerid, -1, "Le has ofrecido a %s reparar su vehículo por %s$.", PlayerTemp[buyer][pt_RP_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
+					SendClientMessagef(playerid, -1, "Le has ofrecido a %s reparar su vehículo por %s$.", PlayerTemp[buyer][pt_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
 				}
 				else
 				{
@@ -12675,7 +12661,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						PlayerTemp[buyer][pt_MECHANIC_TIME] = gettime();
 						
 						ShowDialog(buyer, DIALOG_MECHANIC_ACCEPT);
-						SendClientMessagef(playerid, -1, "Le has ofrecido a %s reparar el vehículo por %s$.", PlayerTemp[buyer][pt_RP_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
+						SendClientMessagef(playerid, -1, "Le has ofrecido a %s reparar el vehículo por %s$.", PlayerTemp[buyer][pt_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
 					}
 					else
 					{
@@ -12697,7 +12683,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						PlayerTemp[buyer][pt_MECHANIC_TIME] = gettime();
 						
 						ShowDialog(buyer, DIALOG_MECHANIC_ACCEPT);
-						SendClientMessagef(playerid, -1, "Le has ofrecido a %s reparar el vehículo por %s$.", PlayerTemp[buyer][pt_RP_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
+						SendClientMessagef(playerid, -1, "Le has ofrecido a %s reparar el vehículo por %s$.", PlayerTemp[buyer][pt_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
 					}
 				}
 			}
@@ -12761,7 +12747,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				ShowDialog(buyer, DIALOG_MECHANIC_ACCEPT);
 				
-				SendClientMessagef(playerid, -1, "Le has ofrecido a %s pintar su vehículo por %s$.", PlayerTemp[buyer][pt_RP_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
+				SendClientMessagef(playerid, -1, "Le has ofrecido a %s pintar su vehículo por %s$.", PlayerTemp[buyer][pt_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
 			}
 			else ShowDialog(playerid, DIALOG_MECHANIC_MENU);
 			return 1;
@@ -12810,7 +12796,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				ShowDialog(buyer, DIALOG_MECHANIC_ACCEPT);
 				
-				SendClientMessagef(playerid, -1, "Le has ofrecido a %s tunear su vehículo por %s$.", PlayerTemp[buyer][pt_RP_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
+				SendClientMessagef(playerid, -1, "Le has ofrecido a %s tunear su vehículo por %s$.", PlayerTemp[buyer][pt_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
 			}
 			else ShowDialog(playerid, DIALOG_MECHANIC_MENU);
 			return 1;
@@ -12862,7 +12848,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				ShowDialog(buyer, DIALOG_MECHANIC_ACCEPT);
 				
-				SendClientMessagef(playerid, -1, "Le has ofrecido a %s cambiar el paintjob de su vehículo por %s$.", PlayerTemp[buyer][pt_RP_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
+				SendClientMessagef(playerid, -1, "Le has ofrecido a %s cambiar el paintjob de su vehículo por %s$.", PlayerTemp[buyer][pt_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
 			}
 			else ShowDialog(playerid, DIALOG_MECHANIC_MENU);
 			return 1;
@@ -12920,7 +12906,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							PlayerTemp[buyer][pt_MECHANIC_PIECES] = PLAYER_TUNING_MENU[playerid][ PlayerTemp[playerid][pt_MECHANIC_SELECTED_COMPONENT] ][tuning_menu_PIECES];
 							PlayerTemp[buyer][pt_MECHANIC_TIME] = gettime();
 							ShowDialog(buyer, DIALOG_MECHANIC_ACCEPT);
-							SendClientMessagef(playerid, -1, "Le has ofrecido a %s quitar un componente de su vehículo por %s$.", PlayerTemp[buyer][pt_RP_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
+							SendClientMessagef(playerid, -1, "Le has ofrecido a %s quitar un componente de su vehículo por %s$.", PlayerTemp[buyer][pt_NAME], number_format_thousand(PlayerTemp[buyer][pt_MECHANIC_PRICE]));
 						}
 					}
 				}
@@ -13035,7 +13021,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					
 					SendClientMessagef(playerid, -1, "Le has pagado %s$ al mecánico por su trabajo.", number_format_thousand(PlayerTemp[playerid][pt_MECHANIC_PRICE]));
-					SendClientMessagef(PlayerTemp[playerid][pt_MECHANIC_PID], -1, "%s te ha pagado %s dolares por tu trabajo.", PlayerTemp[playerid][pt_RP_NAME], number_format_thousand(PlayerTemp[playerid][pt_MECHANIC_PRICE]));
+					SendClientMessagef(PlayerTemp[playerid][pt_MECHANIC_PID], -1, "%s te ha pagado %s dolares por tu trabajo.", PlayerTemp[playerid][pt_NAME], number_format_thousand(PlayerTemp[playerid][pt_MECHANIC_PRICE]));
 				}
 			}
 			else
@@ -13386,7 +13372,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SendMessagef(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], "Has ganado ~g~%s$~w~ con esta venta.", number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE]));
 					
 					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PLAYER_TEMP[playerid][pt_RP_NAME]);
+					format(action, sizeof action, "y %s llegan a un acuerdo.", PLAYER_TEMP[playerid][pt_NAME]);
 					Auto_SendPlayerAction(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], action);
 				}
 			}
@@ -13421,7 +13407,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
 					
 					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_RP_NAME]);
+					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
 					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
 				}
 			}
@@ -13455,7 +13441,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
 					
 					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_RP_NAME]);
+					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
 					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
 				}
 			}
@@ -13489,7 +13475,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
 					
 					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_RP_NAME]);
+					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
 					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
 				}
 			}
@@ -13530,7 +13516,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
 					
 					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_RP_NAME]);
+					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
 					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
 				}
 			}
@@ -13571,7 +13557,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
 					
 					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_RP_NAME]);
+					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
 					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
 				}
 			}
@@ -13805,7 +13791,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									if(connected)
 									{
 										if(pTemp(pid)[pt_WORKING_IN] == WORK_POLICE) CallLocalFunction("EndPlayerJob", "iib", pid, pTemp(pid)[pt_WORKING_IN], true);
-										SendClientMessagef(pid, -1, "El %s %s te ha expulsado del cuerpo de policía.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_RP_NAME]);
+										SendClientMessagef(pid, -1, "El %s %s te ha expulsado del cuerpo de policía.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME]);
 
 										PLAYER_WORKS[pid][WORK_POLICE][pwork_SET] = 0;
 										PLAYER_WORKS[pid][WORK_POLICE][pwork_LEVEL] = 0;
@@ -13821,7 +13807,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									if(connected)
 									{
 										PLAYER_WORKS[pid][WORK_POLICE][pwork_LEVEL] = listitem;
-										SendClientMessagef(pid, -1, "{"#SILVER_COLOR"}El %s %s ha modificado tu rango del cuerpo de policía a '%s'.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_RP_NAME], POLICE_RANKS[listitem]);
+										SendClientMessagef(pid, -1, "{"#SILVER_COLOR"}El %s %s ha modificado tu rango del cuerpo de policía a '%s'.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME], POLICE_RANKS[listitem]);
 									}
 								}
 							}
@@ -14714,7 +14700,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				
 				new message[145], label_str[256];
-				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio el nombre de la banda a '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME]);
+				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio el nombre de la banda a '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME]);
 				SendMessageToCrewMembers(PI[playerid][pCREW], -1, message);
 				
 				
@@ -14877,7 +14863,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 											else
 											{
 												new message[145];
-												format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha echado a %s de la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], name);
+												format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha echado a %s de la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], name);
 												SendMessageToCrewMembers(PI[playerid][pCREW], -1, message);
 											
 												mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET crew = NULL, crew_rank = 0 WHERE id = %d;", PlayerTemp[playerid][pt_SELECTED_DB_AC_ID]);
@@ -14909,7 +14895,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							else
 							{
 								new message[145];
-								format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha echado a %s de la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], name);
+								format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha echado a %s de la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], name);
 								SendMessageToCrewMembers(PI[playerid][pCREW], -1, message);
 							
 								mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET crew = NULL, crew_rank = 0 WHERE id = %d;", PlayerTemp[playerid][pt_SELECTED_DB_AC_ID]);
@@ -14966,7 +14952,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(PlayerTemp[ PlayerTemp[playerid][pt_CREW_INVITE_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "No puedes invitar a este jugador ahora.");
 				if(PI[ PlayerTemp[playerid][pt_CREW_INVITE_PID] ][pID] != PlayerTemp[playerid][pt_CREW_INVITE_AID]) return SendClientMessagef(playerid, -1, "El jugador está desconectado.");
 				
-				SendClientMessagef(playerid, -1, "Has ofrecido a %s unirse a la banda con el rango %s.", PlayerTemp[ PlayerTemp[playerid][pt_CREW_INVITE_PID] ][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] ][crew_rank_NAME]);
+				SendClientMessagef(playerid, -1, "Has ofrecido a %s unirse a la banda con el rango %s.", PlayerTemp[ PlayerTemp[playerid][pt_CREW_INVITE_PID] ][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] ][crew_rank_NAME]);
 				
 				PlayerTemp[ PlayerTemp[playerid][pt_CREW_INVITE_PID] ][pt_CREW_INVITE_INFO][0] = PI[playerid][pCREW];
 				PlayerTemp[ PlayerTemp[playerid][pt_CREW_INVITE_PID] ][pt_CREW_INVITE_INFO][1] = PlayerTemp[playerid][pt_CREW_INDEX];
@@ -14997,7 +14983,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				mysql_tquery(handle_db, QUERY_BUFFER);
 				
 				new message[145];
-				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s se ha unido a la banda con el rango %s.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME]);
+				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s se ha unido a la banda con el rango %s.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME]);
 				SendMessageToCrewMembers(PI[playerid][pCREW], -1, message);
 			}
 			return 1;
@@ -15207,7 +15193,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				SendClientMessagef(playerid, -1, "Has eliminado el rango '%s'.", CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_NAME]);
 			
 				new message[145];
-				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio tu rango al rango '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_NEW_RANK] ][crew_rank_NAME]);
+				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio tu rango al rango '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_NEW_RANK] ][crew_rank_NAME]);
 				for(new i = 0; i != MAX_PLAYERS; i++)
 				{
 					if(IsPlayerConnected(i))
@@ -15282,7 +15268,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_FIGHTING]) return SendClientMessagef(playerid, -1, "No se puede borrar la banda cuando está en combate.");
 
 				new message[145];
-				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha eliminado la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME]);
+				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha eliminado la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME]);
 				
 				new tmp_CREW_RANK_INFO[enum_CREW_RANK_INFO];
 				for(new i = 0; i != MAX_CREW_RANKS; i ++) CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][i] = tmp_CREW_RANK_INFO;
@@ -15359,7 +15345,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								else
 								{
 									new message[145];
-									format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha abandonado la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME]);
+									format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha abandonado la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME]);
 									SendMessageToCrewMembers(PI[playerid][pCREW], -1, message);
 									
 									mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET crew = NULL, crew_rank = 0 WHERE id = %d;", PI[playerid][pID]);
@@ -15383,7 +15369,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				else
 				{
 					new message[145];
-					format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha abandonado la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME]);
+					format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) ha abandonado la banda.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME]);
 					SendMessageToCrewMembers(PI[playerid][pCREW], -1, message);
 					
 					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET crew = NULL, crew_rank = 0 WHERE id = %d;", PI[playerid][pID]);
@@ -15516,7 +15502,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 													if(connected)
 													{
 														PI[pid][pCREW_RANK] = PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem];
-														format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio tu rango al rango '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] ][crew_rank_NAME]);
+														format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio tu rango al rango '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] ][crew_rank_NAME]);
 														SendClientMessage(pid, -1, message);
 													}
 													format(message, sizeof message, "Has modificado el rango de '%s' al rango '%s'.", name, CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] ][crew_rank_NAME]);
@@ -15537,7 +15523,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									if(connected)
 									{
 										PI[pid][pCREW_RANK] = PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem];
-										format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio tu rango al rango '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] ][crew_rank_NAME]);
+										format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio tu rango al rango '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] ][crew_rank_NAME]);
 										SendClientMessage(pid, -1, message);
 									}
 									format(message, sizeof message, "Has modificado el rango de '%s' al rango '%s'.", name, CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] ][crew_rank_NAME]);
@@ -15943,10 +15929,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						else
 						{
 							printf("/cname: %d, '%s'", PI[playerid][pID], newName);
-							if(SetPlayerName(playerid, newName) == 1) {
+							if(SetPlayerName(playerid, newName) == 1) 
+							{
 								format(PlayerTemp[playerid][pt_NAME], 24, "%s", newName);
 								format(PI[playerid][pNAME], 24, "%s", newName);
-								PlayerTemp[playerid][pt_RP_NAME] = RP_GetPlayerName(playerid);
 								
 								for(new i = 0; i != MAX_PROPERTIES; i ++)
 								{
@@ -17095,12 +17081,10 @@ SetRolePlayNames(playerid)
 	
 	new name[24], bool:underscore;
 	format(name, 24, "%s", PlayerTemp[playerid][pt_NAME]);
-	format(PlayerTemp[playerid][pt_RP_NAME], 24, "%s", name);
 	for(new i = 0; i < 24; i++) 
 	{
 		if(name[i] == '_')
 		{
-			PlayerTemp[playerid][pt_RP_NAME][i] = ' ';
 			if(!underscore)
 			{
 				strmid(PlayerTemp[playerid][pt_FIRST_NAME], name, 0, i);
@@ -17110,17 +17094,6 @@ SetRolePlayNames(playerid)
 		}
 	}
 	return 1;
-}
-
-RP_GetPlayerName(playerid)
-{
-	new name[24];
-	format(name, 24, "%s", PlayerTemp[playerid][pt_NAME]);
-    for(new i = 0; i < 24; i++) {
-		if (name[i] == '_') name[i] = ' ';
-	}
- 
-	return name;
 }
 
 LoadPlayerPhoneBook(playerid)
@@ -19448,7 +19421,7 @@ callbackp:EnterExit(playerid)
 								
 					PlayerTemp[playerid][pt_ANTIFLOOD_KNOCK_PROPERTY] = gettime();
 					PlayerTemp[owner_playerid][pt_KNOCK_PLAYER_ID] = playerid;
-					SendMessagef(owner_playerid, "%s está tocando la puerta, para dejarle entrar ve a la puerta y usa /puerta.", PlayerTemp[playerid][pt_RP_NAME]);
+					SendMessagef(owner_playerid, "%s está tocando la puerta, para dejarle entrar ve a la puerta y usa /puerta.", PlayerTemp[playerid][pt_NAME]);
 					SendMessage(playerid, "Has tocado en la puerta, espera para que te abran o vete.");
 				
 					PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
@@ -23670,7 +23643,7 @@ ShowPlayerInventory(playerid, pid)
 	if(PI[pid][pID] == 0) return 0;
 	
 	new caption[48];
-	format(caption, sizeof caption, "Bolsillos de %s", pTemp(pid)[pt_RP_NAME]);
+	format(caption, sizeof caption, "Bolsillos de %s", pTemp(pid)[pt_NAME]);
 	
 	new dialog[1800], line_str[128];
 
@@ -23771,7 +23744,7 @@ ShowPlayerInventory(playerid, pid)
 	}
 	else strcat(dialog, "{666666}Botiquines (0)\n");
 	
-	ShowPlayerDialog(playerid, DIALOG_PLAYER_POCKETS, DIALOG_STYLE_TABLIST, caption, dialog, "Seleccionar", "Atras");	
+	ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_TABLIST, caption, dialog, "Cerrar", "");	
 	return 1;
 }
 
@@ -23823,7 +23796,7 @@ ShowPlayerSkills(playerid, pid)
 	if(PI[pid][pID] == 0) return 0;
 	
 	new caption[48], line_str[80], dialog[sizeof line_str * (sizeof(work_info) + 5)];
-	format(caption, sizeof caption, "Experiencia de %s", pTemp(pid)[pt_RP_NAME]);
+	format(caption, sizeof caption, "Experiencia de %s", pTemp(pid)[pt_NAME]);
 	
 	strcat(dialog, "{"#BLUE_COLOR"}CUENTA\n");
 	format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Nivel: {"#PRIMARY_COLOR"}%d\n", PI[pid][pLEVEL]);
@@ -24283,7 +24256,7 @@ public OnPlayerGiveDamage(playerid, damagedid, Float: amount, weaponid, bodypart
 				if(!PI[playerid][pWANTED_LEVEL]) SetPlayerWantedLevelEx(playerid, 1);
 
 				new message[145];
-				format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s está causando disturbios en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_RP_NAME], city, zone);
+				format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s está causando disturbios en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], city, zone);
 				SendPoliceRadioMessage(-1, -1, message);
 				
 				PlayerTemp[playerid][pt_LAST_SAFE_ZONE_WARNING] = gettime();
@@ -25191,10 +25164,10 @@ CMD:nivel(playerid, params[])
 
 	if(params[1] == 0)
 	{
-		format(action, sizeof action, "le quita el nivel de busqueda a %s.", pTemp(params[0])[pt_RP_NAME]);
+		format(action, sizeof action, "le quita el nivel de busqueda a %s.", pTemp(params[0])[pt_NAME]);
 
-		format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s {FFFFFF}ya no es sospechoso.", PlayerTemp[playerid][pt_RP_NAME], pTemp(params[0])[pt_RP_NAME]);
-		SendClientMessagef(playerid, -1, "Le has removido el nivel de busqueda a %s.", pTemp(params[0])[pt_RP_NAME]);
+		format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s {FFFFFF}ya no es sospechoso.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME]);
+		SendClientMessagef(playerid, -1, "Le has removido el nivel de busqueda a %s.", pTemp(params[0])[pt_NAME]);
 	}
 	else
 	{
@@ -25204,10 +25177,10 @@ CMD:nivel(playerid, params[])
 
 		GetPlayerZones(playerid, city, zone);
 
-		format(action, sizeof action, "le pone nivel de busqueda a %s.", pTemp(params[0])[pt_RP_NAME]);
+		format(action, sizeof action, "le pone nivel de busqueda a %s.", pTemp(params[0])[pt_NAME]);
 		
-		SendClientMessagef(playerid, -1, "Has asignado nivel de busqueda %d a %s.", params[1], pTemp(params[0])[pt_RP_NAME]);
-		format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}visto por ultima vez en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_RP_NAME], pTemp(params[0])[pt_RP_NAME], params[1], city, zone);
+		SendClientMessagef(playerid, -1, "Has asignado nivel de busqueda %d a %s.", params[1], pTemp(params[0])[pt_NAME]);
+		format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}visto por ultima vez en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
 	}
 
 	Auto_SendPlayerAction(playerid, action);
@@ -25246,7 +25219,7 @@ CMD:esposar(playerid, params[])
 		SetPlayerSpecialAction(params[0], SPECIAL_ACTION_NONE);
 		
 		new action[64];
-		format(action, sizeof action, "le quita las esposas a %s.", pTemp(params[0])[pt_RP_NAME]);
+		format(action, sizeof action, "le quita las esposas a %s.", pTemp(params[0])[pt_NAME]);
 		Auto_SendPlayerAction(playerid, action);
 		return 1;
 	}
@@ -25283,7 +25256,7 @@ CMD:placa(playerid, params[])
 	if(pTemp(params[0])[pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "No puedes mostrarle tu placa a este jugador ahora.");
 	
 	new action[64];
-	format(action, sizeof action, "le muestra su placa a %s.", pTemp(params[0])[pt_RP_NAME]);
+	format(action, sizeof action, "le muestra su placa a %s.", pTemp(params[0])[pt_NAME]);
 	Auto_SendPlayerAction(playerid, action);
 	
 	SendClientMessagef(params[0], -1, "{"#SILVER_COLOR"}%s %c. %s {A9C4E4}[Placa: %d]", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME], PI[playerid][pPLACA_PD]);
@@ -25297,13 +25270,13 @@ CMD:licencia(playerid, params[])
 	new Float:pos[3]; GetPlayerPos(params[0], pos[0], pos[1], pos[2]);
 	if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
 
-	if(PI[playerid][pDRIVE_LICENSE_POINTS] == 0) SendClientMessagef(playerid, -1, "%s no tiene licencia de conduccion.", PlayerTemp[playerid][pt_RP_NAME]);
+	if(PI[playerid][pDRIVE_LICENSE_POINTS] == 0) SendClientMessagef(playerid, -1, "%s no tiene licencia de conduccion.", PlayerTemp[playerid][pt_NAME]);
 	else
 	{
 		new action[128];
-		format(action, 128, "le muestra su licencia de conducir a %s.", pTemp(params[0])[pt_RP_NAME]);
+		format(action, 128, "le muestra su licencia de conducir a %s.", pTemp(params[0])[pt_NAME]);
 		Auto_SendPlayerAction(playerid, action);
-		SendClientMessagef(params[0], -1, "{"#SILVER_COLOR"}Licencia de conducir de %s, puntos: %d.", PlayerTemp[playerid][pt_RP_NAME], PI[playerid][pDRIVE_LICENSE_POINTS]);
+		SendClientMessagef(params[0], -1, "{"#SILVER_COLOR"}Licencia de conducir de %s, puntos: %d.", PlayerTemp[playerid][pt_NAME], PI[playerid][pDRIVE_LICENSE_POINTS]);
 	}
 	return 1;
 }
@@ -25323,10 +25296,10 @@ CMD:revisar(playerid, params[])
 	if(PI[params[0]][pWANTED_LEVEL] == 0) return SendClientMessagef(playerid, -1, "Esta persona no tiene nivel de busqueda.");
 	if(!pTemp(params[0])[pt_CUFFED]) return SendClientMessagef(playerid, -1, "Para revisar a esta persona tiene que estar esposada.");
 	
-	ShowPlayerInventoryMenu(playerid, params[0]);
+	ShowPlayerInventory(playerid, params[0]);
 	
 	new action[64];
-	format(action, sizeof action, "revisa a %s.", pTemp(params[0])[pt_RP_NAME]);
+	format(action, sizeof action, "revisa a %s.", pTemp(params[0])[pt_NAME]);
 	Auto_SendPlayerAction(playerid, action);
 	return 1;
 }
@@ -25347,8 +25320,8 @@ CMD:puntos(playerid, params[])
 	PI[params[0]][pDRIVE_LICENSE_POINTS] -= params[1];
 	if(PI[params[0]][pDRIVE_LICENSE_POINTS] < 0) PI[params[0]][pDRIVE_LICENSE_POINTS] = 0;
 	
-	SendClientMessagef(playerid, -1, "Le has quitado %d puntos del carnet a %s, ahora tiene %d puntos.", params[1], pTemp(params[0])[pt_RP_NAME], PI[params[0]][pDRIVE_LICENSE_POINTS]);
-	SendClientMessagef(playerid, -1, "El policía %s te ha quitado %d puntos del carnet de conducir, te quedan %d puntos.", PlayerTemp[playerid][pt_RP_NAME], params[1], PI[params[0]][pDRIVE_LICENSE_POINTS]);
+	SendClientMessagef(playerid, -1, "Le has quitado %d puntos del carnet a %s, ahora tiene %d puntos.", params[1], pTemp(params[0])[pt_NAME], PI[params[0]][pDRIVE_LICENSE_POINTS]);
+	SendClientMessagef(playerid, -1, "El policía %s te ha quitado %d puntos del carnet de conducir, te quedan %d puntos.", PlayerTemp[playerid][pt_NAME], params[1], PI[params[0]][pDRIVE_LICENSE_POINTS]);
 	return 1;
 }
 
@@ -25370,7 +25343,7 @@ CMD:requisar(playerid, params[])
 	DeleteIlegalInv(params[0]);
 	
 	new action[64];
-	format(action, sizeof action, "requisa las pertenencias ilegales de %s.", pTemp(params[0])[pt_RP_NAME]);
+	format(action, sizeof action, "requisa las pertenencias ilegales de %s.", pTemp(params[0])[pt_NAME]);
 	Auto_SendPlayerAction(playerid, action);
 	return 1;
 }
@@ -25386,7 +25359,7 @@ CMD:ref(playerid, params[])
 	GetPlayerZones(playerid, city, zone);
 		
 	new message[145];
-	format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s %s necesita refuerzos en {"#POLICE_COLOR"}%s, %s.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_RP_NAME], city, zone);
+	format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s %s necesita refuerzos en {"#POLICE_COLOR"}%s, %s.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME], city, zone);
 	SendPoliceRadioMessage(-1, -1, message);
 	return 1;
 }
@@ -25647,7 +25620,7 @@ CMD:arrestar(playerid, params[])
 		SetPlayerSpecialAction(params[0], SPECIAL_ACTION_NONE);
 		PI[params[0]][pSTATE] = ROLEPLAY_STATE_NORMAL;
 		
-		SendClientMessagef(playerid, -1, "Has soltado a %s.", pTemp(params[0])[pt_RP_NAME]);
+		SendClientMessagef(playerid, -1, "Has soltado a %s.", pTemp(params[0])[pt_NAME]);
 		return 1;
 	}
 	else
@@ -25702,7 +25675,7 @@ CMD:m(playerid, params[])
 	if(isnull(params)) return SendClientMessagef(playerid, -1, "Error: /m [Mensaje]");
 
 	new str_text[190];
-	format(str_text, 190, "(Megáfono) %s: {FFFFFF}%s", PlayerTemp[playerid][pt_RP_NAME], params);
+	format(str_text, 190, "(Megáfono) %s: {FFFFFF}%s", PlayerTemp[playerid][pt_NAME], params);
 	ProxDetector(playerid, 40.0, str_text, 0xFF9B6AFF, 0xFF9B6AFF, 0xFF9B6AFF, 0xFF9B6AFF, 0xFF9B6AFF, 85);
 	return 1;
 }
@@ -26081,7 +26054,7 @@ Crew_RequestHelp(playerid, crew_id)
 				}
 			}
 		}
-		format(crew_message, sizeof crew_message, "{%06x}[Banda] {FFFFFF}%s está pidiendo refuerzos en %s, %s.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME], city, zone);
+		format(crew_message, sizeof crew_message, "{%06x}[Banda] {FFFFFF}%s está pidiendo refuerzos en %s, %s.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], city, zone);
 		SendMessageToCrewMembers(crew_id, -1, crew_message);
 
 		PlayerTemp[playerid][pt_CREW_HELP] = true;
@@ -26101,7 +26074,7 @@ Crew_RequestHelp(playerid, crew_id)
 				}
 			}
 		}
-		format(crew_message, sizeof crew_message, "{%06x}[Banda] {FFFFFF}%s ya no necesita refuerzos.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_RP_NAME]);
+		format(crew_message, sizeof crew_message, "{%06x}[Banda] {FFFFFF}%s ya no necesita refuerzos.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME]);
 		SendMessageToCrewMembers(crew_id, -1, crew_message);
 
 		PlayerTemp[playerid][pt_CREW_HELP] = false;
@@ -26146,7 +26119,7 @@ ShowPlayerStats(playerid, pid)
 	}
 	
 	new caption[145], dialog[1024 + (30 * sizeof(work_info))];
-	format(caption, sizeof caption, "Estadísticas de %s", pTemp(pid)[pt_RP_NAME]);
+	format(caption, sizeof caption, "Estadísticas de %s", pTemp(pid)[pt_NAME]);
 	
 	format(dialog, sizeof dialog,
 		
@@ -26540,7 +26513,7 @@ CMD:pinv(playerid, params[])
 	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
 	if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
 	
-	ShowPlayerInventoryMenu(playerid, to_playerid);
+	ShowPlayerInventory(playerid, to_playerid);
 	return 1;
 }
 
@@ -26571,7 +26544,7 @@ CMD:parmas(playerid, params[])
 		strcat(dialog, line_str);
 	}
 
-	format(line_str, sizeof line_str, "Armas de %s", PlayerTemp[playerid][pt_RP_NAME]);
+	format(line_str, sizeof line_str, "Armas de %s", PlayerTemp[playerid][pt_NAME]);
 	
 	ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_TABLIST_HEADERS, line_str, dialog, "Continuar", "Cerrar");
 	return 1;
@@ -27522,7 +27495,7 @@ CMD:setnametemp(playerid, params[])
 			}
 		}
 
-		format(PlayerTemp[to_playerid][pt_RP_NAME], 24, "%s", new_name);
+		format(PlayerTemp[to_playerid][pt_NAME], 24, "%s", new_name);
 		SendClientMessagef(playerid, -1, "Nombre cambiado temporalmente.");
 	}
 	else SendClientMessagef(playerid, -1, "Nombre no válido.");
@@ -28554,7 +28527,7 @@ CMD:invitar(playerid, params[])
 	
 	PlayerTemp[playerid][pt_CREW_INVITE_PID] = to_playerid;
 	PlayerTemp[playerid][pt_CREW_INVITE_AID] = PI[to_playerid][pID];
-	SendClientMessagef(playerid, -1, "Quieres invitar a %s a la banda, elige el rango que le ofreces.", PlayerTemp[to_playerid][pt_RP_NAME]);
+	SendClientMessagef(playerid, -1, "Quieres invitar a %s a la banda, elige el rango que le ofreces.", PlayerTemp[to_playerid][pt_NAME]);
 	ShowDialog(playerid, DIALOG_CREW_INVITE_RANK);
 	return 1;
 }
@@ -28608,7 +28581,7 @@ CMD:reclutar(playerid, params[])
 		mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET placa_pd = %d WHERE id = %d;", PI[to_playerid][pPLACA_PD], PI[to_playerid][pID]);
 		mysql_tquery(handle_db, QUERY_BUFFER);
 		
-		SendClientMessagef(playerid, -1, "%s ahora es policía.", PlayerTemp[to_playerid][pt_RP_NAME]);
+		SendClientMessagef(playerid, -1, "%s ahora es policía.", PlayerTemp[to_playerid][pt_NAME]);
 		SendClientMessage(to_playerid, -1, "Ahora eres policía.");
 	}
 	else SendClientMessagef(playerid, -1, "Debes ser miembro de la policía para usar este comando.");
@@ -30179,8 +30152,8 @@ public OnPlayerCommandPerformed(playerid, cmd[], params[], result, flags)
 SendMessageToDoubtChannel(playerid, message[])
 {
 	new str[445];
-	if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "{"#PRIMARY_COLOR"}[Dudas] {"#SILVER_COLOR"}%s (%d) [%s]: %s", PlayerTemp[playerid][pt_RP_NAME], playerid, ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], message);
-	else format(str, 445, "{"#PRIMARY_COLOR"}[Dudas] {"#SILVER_COLOR"}%s (%d) [Nivel %d]: %s", PlayerTemp[playerid][pt_RP_NAME], playerid, PI[playerid][pLEVEL], message);
+	if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "{"#PRIMARY_COLOR"}[Dudas] {"#SILVER_COLOR"}%s (%d) [%s]: %s", PlayerTemp[playerid][pt_NAME], playerid, ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], message);
+	else format(str, 445, "{"#PRIMARY_COLOR"}[Dudas] {"#SILVER_COLOR"}%s (%d) [Nivel %d]: %s", PlayerTemp[playerid][pt_NAME], playerid, PI[playerid][pLEVEL], message);
 
 	PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();
 	for(new i = 0; i != MAX_PLAYERS; i++)
@@ -30338,7 +30311,7 @@ CMD:abyc(playerid, params[])
 	if(PLAYER_WORKS[to_playerid][WORK_POLICE][pwork_SET]) return SendClientMessagef(playerid, -1, "No puedes agregar byc a este jugador porque es policía.");
 	
 	AddPlayerPoliceHistory(to_playerid, PI[playerid][pID], reason);
-	SendClientMessagef(playerid, -1, "Se ha agregado el informe al historial policial de %s.", PlayerTemp[to_playerid][pt_RP_NAME]);
+	SendClientMessagef(playerid, -1, "Se ha agregado el informe al historial policial de %s.", PlayerTemp[to_playerid][pt_NAME]);
 	return 1;
 }
 
@@ -30356,7 +30329,7 @@ CMD:dbyc(playerid, params[])
 	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM police_history WHERE id_player = %d;", PI[to_playerid][pID]);
 	mysql_tquery(handle_db, QUERY_BUFFER);
 	
-	SendClientMessagef(playerid, -1, "Has borrado el historial policial de %s.", PlayerTemp[to_playerid][pt_RP_NAME]);
+	SendClientMessagef(playerid, -1, "Has borrado el historial policial de %s.", PlayerTemp[to_playerid][pt_NAME]);
 	return 1;
 }
 
@@ -31110,7 +31083,7 @@ public OnPlayerRegister(playerid)
 	ClearPlayerChat(playerid);
 	TogglePlayerControllable(playerid, false);
 
-	SendClientMessagef(playerid, PRIMARY_COLOR2, "{ffffff}Bienvenido {"#BLUE_COLOR"}%s, {ffffff}gracias por jugar en {"#GOLD_COLOR"}"SERVER_NAME".", PlayerTemp[playerid][pt_RP_NAME]);
+	SendClientMessagef(playerid, PRIMARY_COLOR2, "{ffffff}Bienvenido {"#BLUE_COLOR"}%s, {ffffff}gracias por jugar en {"#GOLD_COLOR"}"SERVER_NAME".", PlayerTemp[playerid][pt_NAME]);
 	SendClientMessagef(playerid, PRIMARY_COLOR2, "{ffffff}Si necesitas ayuda puedes utilizar el comando {"#PURPLE_COLOR"}/ayuda {ffffff}o puedes usar el canal de dudas.");
 	
 	for(new i = 0; i != MAX_PLAYERS; i++)
@@ -31257,7 +31230,7 @@ public OnPlayerLogin(playerid)
 	SetPlayerInterior(playerid, PI[playerid][pINTERIOR]);
 	
 	PlayerTemp[playerid][pt_BAD_LOGIN_ATTEMP] = 0;
-	SendClientMessagef(playerid, PRIMARY_COLOR2, "[*] {ffffff} Bienvenido {"#BLUE_COLOR"}%s.{ffffff} Tu ultima conexion fue el {"#GOLD_COLOR"}%s.", PlayerTemp[playerid][pt_RP_NAME], PI[playerid][pLAST_CONNECTION]);
+	SendClientMessagef(playerid, PRIMARY_COLOR2, "[*] {ffffff} Bienvenido {"#BLUE_COLOR"}%s.{ffffff} Tu ultima conexion fue el {"#GOLD_COLOR"}%s.", PlayerTemp[playerid][pt_NAME], PI[playerid][pLAST_CONNECTION]);
 
     TogglePlayerSpectatingEx(playerid, false);
 	TogglePlayerControllableEx(playerid, false);
@@ -31724,7 +31697,7 @@ hook OnPlayerKeyPressFinish(playerid) {
 		PLANTS[index][plant_PLANTED_BY_ACCOUNT_ID] = PI[playerid][pID];
 		PLANTS[index][plant_IMMUNITY] = -1;
 
-		format(PLANTS[index][plant_PLANTED_BY_NAME], 24, "%s", PlayerTemp[playerid][pt_RP_NAME]);
+		format(PLANTS[index][plant_PLANTED_BY_NAME], 24, "%s", PlayerTemp[playerid][pt_NAME]);
 		PLANTS[index][plant_OBJECT_ID] = CreateDynamicObject(2244, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z], 0.0, 0.0, PI[playerid][pANGLE], 0, 0);
 		SetDynamicObjectMaterial(PLANTS[index][plant_OBJECT_ID], 2, 2244, "plants_tabletop", "CJ_PLANT", 0x00FFFFFF);
 
