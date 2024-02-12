@@ -6047,7 +6047,7 @@ alias:est("estadisticas", "cuenta");
 
 CMD:inv(playerid, params[])
 {
-	ShowPlayerInventory(playerid, playerid);
+	ShowPlayerInventoryMenu(playerid, playerid);
 }
 alias:inv("inventario");
 
@@ -7429,15 +7429,17 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_PLAYER_TOYS:
 		{
 			new dialog[96 * (MAX_VIP_TOYS + 2)], line_str[64];
+			new caption[445]; format(caption, 445, "Accesorios de %s.", pTemp( pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] )[pt_NAME]);
+
 			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Accesorio\t{"#BLUE_COLOR"}Colocado\n");
 			for(new i; i != MAX_VIP_TOYS; i ++)
 			{
-				if(PI[playerid][pVIP])
+				if(PI[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pVIP])
 				{
-					if(PLAYER_TOYS[playerid][i][player_toy_VALID])
+					if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_VALID])
 					{
-						if(PLAYER_TOYS[playerid][i][player_toy_ATTACHED]) format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}Sí\n", i + 1, PLAYER_TOYS[playerid][i][player_toy_NAME]);
-						else format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[playerid][i][player_toy_NAME]);
+						if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_ATTACHED]) format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}Sí\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
+						else format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
 					}
 					else format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
 				}
@@ -7445,15 +7447,15 @@ stock ShowDialog(playerid, dialogid)
 				{
 					if(i >= MAX_NU_TOYS)
 					{
-						if(PLAYER_TOYS[playerid][i][player_toy_VALID]) format(line_str, sizeof line_str, "{666666}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[playerid][i][player_toy_NAME]);
+						if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_VALID]) format(line_str, sizeof line_str, "{666666}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
 						else format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
 					}
 					else
 					{
-						if(PLAYER_TOYS[playerid][i][player_toy_VALID])
+						if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_VALID])
 						{
-							if(PLAYER_TOYS[playerid][i][player_toy_ATTACHED]) format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}Sí\n", i + 1, PLAYER_TOYS[playerid][i][player_toy_NAME]);
-							else format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[playerid][i][player_toy_NAME]);
+							if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_ATTACHED]) format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}Sí\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
+							else format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
 						}
 						else format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
 					}
@@ -7462,7 +7464,7 @@ stock ShowDialog(playerid, dialogid)
 			}
 			strcat(dialog, "{c4290d}- Eliminar todo\n");
 			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Mis accesorios", dialog, "Continuar", "Atras");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, caption, dialog, "Continuar", "Atras");
 			return 1;
 		}
 		case DIALOG_PLAYER_TOY_MENU:
@@ -7679,11 +7681,13 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_PLAYER_POCKET:
 		{
 			new dialog[50 * (MAX_PLAYER_POCKET_OBJECTS + 2)], line_str[50];
+			new caption[445]; format(caption, 445, "Alimentos de %s.", pTemp( pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] )[pt_NAME]);
+
 			for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
 			{
-				if(PLAYER_POCKET[playerid][i][player_pocket_VALID])
+				if(PLAYER_POCKET[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_pocket_VALID])
 				{
-					format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\n", i + 1, PLAYER_POCKET[playerid][i][player_pocket_object_NAME]);
+					format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\n", i + 1, PLAYER_POCKET[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_pocket_object_NAME]);
 					strcat(dialog, line_str);
 				}
 				else
@@ -7694,7 +7698,7 @@ stock ShowDialog(playerid, dialogid)
 			}
 			strcat(dialog, "{c4290d}- Eliminar todo\n");
 			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Alimentos", dialog, "Continuar", "Atras");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Atras");
 			return 1;
 		}
 		case DIALOG_PLAYER_POCKET_OPTIONS:
@@ -8891,25 +8895,27 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_WEAPONS:
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pt_PLAYER_LISTITEM][i] = -1;
 			
 			new dialog[95 * 15], line_str[95], listitem;
+			new caption[445]; format(caption, 445, "Armas de %s.", pTemp( pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] )[pt_NAME]);
+
 			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Arma\t{"#BLUE_COLOR"}Municion\t{"#SILVER_COLOR"}Slot\n");
 			
 			for(new i = 0; i < sizeof PLAYER_WEAPONS[]; i ++)
 			{
-				if(!PLAYER_WEAPONS[playerid][i][player_weapon_VALID]) continue;
+				if(!PLAYER_WEAPONS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_weapon_VALID]) continue;
 				
-				format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%s\t{"#BLUE_COLOR"}%s\t{"#SILVER_COLOR"}%d\n", WEAPON_INFO[ PLAYER_WEAPONS[playerid][i][player_weapon_ID] ][weapon_info_NAME], number_format_thousand(PLAYER_WEAPONS[playerid][i][player_weapon_AMMO]), i);
+				format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%s\t{"#BLUE_COLOR"}%s\t{"#SILVER_COLOR"}%d\n", WEAPON_INFO[ PLAYER_WEAPONS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_weapon_ID] ][weapon_info_NAME], number_format_thousand(PLAYER_WEAPONS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_weapon_AMMO]), i);
 				strcat(dialog, line_str);
 				
-				PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] = i; 
+				PlayerTemp[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pt_PLAYER_LISTITEM][listitem] = i; 
 				listitem ++;
 			}
 			strcat(dialog, "{c4290d}- Eliminar todo\n");
-			PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] = 13 + 20;
+			PlayerTemp[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pt_PLAYER_LISTITEM][listitem] = 13 + 20;
 			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Mis armas", dialog, "Continuar", "Atras");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, caption, dialog, "Continuar", "Atras");
 			return 1;
 		}
 		case DIALOG_PLAYER_WEAPONS_DELETE_A:

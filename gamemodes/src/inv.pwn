@@ -911,6 +911,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							case 1:
 							{
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 0;
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
 								if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar esta funcion.");
@@ -926,6 +927,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							case 2:
 							{
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 1;
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
 								if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar esta funcion.");
@@ -948,6 +950,38 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							{
 								PC_EmulateCommand(playerid, "/consumir marihuana");
 							}
+							case 1:
+							{
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 0;
+
+								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
+								if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar esta funcion.");
+								if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para hacer eso.");
+								
+								if(!IsPlayerConnected(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0])) return SendMessage(playerid, "El jugador no está conectado.");
+								new Float:pos[3]; GetPlayerPos(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pos[0], pos[1], pos[2]);
+								if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
+								if(PLAYER_TEMP[pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes interactuar con este jugador ahora.");
+
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de marihuana", "{d1d1d1}Escribe la cantidad de marihuana que quieres dar:", "Confirmar", "Cancelar");
+							}
+							case 2:
+							{
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 1;
+
+								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
+								if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar esta funcion.");
+								if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para hacer eso.");
+								
+								if(!IsPlayerConnected(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0])) return SendMessage(playerid, "El jugador no está conectado.");
+								new Float:pos[3]; GetPlayerPos(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pos[0], pos[1], pos[2]);
+								if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
+								if(PLAYER_TEMP[pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes interactuar con este jugador ahora.");
+
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de marihuana", "{d1d1d1}Escribe la cantidad de marihuana que quieres vender:", "Confirmar", "Cancelar");
+							}
 						}
 					}
 					case INVENTORY_TYPE_CRACK:
@@ -957,6 +991,38 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							case 0:
 							{
 								PC_EmulateCommand(playerid, "/consumir crack");
+							}
+							case 1:
+							{
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 0;
+
+								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
+								if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar esta funcion.");
+								if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para hacer eso.");
+								
+								if(!IsPlayerConnected(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0])) return SendMessage(playerid, "El jugador no está conectado.");
+								new Float:pos[3]; GetPlayerPos(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pos[0], pos[1], pos[2]);
+								if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
+								if(PLAYER_TEMP[pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes interactuar con este jugador ahora.");
+
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de crack", "{d1d1d1}Escribe la cantidad de crack que quieres dar:", "Confirmar", "Cancelar");
+							}
+							case 2:
+							{
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 1;
+
+								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
+								if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar esta funcion.");
+								if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para hacer eso.");
+								
+								if(!IsPlayerConnected(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0])) return SendMessage(playerid, "El jugador no está conectado.");
+								new Float:pos[3]; GetPlayerPos(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pos[0], pos[1], pos[2]);
+								if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
+								if(PLAYER_TEMP[pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes interactuar con este jugador ahora.");
+
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de crack", "{d1d1d1}Escribe la cantidad de crack que quieres vender:", "Confirmar", "Cancelar");
 							}
 						}
 					}

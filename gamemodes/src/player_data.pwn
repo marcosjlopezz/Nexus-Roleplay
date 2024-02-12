@@ -11,7 +11,6 @@ stock ClearPlayerTempData(playerid)
     pTemp(playerid)[pt_ANTIFLOOD_TALK] = 0;
     pTemp(playerid)[pt_TIMERS] = 0;
     pTemp(playerid)[pt_USER_VALID_NAME] = false;
-    pTemp(playerid)[pt_RP_NAME] = 0;
     pTemp(playerid)[pt_BAD_LOGIN_ATTEMP] = 0;
     pTemp(playerid)[pt_DOUBT_CHANNEL_TIME] = 0;
     pTemp(playerid)[pt_LAST_PICKUP_ID] = 0;
