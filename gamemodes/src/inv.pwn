@@ -1037,16 +1037,19 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(pTemp(playerid)[pt_INVENTORY_PLAYERID] != pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
 				
+				new cmd[445];
 				switch(pTemp(playerid)[pt_INVENTORY_POCKET_TYPE])
 				{
 					case INVENTORY_TYPE_CASH:
 					{
-						new cmd[1024]; 
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+
 						format(cmd, sizeof cmd, "/dar dinero %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], strval(inputtext));
 						PC_EmulateCommand(playerid, cmd);
 					}
 					case INVENTORY_TYPE_MECHANIC_PIECES:
 					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
 						if(strval(inputtext) < 0 || strval(inputtext) > PI[playerid][pMECHANIC_PIECES]) return SendMessage(playerid, "Cantidad de piezas incorrecta.");
 						
 						PI[playerid][pMECHANIC_PIECES] -= strval(inputtext);
@@ -1058,6 +1061,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case INVENTORY_TYPE_SEED_MEDICINE:
 					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
 						if(strval(inputtext) < 0 || strval(inputtext) > PI[playerid][pSEED_MEDICINE]) return SendMessage(playerid, "Cantidad de semillas incorrecta.");
 						
 						PI[playerid][pSEED_MEDICINE] -= strval(inputtext);
@@ -1069,6 +1073,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case INVENTORY_TYPE_SEED_CANNABIS:
 					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
 						if(strval(inputtext) < 0 || strval(inputtext) > PI[playerid][pSEED_CANNABIS]) return SendMessage(playerid, "Cantidad de semillas incorrecta..");
 						
 						PI[playerid][pSEED_CANNABIS] -= strval(inputtext);
@@ -1080,6 +1085,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case INVENTORY_TYPE_SEED_CRACK:
 					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
 						if(strval(inputtext) < 0 || strval(inputtext) > PI[playerid][pSEED_CRACK]) return SendMessage(playerid, "Cantidad de semillas incorrecta.");
 						
 						PI[playerid][pSEED_CRACK] -= strval(inputtext);
@@ -1089,10 +1095,90 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[ pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] ][pt_NAME]);
 						Auto_SendPlayerAction(playerid, action);
 					}
+					case INVENTORY_TYPE_MEDICINE:
+					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+
+						switch(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1])
+						{
+							case 0:
+							{
+								format(cmd, 445, "/dar medicamentos %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], strval(inputtext));
+								PC_EmulateCommand(playerid, cmd);
+							}
+							case 1:
+							{
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_2] = strval(inputtext);
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA_SELL, DIALOG_STYLE_INPUT, "Inventario - Precio", "{d1d1d1}Ingresa el precio del lo que quieres vender:", "Finalizar", "Cerrar");
+
+							}
+						}
+					}
+					case INVENTORY_TYPE_CANNABIS:
+					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+
+						switch(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1])
+						{
+							case 0:
+							{
+								format(cmd, 445, "/dar marihuana %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], strval(inputtext));
+								PC_EmulateCommand(playerid, cmd);
+
+							}
+							case 1:
+							{
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_2] = strval(inputtext);
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA_SELL, DIALOG_STYLE_INPUT, "Inventario - Precio", "{d1d1d1}Ingresa el precio del lo que quieres vender:", "Finalizar", "Cerrar");
+								
+							}
+						}
+					}
+					case INVENTORY_TYPE_CRACK:
+					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+
+						switch(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1])
+						{
+							case 0:
+							{
+								format(cmd, 445, "/dar crack %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], strval(inputtext));
+								PC_EmulateCommand(playerid, cmd);
+
+							}
+							case 1:
+							{
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_2] = strval(inputtext);
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA_SELL, DIALOG_STYLE_INPUT, "Inventario - Precio", "{d1d1d1}Ingresa el precio del lo que quieres vender:", "Finalizar", "Cerrar");
+							}
+						}
+					}
 				}
 			}
 			else ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
 			return Y_HOOKS_BREAK_RETURN_1;
+		}
+		case DIALOG_POCKETS_EXTRA_SELL:
+		{
+			new cmd[445];
+			switch(pTemp(playerid)[pt_INVENTORY_POCKET_TYPE])
+			{
+				case INVENTORY_TYPE_MEDICINE:
+				{
+					format(cmd, 445, "/vender medicamentos %d %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_2], strval(inputtext));
+					PC_EmulateCommand(playerid, cmd);
+				}
+				case INVENTORY_TYPE_CANNABIS:
+				{
+					format(cmd, 445, "/vender marihuana %d %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_2], strval(inputtext));
+					PC_EmulateCommand(playerid, cmd);
+				}
+				case INVENTORY_TYPE_CRACK:
+				{
+					format(cmd, 445, "/vender crack %d %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_2], strval(inputtext));
+					PC_EmulateCommand(playerid, cmd);
+				}
+			}
 		}
 		case DIALOG_PLAYER_WEAPONS:
 		{
