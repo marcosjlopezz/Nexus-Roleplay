@@ -28426,9 +28426,11 @@ CMD:curar(playerid, params[])
 	if(PI[to_playerid][pSTATE] != ROLEPLAY_STATE_CRACK) return SendClientMessagef(playerid, -1, "Esta persona no está herida.");
 	if(PI[to_playerid][pCREW] && CREW_INFO[ PlayerTemp[to_playerid][pt_CREW_INDEX] ][crew_FIGHTING]) return SendClientMessagef(playerid, -1, "No puedes curar a esta persona porque su banda está en combate.");
 
-	if(!PLAYER_WORKS[playerid][WORK_MEDIC][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] != WORK_MEDIC) {
+	if(!PLAYER_WORKS[playerid][WORK_MEDIC][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] != WORK_MEDIC) 
+	{
 		if(PI[playerid][pMEDICAL_KITS] <= 0) return SendClientMessagef(playerid, -1, "No tienes botiquines para curar a esta persona.");
-		else {
+		else 
+		{
 			new now = gettime();
 			if(PlayerTemp[playerid][pt_COOLDOWN_MEDICAL_KIT] > now) return SendClientMessagef(playerid, -1, "Debes esperar %d segundos para volver a poder curar.", PlayerTemp[playerid][pt_COOLDOWN_MEDICAL_KIT] - now);
 			PlayerTemp[playerid][pt_COOLDOWN_MEDICAL_KIT] = now + 300;

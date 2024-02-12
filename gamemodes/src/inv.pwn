@@ -66,6 +66,8 @@ stock ShowPlayerPocketOptions(playerid, opt) //DIALOG_PLAYER_POCKETS_OPTION
 		case INVENTORY_TYPE_MEDICINE: format(f_pocket, "Consumir\nDar\nVender");
 		case INVENTORY_TYPE_CANNABIS: format(f_pocket, "Consumir\nDar\nVender");
 		case INVENTORY_TYPE_CRACK: format(f_pocket, "Consumir\nDar\nVender");
+		case INVENTORY_TYPE_MECHANIC_KITS: format(f_pocket, "Reparar vehiculo cercano\nDar");
+		case INVENTORY_TYPE_MEDICAL_KITS: format(f_pocket, "Curar\nDar");
 		default: return 0;
 	}
 
@@ -646,6 +648,127 @@ stock ShowPlayerPocketOption(playerid, opt, extra)
 				}
 			}
 		}
+		case INVENTORY_TYPE_MECHANIC_KITS:
+		{
+			switch(extra)
+			{
+				case 0:
+				{
+					PC_EmulateCommand(playerid, "/reparar");
+				}
+				case 1:
+				{
+					format(f_pocket, "{d1d1d1}Escribe la ID del jugador al que quieres darle kits de reparacion, el usuario debe estar conectado\n{d1d1d1}y a una distancia de 4 o menos metros de ti.\n\n{d1d1d1}Jugadores Cercanos:\n");
+
+					new Float:oldposx, Float:oldposy, Float:oldposz, current_vw = GetPlayerVirtualWorld(playerid), current_int = GetPlayerInterior(playerid);
+					GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+
+					new total_players = 0;
+					LoopEx(i, MAX_PLAYERS, 0)
+					{
+						if(!IsPlayerConnected(i)) continue;
+						if(!pTemp(i)[pt_USER_LOGGED]) continue;
+						if(GetPlayerVirtualWorld(i) != current_vw) continue;
+						if(GetPlayerInterior(i) != current_int) continue;
+						if(i == playerid) continue;
+						if(GetPlayerState(i) == PLAYER_STATE_SPECTATING) continue;
+
+						if(IsPlayerInRangeOfPoint(i, 4.0, oldposx, oldposy, oldposz))
+						{
+							format(line_str, sizeof(line_str), "{"#YELLOW_COLOR"}%s {d1d1d1}[{ffffff}ID: %d{d1d1d1}]\n", pTemp(i)[pt_NAME], i);
+							strcat(dialog, line_str);
+
+							total_players ++;
+						}
+					}
+
+					new dialog_format = DIALOG_STYLE_INPUT;
+					if(total_players <= 0)
+					{
+						strcat(dialog, "{666666}No hay jugadores cerca.");
+						dialog_format = DIALOG_STYLE_MSGBOX;
+					}
+
+					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, dialog_format, "Inventario - Opción", dialog, "Continuar", "Atras");
+				}
+			}
+		}
+		case INVENTORY_TYPE_MEDICAL_KITS:
+		{
+			switch(extra)
+			{
+				case 0:
+				{
+					format(f_pocket, "{d1d1d1}Escribe la ID del jugador al que quieres curar, el usuario debe estar conectado\n{d1d1d1}y a una distancia de 4 o menos metros de ti.\n\n{d1d1d1}Jugadores Cercanos:\n");
+
+					new Float:oldposx, Float:oldposy, Float:oldposz, current_vw = GetPlayerVirtualWorld(playerid), current_int = GetPlayerInterior(playerid);
+					GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+
+					new total_players = 0;
+					LoopEx(i, MAX_PLAYERS, 0)
+					{
+						if(!IsPlayerConnected(i)) continue;
+						if(!pTemp(i)[pt_USER_LOGGED]) continue;
+						if(GetPlayerVirtualWorld(i) != current_vw) continue;
+						if(GetPlayerInterior(i) != current_int) continue;
+						if(i == playerid) continue;
+						if(GetPlayerState(i) == PLAYER_STATE_SPECTATING) continue;
+
+						if(IsPlayerInRangeOfPoint(i, NEARS_PLAYERS_DISTANCE, oldposx, oldposy, oldposz))
+						{
+							format(line_str, sizeof(line_str), "{"#YELLOW_COLOR"}%s {d1d1d1}[{ffffff}ID: %d{d1d1d1}]\n", pTemp(i)[pt_NAME], i);
+							strcat(dialog, line_str);
+
+							total_players ++;
+						}
+					}
+
+					new dialog_format = DIALOG_STYLE_INPUT;
+					if(total_players <= 0)
+					{
+						strcat(dialog, "{666666}No hay jugadores cerca.");
+						dialog_format = DIALOG_STYLE_MSGBOX;
+					}
+
+					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, dialog_format, "Inventario - Opción", dialog, "Continuar", "Atras");
+				}
+				case 1:
+				{
+					format(f_pocket, "{d1d1d1}Escribe la ID del jugador al que quieres darle botiquines, el usuario debe estar conectado\n{d1d1d1}y a una distancia de 4 o menos metros de ti.\n\n{d1d1d1}Jugadores Cercanos:\n");
+
+					new Float:oldposx, Float:oldposy, Float:oldposz, current_vw = GetPlayerVirtualWorld(playerid), current_int = GetPlayerInterior(playerid);
+					GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+
+					new total_players = 0;
+					LoopEx(i, MAX_PLAYERS, 0)
+					{
+						if(!IsPlayerConnected(i)) continue;
+						if(!pTemp(i)[pt_USER_LOGGED]) continue;
+						if(GetPlayerVirtualWorld(i) != current_vw) continue;
+						if(GetPlayerInterior(i) != current_int) continue;
+						if(i == playerid) continue;
+						if(GetPlayerState(i) == PLAYER_STATE_SPECTATING) continue;
+
+						if(IsPlayerInRangeOfPoint(i, NEARS_PLAYERS_DISTANCE, oldposx, oldposy, oldposz))
+						{
+							format(line_str, sizeof(line_str), "{"#YELLOW_COLOR"}%s {d1d1d1}[{ffffff}ID: %d{d1d1d1}]\n", pTemp(i)[pt_NAME], i);
+							strcat(dialog, line_str);
+
+							total_players ++;
+						}
+					}
+
+					new dialog_format = DIALOG_STYLE_INPUT;
+					if(total_players <= 0)
+					{
+						strcat(dialog, "{666666}No hay jugadores cerca.");
+						dialog_format = DIALOG_STYLE_MSGBOX;
+					}
+
+					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, dialog_format, "Inventario - Opción", dialog, "Continuar", "Atras");
+				}
+			}
+		}
 		default: return 0;
 	}
 	return 1;
@@ -702,6 +825,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case INVENTORY_TYPE_MEDICINE: if(PI[playerid][pMEDICINE] <= 0) return SendMessage(playerid, "No tienes medicamentos.");
 					case INVENTORY_TYPE_CANNABIS: if(PI[playerid][pCANNABIS] <= 0) return SendMessage(playerid, "No tienes marihuana.");
 					case INVENTORY_TYPE_CRACK: if(PI[playerid][pCRACK] <= 0) return SendMessage(playerid, "No tienes crack.");
+					case INVENTORY_TYPE_MECHANIC_KITS: if(PI[playerid][pMECHANIC_KITS] <= 0) return SendMessage(playerid, "No tienes kits de reparacion.");
+					case INVENTORY_TYPE_MEDICAL_KITS: if(PI[playerid][pMEDICAL_KITS] <= 0) return SendMessage(playerid, "No tienes botiquines.");
 				}
 
 				ShowPlayerPocketOptions(playerid, listitem);
@@ -735,6 +860,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							case 0:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -756,6 +883,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							case 0:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -775,6 +904,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							case 0: PC_EmulateCommand(playerid, "/movil"); //ineccesario pero por si acaso 
 							case 1:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -796,6 +927,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							case 0:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -811,6 +944,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							case 0:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -832,6 +967,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							case 0:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								new cmd[445]; format(cmd, 445, "/vertir %d", strval(inputtext));
 								PC_EmulateCommand(playerid, cmd);
 							}
@@ -843,6 +980,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							case 0:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -864,6 +1003,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							case 0:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -885,6 +1026,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							case 0:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 
 								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -910,6 +1053,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}
 							case 1:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 0;
 
@@ -926,6 +1071,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}
 							case 2:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 1;
 
@@ -952,6 +1099,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}
 							case 1:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 0;
 
@@ -968,6 +1117,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}
 							case 2:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 1;
 
@@ -994,6 +1145,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}
 							case 1:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 0;
 
@@ -1010,6 +1163,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}
 							case 2:
 							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
 								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 1;
 
@@ -1023,6 +1178,62 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(PLAYER_TEMP[pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes interactuar con este jugador ahora.");
 
 								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de crack", "{d1d1d1}Escribe la cantidad de crack que quieres vender:", "Confirmar", "Cancelar");
+							}
+						}
+					}
+					case INVENTORY_TYPE_MECHANIC_KITS:
+					{
+						switch(pTemp(playerid)[pt_INVENTORY_POCKET_OPTION])
+						{
+							case 0:
+							{
+								PC_EmulateCommand(playerid, "/reparar");
+							}
+							case 1:
+							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
+
+								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
+								if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar esta funcion.");
+								if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para hacer eso.");
+								
+								if(!IsPlayerConnected(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0])) return SendMessage(playerid, "El jugador no está conectado.");
+								new Float:pos[3]; GetPlayerPos(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pos[0], pos[1], pos[2]);
+								if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
+								if(PLAYER_TEMP[pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes interactuar con este jugador ahora.");
+
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de kits", "{d1d1d1}Escribe la cantidad de kits que quieres dar:", "Confirmar", "Cancelar");
+							}
+						}
+					}
+					case INVENTORY_TYPE_MEDICAL_KITS:
+					{
+						switch(pTemp(playerid)[pt_INVENTORY_POCKET_OPTION])
+						{
+							case 0:
+							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+								new cmd[445]; format(cmd, 445, "/curar %d", strval(inputtext));
+								PC_EmulateCommand(playerid, cmd);
+							}
+							case 1:
+							{
+								if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = strval(inputtext);
+
+								if(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] == playerid) return ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
+								if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar esta funcion.");
+								if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para hacer eso.");
+								
+								if(!IsPlayerConnected(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0])) return SendMessage(playerid, "El jugador no está conectado.");
+								new Float:pos[3]; GetPlayerPos(pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], pos[0], pos[1], pos[2]);
+								if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
+								if(PLAYER_TEMP[pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes interactuar con este jugador ahora.");
+
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de kits", "{d1d1d1}Escribe la cantidad de kits que quieres dar:", "Confirmar", "Cancelar");
 							}
 						}
 					}
@@ -1152,6 +1363,18 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA_SELL, DIALOG_STYLE_INPUT, "Inventario - Precio", "{d1d1d1}Ingresa el precio del lo que quieres vender:", "Finalizar", "Cerrar");
 							}
 						}
+					}
+					case INVENTORY_TYPE_MECHANIC_KITS:
+					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+						format(cmd, 445, "/dar kit %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], strval(inputtext));
+						PC_EmulateCommand(playerid, cmd);
+					}
+					case INVENTORY_TYPE_MEDICAL_KITS:
+					{
+						if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+						format(cmd, 445, "/dar botiquin %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], strval(inputtext));
+						PC_EmulateCommand(playerid, cmd);
 					}
 				}
 			}
