@@ -470,10 +470,7 @@ enum
 	DIALOG_BOAT_SELECT_COLOR,
 	DIALOG_FUEL_STATION,
 	DIALOG_FUEL,
-	DIALOG_FUEL_DRUM_CONFIRM,
-	DIALOG_PLAYER_POCKET,
-	DIALOG_PLAYER_POCKET_OPTIONS,
-	DIALOG_PLAYER_POCKET_DELETE_ALL
+	DIALOG_FUEL_DRUM_CONFIRM
 }
 
 enum
@@ -2955,8 +2952,7 @@ enum Temp_Enum
 	pt_PICKUP_TIMER,
 	bool:pt_DIALOG_OPENED,
 	pt_LAST_PICKUP_CHECKED,
-	pt_GLOBAL_TIMER,
-	pt_POCKET_SLOT_SELECTED
+	pt_GLOBAL_TIMER
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3992,18 +3988,6 @@ new PI[MAX_PLAYERS][enum_PI];
 forward OnPlayerRegister(playerid);
 forward OnPlayerLogin(playerid);
 
-#define MAX_PLAYER_POCKET_OBJECTS 10
-enum Player_Pocket_Enum
-{
-	bool:player_pocket_VALID,
-	player_pocket_object_ID,
-	player_pocket_object_NAME[24],
-	Float:player_pocket_object_HUNGRY,
-	Float:player_pocket_object_THIRST,
-	player_pocket_object_DRUNK,
-}
-new PLAYER_POCKET[MAX_PLAYERS][MAX_PLAYER_POCKET_OBJECTS][Player_Pocket_Enum]; // PP (PlayerPocket)
-
 new 
 	DIALOG_FOOD_PIZZA_String[800],
 	DIALOG_FOOD_CLUCKIN_String[800],
@@ -4310,9 +4294,6 @@ ResetPlayerVariables(playerid)
 	static const tmp_PI[enum_PI]; PI[playerid] = tmp_PI;
 
 	static const temp_PLAYER_TEMP[Temp_Enum]; PlayerTemp[playerid] = temp_PLAYER_TEMP;
-
-	static const temp_PLAYER_POCKET[Player_Pocket_Enum];
-	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++) PLAYER_POCKET[playerid][i] = temp_PLAYER_POCKET;
 
 	static const temp_PLAYER_TOYS[Player_Toys_Info];
 	for(new i = 0; i != MAX_VIP_TOYS; i ++) PLAYER_TOYS[playerid][i] = temp_PLAYER_TOYS;
@@ -6590,25 +6571,7 @@ CMD:dar(playerid, params[])
 		}
 		case _I<alimento>:
 		{
-			if(extra < 1 || extra > MAX_PLAYER_POCKET_OBJECTS) return SendMessage(playerid, "~r~Modo de uso: ~w~/dar alimento [ID o Nombre] [Slot /n]");
-		
-			extra --;
-			
-			if(!PLAYER_POCKET[playerid][extra][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
-			
-			new to_player_slot = GetEmptyPlayerPocketSlot(to_playerid);
-			if(to_player_slot == -1)
-			{
-				PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-				SendMessage(playerid, "El jugador no tiene más espacio entre sus alimentos.");
-				return 1;
-			}
-			
-			new action[64];
-			format(action, sizeof action, "le da su %s a %s.", PLAYER_POCKET[playerid][extra][player_pocket_object_NAME], PLAYER_TEMP[to_playerid][pt_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-			
-			TransferPlayerPocketObject(playerid, extra, to_playerid, to_player_slot);
+
 		}
 		case _I<medicamentos>:
 		{
@@ -6744,13 +6707,7 @@ CMD:vender(playerid, params[])
 	{
 		case _I<alimento>:
 		{
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] < 1 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > MAX_PLAYER_POCKET_OBJECTS) return SendMessage(playerid, "~r~Modo de uso: ~w~/vender alimento [ID o Nombre] [Slot /n] [precio]");
-			PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] --;
-			
-			if(!PLAYER_POCKET[playerid][ PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] ][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
-			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			ShowDialog(to_playerid, DIALOG_TRICKS_FOOD);
+
 		}
 		case _I<medicamentos>:
 		{
@@ -6805,32 +6762,8 @@ CMD:consumir(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
 	new option[24], slot;
-	if(!sscanf(params, "s[24]d", option, slot))	
-	{
-		if(!strcmp(option, "alimento", true))
-		{
-			if(slot < 1 || slot > MAX_PLAYER_POCKET_OBJECTS) return SendMessagef(playerid, "~r~Modo de uso: ~w~/consumir alimento [SLOT 1-%d]", MAX_PLAYER_POCKET_OBJECTS);
-		
-			slot --;
-			
-			if(!PLAYER_POCKET[playerid][slot][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
-			if(PI[playerid][pHUNGRY] >= 99.0 && PI[playerid][pTHIRST] >= 99.0) return SendMessage(playerid, "¿Es que quieres reventar?");
 
-			Add_Hungry_Thirst(playerid, PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST]);
-			GivePlayerDrunkLevel(playerid, PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK]);
-			
-			new action[64];
-			format(action, sizeof action, "consume %s.", PLAYER_POCKET[playerid][slot][player_pocket_object_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-			
-			DeletePlayerPocketObject(playerid, slot);
-
-			ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 0, 0, 0, 0, 0, 0);
-			ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 4.1, false, true, true, false, 1000);
-		}
-		else SendMessage(playerid, "~r~Modo de uso: ~w~/consumir [medicamento - marihuana - crack - alimento]");
-	}
-	else if(!sscanf(params, "s[24]", option))
+	if(!sscanf(params, "s[24]", option))
 	{
 		switch(YHash(option, false))
 		{
@@ -6870,7 +6803,6 @@ CMD:consumir(playerid, params[])
 				Auto_SendPlayerAction(playerid, "consume crack.");
 				GivePlayerDrunkLevel(playerid, 2000);
 			}
-			case _I<alimento>: SendMessagef(playerid, "~r~Modo de uso: ~w~/consumir alimento [SLOT 1-%d]", MAX_PLAYER_POCKET_OBJECTS);
 			
 			default: SendMessage(playerid, "~r~Modo de uso: ~w~/consumir [medicamento - marihuana - crack - alimento]");
 		}
@@ -7663,34 +7595,6 @@ stock ShowDialog(playerid, dialogid)
 			return 1;
 		}
 		case DIALOG_247_LIST: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "24/7", DIALOG_247_LIST_String, "Continuar", "Cerrar");
-		case DIALOG_PLAYER_POCKET:
-		{
-			new dialog[50 * (MAX_PLAYER_POCKET_OBJECTS + 2)], line_str[50];
-			for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
-			{
-				if(PLAYER_POCKET[playerid][i][player_pocket_VALID])
-				{
-					format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\n", i + 1, PLAYER_POCKET[playerid][i][player_pocket_object_NAME]);
-					strcat(dialog, line_str);
-				}
-				else
-				{
-					format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
-					strcat(dialog, line_str);
-				}
-			}
-			strcat(dialog, "{c4290d}- Eliminar todo\n");
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Alimentos", dialog, "Continuar", "Atras");
-			return 1;
-		}
-		case DIALOG_PLAYER_POCKET_OPTIONS:
-		{
-			new caption[64];
-			format(caption, sizeof caption, "Alimento - %s", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, "- Consumir\n- Dar\n- Vender\n- Eliminar", "Continuar", "Cerrar");
-			return 1;
-		}		
 		case DIALOG_PLAYER_WEAPONS_OPTIONS:
 		{
 			new caption[64];
@@ -7719,7 +7623,6 @@ stock ShowDialog(playerid, dialogid)
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog_body, "Continuar", "Cerrar");
 			return 1;
 		}
-		case DIALOG_PLAYER_POCKET_DELETE_ALL: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Alimentos - Eliminar todo", "¿Estás seguro de que quiere eliminar todos sus alimentos?\nEsta opción no se puede deshacer y perderás todos lo que haya.", "Eliminar", "Atrás");
 		case DIALOG_PHONE:
 		{
 			new caption[50];
@@ -8912,19 +8815,7 @@ stock ShowDialog(playerid, dialogid)
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Mis armas - Eliminar arma", dialog, "Eliminar", "Cerrar");	
 			return 1;
 		}
-		case DIALOG_ANIMS: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Animaciones", DIALOG_ANIMS_String, "Continuar", "X");
-		case DIALOG_TRICKS_FOOD:
-		{	
-			new dialog[150];
-			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: alimento\nNombre: %s\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PLAYER_TEMP[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
-									PLAYER_POCKET[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][ PLAYER_TEMP[playerid][pt_TRICK_SELLER_EXTRA] ][player_pocket_object_NAME],
-									number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE])
-								);
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
-			return 1;
-		}		
+		case DIALOG_ANIMS: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Animaciones", DIALOG_ANIMS_String, "Continuar", "X");	
 		case DIALOG_TRICKS_MEDICINE:
 		{	
 			new dialog[150];
@@ -11101,25 +10992,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						if(PI[playerid][pCASH] >= Supermarket_Product_List[listitem][product_PRICE])
 						{
-							new slot = GetEmptyPlayerPocketSlot(playerid);
-							if(slot == -1)
+							/*if(GivePlayerCash(playerid, -Supermarket_Product_List[listitem][product_PRICE], true, true)) 
 							{
-								PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-								SendMessage(playerid, "No tienes más espacio entre tus alimentos, elimina algo con ~g~/n~w~.");
-								return 1;
-							}
-							
-							if(GivePlayerCash(playerid, -Supermarket_Product_List[listitem][product_PRICE], true, true)) {
-								PLAYER_POCKET[playerid][slot][player_pocket_VALID] = true;
-								format(PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], 24, "%s", Supermarket_Product_List[listitem][product_NAME]);
-								PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY] = Supermarket_Product_List[listitem][product_HUNGRY];
-								PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST] = Supermarket_Product_List[listitem][product_THIRST];
-								PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK] = Supermarket_Product_List[listitem][product_DRUNK];
-								RegisterNewPlayerPocketObject(playerid, slot);
+
 								
 								SendMessagef(playerid, "Has comprado ~b~%s ~w~por ~g~%d$~w~, para consumirlo usa ~y~/n~w~.", Supermarket_Product_List[listitem][product_NAME], Supermarket_Product_List[listitem][product_PRICE]);
 								PlayerPlaySoundEx(playerid, 1058, 0.0, 0.0, 0.0);
-							}
+							}*/
 						}
 						else
 						{
@@ -11220,61 +11099,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 			}
 			else PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-			return 1;
-		}
-		case DIALOG_PLAYER_POCKET_OPTIONS:
-		{
-			if(response)
-			{
-				switch(listitem)
-				{
-					case 0: //Consumir
-					{
-						if(PI[playerid][pHUNGRY] >= 99.0 && PI[playerid][pTHIRST] >= 99.0) 
-						{
-							PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
-							SendMessage(playerid, "¿Es que quieres reventar?");
-							return 1;
-						}
-					
-						Add_Hungry_Thirst(playerid, PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_THIRST]);
-						GivePlayerDrunkLevel(playerid, PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_DRUNK]);
-						
-						new action[64];
-						format(action, sizeof action, "consume %s.", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
-						Auto_SendPlayerAction(playerid, action);
-						
-						DeletePlayerPocketObject(playerid, PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]);
-						PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
-					
-						ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 0, 0, 0, 0, 0, 0);
-						ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 4.1, false, true, true, false, 1000);
-					}
-					case 1: return 1;  //ShowNearsPlayersToPlayer(playerid, NEAR_PLAYERS_POCKET_GIVE);
-					case 2: return 1; //ShowNearsPlayersToPlayer(playerid, NEAR_PLAYERS_POCKET_SELL);
-					case 3: //Eliminar
-					{
-						SendMessagef(playerid, "Has eliminado \"%s\" de tus alimentos.", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
-						DeletePlayerPocketObject(playerid, PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]);
-						PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
-					}
-				}
-			}
-			return 1;
-		}
-		case DIALOG_PLAYER_POCKET_DELETE_ALL:
-		{
-			if(response)
-			{
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pfoods WHERE id_player = %d;", PI[playerid][pID]);
-				mysql_query(handle_db, QUERY_BUFFER);
-				
-				new temp_PLAYER_POCKET[Player_Pocket_Enum];
-				for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++) PLAYER_POCKET[playerid][i] = temp_PLAYER_POCKET;
-				
-				SendMessage(playerid, "Has eliminado todo lo que tenías en tus alimentos.");
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_POCKET);
 			return 1;
 		}
 		case DIALOG_PLAYER_WEAPONS_OPTIONS: 
@@ -13342,47 +13166,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 35: ApplyAnimation(playerid, "ped", "SEAT_down", 4.000000, 0, 1, 1, 1, 0);//asiento
 		        }
 				SendClientMessagef(playerid, -1, "Para detener la animacion utiliza /parar.");
-			}
-			return 1;
-		}
-		case DIALOG_TRICKS_FOOD:
-		{
-			if(response)
-			{
-				if(gettime() > PLAYER_TEMP[playerid][pt_TRICK_TIME] + 20) return SendMessage(playerid, "Has tardado mucho en aceptarlo.");
-				if(!IsPlayerConnected(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID])) return SendMessage(playerid, "El vendedor ya no está en el servidor.");
-				if(PI[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pID] != PLAYER_TEMP[playerid][pt_TRICK_SELLER_AID]) return SendMessage(playerid, "El vendedor ya no está en el servidor.");
-
-				new Float:pos[3]; GetPlayerPos(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendMessage(playerid, "El vendedor está demasiado lejos.");
-				if(PLAYER_TEMP[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "El vendedor no está disponible.");
-				
-
-				new to_player_slot = GetEmptyPlayerPocketSlot(playerid);
-				if(to_player_slot == -1)
-				{
-					PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-					SendMessage(playerid, "No tienes espacio en tus ~r~/n~w~ para comprar esto.");
-					return 1;
-				}
-				
-				if(GivePlayerCash(playerid, -PLAYER_TEMP[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], PLAYER_TEMP[playerid][pt_TRICK_PRICE], true, false)) {
-					TransferPlayerPocketObject(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], PLAYER_TEMP[playerid][pt_TRICK_SELLER_EXTRA], playerid, to_player_slot);
-					SendMessagef(playerid, "Te has gastado ~g~%s$~w~ con esta compra.", number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE]));
-					SendMessagef(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], "Has ganado ~g~%s$~w~ con esta venta.", number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE]));
-					
-					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PLAYER_TEMP[playerid][pt_NAME]);
-					Auto_SendPlayerAction(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], action);
-				}
-			}
-			else
-			{
-				if(gettime() > PLAYER_TEMP[playerid][pt_TRICK_TIME] + 20) return 1;
-				if(!IsPlayerConnected(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID])) return 1;
-				if(PI[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pID] != PLAYER_TEMP[playerid][pt_TRICK_SELLER_AID]) return 1;
-
-				SendMessage(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], "El comprador no ha aceptado tu trato.");
 			}
 			return 1;
 		}
@@ -17235,87 +17018,6 @@ GetEmptyPlayerPhoneBookSlot(playerid)
 	for(new i = 0; i != MAX_PHONE_CONTACTS; i ++)
 	{
 		if(!PLAYER_PHONE_BOOK[playerid][i][phone_book_contact_VALID]) return i;
-	}
-	return -1;
-}
-
-
-RegisterNewPlayerPocketObject(playerid, slot)
-{
-	inline OnPfoodInserted()
-	{
-		PLAYER_POCKET[playerid][slot][player_pocket_object_ID] = cache_insert_id();
-	}
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "INSERT INTO pfoods (id_player, name, hungry, thirst, drunk) VALUES (%d, '%e', %f, %f, %d);", PI[playerid][pID], PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST], PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK]);
-	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPfoodInserted);
-	return 1;
-}
-
-LoadPlayerPocketData(playerid)
-{
-	if(PI[playerid][pID] == 0) return 0;
-	
-	inline OnPfoodsLoad()
-	{
-		new rows;
-		if(cache_get_row_count(rows))
-		{
-			for(new i = 0; i != rows; i ++)
-			{
-				PLAYER_POCKET[playerid][i][player_pocket_VALID] = true;
-				cache_get_value_name_int(i, "id", PLAYER_POCKET[playerid][i][player_pocket_object_ID]);
-				cache_get_value_name(i, "name", PLAYER_POCKET[playerid][i][player_pocket_object_NAME]);
-				cache_get_value_name_float(i, "hungry", PLAYER_POCKET[playerid][i][player_pocket_object_HUNGRY]);
-				cache_get_value_name_float(i, "thirst", PLAYER_POCKET[playerid][i][player_pocket_object_THIRST]);
-				cache_get_value_name_int(i, "drunk", PLAYER_POCKET[playerid][i][player_pocket_object_DRUNK]);
-			}
-		}
-	}
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM pfoods WHERE id_player = %d;", PI[playerid][pID]);
-	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPfoodsLoad);
-	return 1;
-}
-
-TransferPlayerPocketObject(from_playerid, from_slot, to_playerid, to_slot)
-{
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pfoods SET id_player = %d WHERE id = %d;", PI[to_playerid][pID], PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID]);
-	mysql_tquery(handle_db, QUERY_BUFFER);
-	
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_VALID] = true;
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_ID] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID];
-	format(PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_NAME], 24, "%s", PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_NAME]);
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_HUNGRY] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_HUNGRY];
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_THIRST] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_THIRST];
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_DRUNK] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_DRUNK];
-	
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_VALID] = false;
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID] = 0;
-	format(PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_NAME], 24, "");
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_HUNGRY] = 0.0;
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_THIRST] = 0.0;
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_DRUNK] = 0;
-	return 1;
-}
-
-DeletePlayerPocketObject(playerid, slot)
-{
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pfoods WHERE id = %d;", PLAYER_POCKET[playerid][slot][player_pocket_object_ID]);
-	mysql_tquery(handle_db, QUERY_BUFFER);
-	
-	PLAYER_POCKET[playerid][slot][player_pocket_VALID] = false;
-	PLAYER_POCKET[playerid][slot][player_pocket_object_ID] = 0;
-	format(PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], 24, "");
-	PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY] = 0.0;
-	PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST] = 0.0;
-	PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK] = 0;
-	return 1;
-}
-
-GetEmptyPlayerPocketSlot(playerid)
-{
-	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
-	{
-		if(!PLAYER_POCKET[playerid][i][player_pocket_VALID]) return i;
 	}
 	return -1;
 }
@@ -23760,20 +23462,6 @@ stock CountPlayerToys(playerid)
 		}
 	}
 	return toys;
-}
-
-stock CountPlayerPocketObjects(playerid)
-{
-	new objects;
-	
-	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
-	{
-		if(PLAYER_POCKET[playerid][i][player_pocket_VALID])
-		{
-			objects ++;
-		}
-	}
-	return objects;
 }
 
 stock CountPlayerWeapons(playerid)
@@ -31200,7 +30888,6 @@ public OnPlayerLogin(playerid)
 	LoadPlayerVehicles(playerid);
 	LoadPlayerPhoneBook(playerid);
 	LoadPlayerToys(playerid);
-	LoadPlayerPocketData(playerid);
 	LoadPlayerGPSData(playerid);
 	LoadPlayerWeaponsData(playerid);
 	LoadPlayerWorks(playerid);
