@@ -119,6 +119,10 @@ AntiAmx()
 #define Loop(%0,%1,%2)			for(new %0 = %2; %0 < %1; %0++)
 #define LoopEx(%0,%1,%2)		for(new %0 = %2; %0 != %1; %0++)
 
+#define	minutes(%0)				%0 * 1000 * 60
+#define	seconds(%0)				%0 * 1000
+#define	hour(%0)				%0 * 1000 * 60 * 60
+
 #define VIP_COINS_PRICE 10
 #define CNAME_COINS_PRICE 10
 
@@ -479,7 +483,11 @@ enum
 	DIALOG_PLAYER_POCKETS_OPTION,
 	DIALOG_POCKETS_OPTION,
 	DIALOG_POCKETS_EXTRA,
-	DIALOG_POCKETS_EXTRA_SELL
+	DIALOG_POCKETS_EXTRA_SELL,
+	DIALOG_PHARMACY,
+	DIALOG_PHARMACY_BUY_MEDICINE,
+	DIALOG_PHARMACY_MEDICINE_BUY,
+	DIALOG_PHARMACY_BUY_MEDIKITS
 }
 
 enum
@@ -771,8 +779,6 @@ new Float:obtain_work_coords[][obtain_work_coords_info] =
 	{true, true, 377.902313, -119.416114, 1001.492187, 5, false, 0, 2105.485107, -1806.400878, 13.554687}, //pizzero
 	{true, true, -2033.237304, -117.411125, 1035.171875, 3,	false, 0, 0.0, 0.0, 0.0} //medico
 };
-
-new Float:MedicalBuyKitsCoords[][3] = { {-2031.387207, -115.191055, 1035.171875} };
 
 //ZONAS
 enum
@@ -2971,7 +2977,8 @@ enum Temp_Enum
 	pt_INVENTORY_POCKET_EXTRA_1,
 	pt_INVENTORY_POCKET_EXTRA_2,
 	Float:pt_INVENTORY_POCKET_EXTRA_3,
-	Float:pt_INVENTORY_POCKET_EXTRA_4
+	Float:pt_INVENTORY_POCKET_EXTRA_4,
+	pt_MEDICINE_TIMER
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3839,7 +3846,8 @@ enum
 	PICKUP_TYPE_EQUIPMENT,
 	PICKUP_TYPE_OBTAIN_WORK,
 	PICKUP_TYPE_HELP,
-	PICKUP_TYPE_FUELSTATION
+	PICKUP_TYPE_FUELSTATION,
+	PICKUP_TYPE_PHARMACY
 };
 
 enum Fuel_Stations_Info
@@ -17970,6 +17978,7 @@ public OnPlayerClickTextDraw(playerid, Text:clickedid)
 
         SetPlayerScore(playerid, PI[playerid][pLEVEL]);
         PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();
+		pTemp(playerid)[pt_MEDICINE_TIMER] = gettime();
 		PlayerTemp[playerid][pt_GLOBAL_TIMER] = gettime();
         ResetPlayerWeapons(playerid);
         ResetPlayerMoney(playerid);
@@ -19071,6 +19080,10 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 		case PICKUP_TYPE_FUELSTATION:
 		{
 			ShowDialog(playerid, DIALOG_FUEL_STATION);
+		}
+		case PICKUP_TYPE_PHARMACY:
+		{
+			ShowPharmacyDialog(playerid, DIALOG_PHARMACY);
 		}
 	}
 
@@ -23179,26 +23192,6 @@ CMD:kit(playerid, params[])
 			if(GivePlayerCash(playerid, -1000, true, true)) {
 				PI[playerid][pMECHANIC_KITS] += 1;
 				SendClientMessagef(playerid, -1, "Has comprado un kit de reparacion, para usararlo usa /reparar cerca del vehículo que quieras reparar.");
-			}
-			else SendClientMessagef(playerid, -1, "No tienes suficiente dinero.");
-			return 1;
-		}
-
-	SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	return 1;
-}
-
-CMD:botiquin(playerid, params[])
-{
-	if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return SendClientMessagef(playerid, -1, "No estás depie.");
-	if(!PLAYER_WORKS[playerid][WORK_MEDIC][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] != WORK_MEDIC) return SendClientMessagef(playerid, -1, "Solo los médicos pueden comprar botiquines.");
-	
-	for(new i; i != sizeof MedicalBuyKitsCoords; i++)
-		if(IsPlayerInRangeOfPoint(playerid, 1.0, MedicalBuyKitsCoords[i][0], MedicalBuyKitsCoords[i][1], MedicalBuyKitsCoords[i][2]))
-		{
-			if(GivePlayerCash(playerid, -5000, true, true)) {
-				PI[playerid][pMEDICAL_KITS] += 1;
-				SendClientMessagef(playerid, -1, "Has comprado un botiquín, para usararlo usa /curar cerca de la persona que quieras curar.");
 			}
 			else SendClientMessagef(playerid, -1, "No tienes suficiente dinero.");
 			return 1;
@@ -29444,9 +29437,6 @@ stock LoadServerInfo()
 	CreateDynamicPickup(1275, 1, -2029.751342, -114.503044, 1035.171875, -1, 3);
 	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/medico {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, -2029.751342, -114.503044, 1035.171875, 5.0, .testlos = true, .interiorid = 3);
 
-	for(new i; i != sizeof MedicalBuyKitsCoords; i++)
-		CreateDynamic3DTextLabel("Botiquines\n\nEscribe {"#PRIMARY_COLOR"}/botiquin {FFFFFF}para comprar un botiquín\nPrecio del botiquín: {"#PRIMARY_COLOR"}5.000$", 0xFFFFFFFF, MedicalBuyKitsCoords[i][0], MedicalBuyKitsCoords[i][1], MedicalBuyKitsCoords[i][2], 5.0, .testlos = true);
-
 	//Trash
 	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/basurero {FFFFFF}para empezar a trabajar\no para dejar de trabajar", 0xFFFFFFFF, -1906.577514, -1756.457519, 22.079319, 5.0, .testlos = true, .worldid = 0, .interiorid = 0);
 
@@ -31230,6 +31220,7 @@ public OnPlayerLogin(playerid)
 
 	SetPlayerScore(playerid, PI[playerid][pLEVEL]);
 	PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();
+	pTemp(playerid)[pt_MEDICINE_TIMER] = gettime();
 	PlayerTemp[playerid][pt_GLOBAL_TIMER] = gettime();
 	ResetPlayerWeapons(playerid);
 	ResetPlayerMoney(playerid);
@@ -31945,3 +31936,4 @@ stock GetNearVehicle(playerid, Float:fDis = 5.0)
 #include "src/gender_selector.pwn"
 #include "src/server_play.pwn"
 #include "src/player_data.pwn"
+#include "src/pharmacy.pwn"
