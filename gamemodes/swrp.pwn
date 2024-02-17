@@ -344,6 +344,7 @@ enum
 	DIALOG_PLAYER_GPS_SITE_6,
 	DIALOG_PLAYER_GPS_SITE_7,
 	DIALOG_PLAYER_GPS_SITE_8,
+	DIALOG_PLAYER_GPS_SITE_9,
 	DIALOG_PLAYER_GPS_PROPERTIES,
 	DIALOG_PLAYER_GPS_VEHICLES,
 	DIALOG_PROPERTY_OPTIONS,
@@ -3020,8 +3021,7 @@ enum
 	INTERIOR_HOSPITAL,
 	INTERIOR_CLUB,
 	INTERIOR_DRIVING_SCHOOL,
-	INTERIOR_AMAZON,
-	INTERIOR_IKEA
+	INTERIOR_PHARMACY
 }
 enum Enter_Exits
 {
@@ -3159,7 +3159,17 @@ new ENTER_EXIT[][Enter_Exits] = // EE = EnterExits
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Hospital", INTERIOR_HOSPITAL, -1, false, 7, 3, -2029.700683, -119.617759, 1035.171875, 0.0, 22, false, 0, 0,	-1514.855590, 2520.366699, 55.909828, 0.0	, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Hospital", INTERIOR_HOSPITAL, -1, false, 8, 3, -2029.700683, -119.617759, 1035.171875, 0.0, 22, false, 0, 0,	1583.311401, 1768.952758, 10.820312, 90.0	, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Club", INTERIOR_CLUB, -1, false, 0, 3, 1212.160522, -26.097007, 1000.953125, 180.0, 21, false, 0, 0, 693.761047, 1967.498168, 5.539062, 180.0, 20, 8, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Autoescuela", INTERIOR_DRIVING_SCHOOL,  -1, false, 1, 1, 1067.775512, -338.253540, 2797.699951, 180.0, 36, false, 0, 0,	-2026.736938, -101.953544, 35.164062, 359.273956, 8, 21, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Autoescuela", INTERIOR_DRIVING_SCHOOL,  -1, false, 1, 1, 1067.775512, -338.253540, 2797.699951, 180.0, 36, false, 0, 0,	-2026.736938, -101.953544, 35.164062, 359.273956, 8, 21, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	2063.144531, -1897.216918, 13.553800, 350.875305, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	2352.009277, -1412.268188, 23.992412, 273.470184, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	984.542358, -1131.203247, 23.820327, 359.603851, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	1284.649047, -1585.623779, 13.546875, 155.803787, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	984.542358, -1131.203247, 23.820327, 359.603851, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}/*,
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}*/
 }; 
 
 enum enum_JAIL_POSITIONS
@@ -8199,6 +8209,29 @@ stock ShowDialog(playerid, dialogid)
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "GPS - Policías", dialog, "Continuar", "Atrás");	
 			return 1;
 		}
+		case DIALOG_PLAYER_GPS_SITE_9: //Farmacias
+		{
+			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+
+			new dialog[90 * (MAX_LISTITEMS + 1)];
+			format(dialog, sizeof dialog, "Lugar\tDistancia\n");
+
+			new line_str[90], sites;
+			for(new i = 0; i != sizeof(ENTER_EXIT); i++ )
+			{
+				if(sites >= MAX_LISTITEMS) break;
+				if(ENTER_EXIT[i][ee_INTERIOR_TYPE] != INTERIOR_PHARMACY) continue;
+
+				format(line_str, sizeof line_str, "{FFFFFF}%d. %s\t%.2f Km\n", sites + 1, ENTER_EXIT[i][ee_NAME], (GetPlayerDistanceFromPoint(playerid, ENTER_EXIT[i][ee_EXT_X], ENTER_EXIT[i][ee_EXT_Y], ENTER_EXIT[i][ee_EXT_Z]) * 0.01));
+				strcat(dialog, line_str);
+
+				PlayerTemp[playerid][pt_PLAYER_LISTITEM][sites] = i;
+				sites ++;
+			}
+			
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "GPS - Policías", dialog, "Continuar", "Atrás");	
+			return 1;
+		}
 		case DIALOG_PLAYER_GPS_PROPERTIES:
 		{
 			inline OnDialogQueryLoad()
@@ -11764,6 +11797,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 8: SetPlayer_GPS_Checkpoint(playerid, 1480.966918, -1772.065673, 18.795755, 0, 0);
 					case 9: ShowDialog(playerid, DIALOG_PLAYER_GPS_SITE_8);
 					case 10: SetPlayer_GPS_Checkpoint(playerid, 263.592102, 22.960014, 2.170951, 0, 0);
+					case 11: ShowDialog(playerid, DIALOG_PLAYER_GPS_SITE_9);
 				}
 			}
 			else ShowDialog(playerid, DIALOG_PLAYER_GPS);
@@ -11786,7 +11820,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			else ShowDialog(playerid, DIALOG_PLAYER_GPS_SITES);
 			return 1;
 		}
-		case DIALOG_PLAYER_GPS_SITE_1 .. DIALOG_PLAYER_GPS_SITE_4, DIALOG_PLAYER_GPS_SITE_8: //EE
+		case DIALOG_PLAYER_GPS_SITE_1 .. DIALOG_PLAYER_GPS_SITE_4, DIALOG_PLAYER_GPS_SITE_8, DIALOG_PLAYER_GPS_SITE_9: //EE
 		{
 			if(response)
 			{
@@ -19966,6 +20000,15 @@ CreateInteriorActor(interior_type, world, interior)
 			InteriorActorInfo[0][ia_POS_Y] 	= -66.351226;
 			InteriorActorInfo[0][ia_POS_Z] 	= 1002.497375;
 			InteriorActorInfo[0][ia_POS_A]	= 0.0;
+		}
+		case INTERIOR_PHARMACY:
+		{
+			InteriorActorInfo[0][ia_VALID]	= true;
+			InteriorActorInfo[0][ia_SKIN]	= 70;
+			InteriorActorInfo[0][ia_POS_X] 	= 425.1694;
+			InteriorActorInfo[0][ia_POS_Y] 	= -1723.1028;
+			InteriorActorInfo[0][ia_POS_Z] 	= 2244.3611;
+			InteriorActorInfo[0][ia_POS_A]	= 180.0;
 		}
 		default: return INVALID_ACTOR_ID;
 	}

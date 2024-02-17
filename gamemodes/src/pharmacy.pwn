@@ -29,7 +29,7 @@
 #define MEDICINE_TIMER              1200 //segundos
 
 new MedicineBuyCount[MAX_PLAYERS];
-new Float:PharmacyBuyInfo[3] = {0.0, 0.0, 0.0};
+new Float:PharmacyBuyInfo[3] = {-425.3830, -1725.8013, 2244.3611};
 
 //Impl
 
