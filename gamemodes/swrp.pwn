@@ -7985,8 +7985,8 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_GPS_SITES:
 		{
-			new dialog[1024];
-			format(dialog, sizeof dialog, "- Hospitales\n- Tiendas de Ropa\n- Tiendas 24/7\n- Restaurantes\n- Bancos\n- Cajeros\n- Gasolineras\n- Concesionarios\n- Gobierno\n- Policías\n- Autoescuela\n- Farmacias");
+			new dialog[4096];
+			format(dialog, sizeof dialog, "- Hospitales\n- Tiendas de Ropa\n- Tiendas 24/7\n- Restaurantes\n- Bancos\n- Cajeros\n- Gasolineras\n- Concesionarios\n- Gobierno\n- Policías\n- Autoescuela\n- Farmacias\n");
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "GPS - Lugares de interés", dialog, "Continuar", "Atrás");
 			return 1;
 		}
