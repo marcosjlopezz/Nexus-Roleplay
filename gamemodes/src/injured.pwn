@@ -8,6 +8,7 @@ hook OnPlayerSpawn(playerid)
 		PLAYER_TEMP[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
 		PLAYER_TEMP[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
 		PLAYER_TEMP[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
+        PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
 
         SetPlayerHud(playerid);
         if(PLAYER_TEMP[playerid][pt_GAME_STATE] == GAME_STATE_DEAD) SetPlayerHealthEx(playerid, 100.0);
@@ -25,19 +26,23 @@ hook OnPlayerSpawn(playerid)
 
 hook OnPlayerUpdate(playerid)
 {
-    if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK)
+    if(gettime() > PlayerTemp[playerid][pt_INJURED_TIMER_POS])
     {
-        new Float:distance = GetPlayerDistanceFromPoint(playerid, 
-        PLAYER_TEMP[playerid][pt_INJURED_POS][0], 
-        PLAYER_TEMP[playerid][pt_INJURED_POS][1], 
-        PLAYER_TEMP[playerid][pt_INJURED_POS][2]);
-
-        if(distance > 3.0)
+        if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK)
         {
-            SetPlayerPosEx(playerid, PLAYER_TEMP[playerid][pt_INJURED_POS][0], PLAYER_TEMP[playerid][pt_INJURED_POS][1], PLAYER_TEMP[playerid][pt_INJURED_POS][2], PLAYER_TEMP[playerid][pt_INJURED_POS][3], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid), 0, 1);
+            new Float:distance = GetPlayerDistanceFromPoint(playerid, 
+            PLAYER_TEMP[playerid][pt_INJURED_POS][0], 
+            PLAYER_TEMP[playerid][pt_INJURED_POS][1], 
+            PLAYER_TEMP[playerid][pt_INJURED_POS][2]);
+
+            if(distance > 3.0)
+            {
+                SetPlayerPosEx(playerid, PLAYER_TEMP[playerid][pt_INJURED_POS][0], PLAYER_TEMP[playerid][pt_INJURED_POS][1], PLAYER_TEMP[playerid][pt_INJURED_POS][2], PLAYER_TEMP[playerid][pt_INJURED_POS][3], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid), 0, 1);
+                PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
+            }
+            
+            if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
         }
-        
-        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
     }
     return Y_HOOKS_CONTINUE_RETURN_1;
 }

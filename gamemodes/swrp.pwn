@@ -2979,7 +2979,8 @@ enum Temp_Enum
 	pt_INVENTORY_POCKET_EXTRA_2,
 	Float:pt_INVENTORY_POCKET_EXTRA_3,
 	Float:pt_INVENTORY_POCKET_EXTRA_4,
-	pt_MEDICINE_TIMER
+	pt_MEDICINE_TIMER,
+	pt_INJURED_TIMER_POS
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3161,15 +3162,9 @@ new ENTER_EXIT[][Enter_Exits] = // EE = EnterExits
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Club", INTERIOR_CLUB, -1, false, 0, 3, 1212.160522, -26.097007, 1000.953125, 180.0, 21, false, 0, 0, 693.761047, 1967.498168, 5.539062, 180.0, 20, 8, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Autoescuela", INTERIOR_DRIVING_SCHOOL,  -1, false, 1, 1, 1067.775512, -338.253540, 2797.699951, 180.0, 36, false, 0, 0,	-2026.736938, -101.953544, 35.164062, 359.273956, 8, 21, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	2063.144531, -1897.216918, 13.553800, 350.875305, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	2352.009277, -1412.268188, 23.992412, 273.470184, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	984.542358, -1131.203247, 23.820327, 359.603851, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	1284.649047, -1585.623779, 13.546875, 155.803787, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	984.542358, -1131.203247, 23.820327, 359.603851, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}/*,
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	Cooords, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}*/
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 2, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	2352.009277, -1412.268188, 23.992412, 273.470184, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 3, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	984.542358, -1131.203247, 23.820327, 359.603851, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 4, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	1284.649047, -1585.623779, 13.546875, 155.803787, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}
 }; 
 
 enum enum_JAIL_POSITIONS
@@ -4652,6 +4647,7 @@ public OnPlayerSpawn(playerid)
 	GameTextForPlayer(playerid, "_", 500, 3);
 	PlayerTemp[playerid][pt_TIMERS][23] = -1;
 	ShowPlayerHudInfo(playerid, 30);
+	UpdatePlayerWorldInfo(playerid);
 	PlayerTemp[playerid][pt_CONTROL] = false;
 	PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 	PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
@@ -4942,6 +4938,7 @@ hook OnPlayerDeath(playerid, killerid, reason)
 		PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
 		PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
 		PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
+		PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
 	}
 	
 	PlayerTemp[playerid][pt_GAME_STATE] = GAME_STATE_DEAD;
@@ -7986,7 +7983,7 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_PLAYER_GPS_SITES:
 		{
 			new dialog[4096];
-			format(dialog, sizeof dialog, "- Hospitales\n- Tiendas de Ropa\n- Tiendas 24/7\n- Restaurantes\n- Bancos\n- Cajeros\n- Gasolineras\n- Concesionarios\n- Gobierno\n- Policías\n- Autoescuela\n- Farmacias\n");
+			format(dialog, sizeof dialog, "- Hospitales\n- Tiendas de Ropa\n- Tiendas 24/7\n- Restaurantes\n- Bancos\n- Cajeros\n- Gasolineras\n- Concesionarios\n- Gobierno\n- Policías\n- Autoescuela\n- Farmacias");
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "GPS - Lugares de interés", dialog, "Continuar", "Atrás");
 			return 1;
 		}
@@ -31281,6 +31278,7 @@ public OnPlayerLogin(playerid)
 	PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
 	PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
 	PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
+	PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
 	
 	SetSpawnInfo(playerid, NO_TEAM, PI[playerid][pSKIN], PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z], PI[playerid][pANGLE], 0, 0, 0, 0, 0, 0);
 	SetPlayerInterior(playerid, PI[playerid][pINTERIOR]);
