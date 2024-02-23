@@ -132,11 +132,11 @@ static stock _WC_IncludeStates() <_ALS : _ALS_go> {}
 // when used with the newer standard libraries
 // https://github.com/sampctl/samp-stdlib/
 // https://github.com/sampctl/pawn-stdlib
-#if !defined SAMP_CONST_CORRECT
+/*#if !defined SAMP_CONST_CORRECT
 	#define WC_CONST
 #else
 	#define WC_CONST const
-#endif
+#endif*/
 
 #if !defined _INC_open_mp
 	#if !defined BULLET_HIT_TYPE
@@ -1797,7 +1797,7 @@ stock WC_GetWeaponName(WEAPON:weaponid, weapon[], len = sizeof(weapon))
 	return 1;
 }
 
-stock WC_ApplyAnimation(playerid, WC_CONST animlib[], WC_CONST animname[], Float:fDelta, loop, lockx, locky, freeze, time, FORCE_SYNC:forcesync = FORCE_SYNC:0)
+stock WC_ApplyAnimation(playerid, const animlib[], const animname[], Float:fDelta, loop, lockx, locky, freeze, time, FORCE_SYNC:forcesync = FORCE_SYNC:0)
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS || s_IsDying[playerid]) {
 		return 0;
@@ -2085,14 +2085,14 @@ stock WC_SetPlayerSpecialAction(playerid, SPECIAL_ACTION:actionid)
 #if defined _INC_open_mp
 stock Text:WC_TextDrawCreate(Float:x, Float:y, const text[], OPEN_MP_TAGS:...)
 #else
-stock Text:WC_TextDrawCreate(Float:x, Float:y, WC_CONST text[], GLOBAL_TAG_TYPES:...)
+stock Text:WC_TextDrawCreate(Float:x, Float:y, const text[], GLOBAL_TAG_TYPES:...)
 #endif
 #else
-stock Text:WC_TextDrawCreate(Float:x, Float:y, WC_CONST text[])
+stock Text:WC_TextDrawCreate(Float:x, Float:y, const text[])
 #endif
 {
 	#if defined _INC_y_va
-		new Text:td = TextDrawCreate(x, y, text, ___(3));
+		new Text:td = va_TextDrawCreate(x, y, text, ___(3));
 	#else
 		new Text:td = TextDrawCreate(x, y, text);
 	#endif
@@ -2210,15 +2210,15 @@ stock WC_TextDrawHideForAll(Text:text)
 #if defined _INC_open_mp
 stock WC_TextDrawSetString(Text:text, const string[], OPEN_MP_TAGS:...)
 #else
-stock WC_TextDrawSetString(Text:text, WC_CONST string[], GLOBAL_TAG_TYPES:...)
+stock WC_TextDrawSetString(Text:text, const string[], GLOBAL_TAG_TYPES:...)
 #endif
 #else
-stock WC_TextDrawSetString(Text:text, WC_CONST string[])
+stock WC_TextDrawSetString(Text:text, const string[])
 #endif
 {
 	if (_:text < 0 || text >= Text:MAX_TEXT_DRAWS || s_InternalTextDraw[text]) return 0;
 	#if defined _INC_y_va
-		return TextDrawSetString(text, string, ___(2));
+		return va_TextDrawSetString(text, string, ___(2));
 	#else
 		return TextDrawSetString(text, string);
 	#endif
@@ -2246,15 +2246,15 @@ stock WC_TextDrawSetPreviewVehCol(Text:text, color1, color2)
 #if defined _INC_open_mp
 stock PlayerText:WC_CreatePlayerTextDraw(playerid, Float:x, Float:y, const text[], OPEN_MP_TAGS:...)
 #else
-stock PlayerText:WC_CreatePlayerTextDraw(playerid, Float:x, Float:y, WC_CONST text[], GLOBAL_TAG_TYPES:...)
+stock PlayerText:WC_CreatePlayerTextDraw(playerid, Float:x, Float:y, const text[], GLOBAL_TAG_TYPES:...)
 #endif
 #else
-stock PlayerText:WC_CreatePlayerTextDraw(playerid, Float:x, Float:y, WC_CONST text[])
+stock PlayerText:WC_CreatePlayerTextDraw(playerid, Float:x, Float:y, const text[])
 #endif
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS) return PlayerText:INVALID_TEXT_DRAW;
 	#if defined _INC_y_va
-		new PlayerText:td = CreatePlayerTextDraw(playerid, x, y, text, ___(4));
+		new PlayerText:td = va_CreatePlayerTextDraw(playerid, x, y, text, ___(4));
 	#else
 		new PlayerText:td = CreatePlayerTextDraw(playerid, x, y, text);
 	#endif
@@ -2375,16 +2375,16 @@ stock WC_PlayerTextDrawHide(playerid, PlayerText:text)
 #if defined _INC_open_mp
 stock WC_PlayerTextDrawSetString(playerid, PlayerText:text, const string[], OPEN_MP_TAGS:...)
 #else
-stock WC_PlayerTextDrawSetString(playerid, PlayerText:text, WC_CONST string[], GLOBAL_TAG_TYPES:...)
+stock WC_PlayerTextDrawSetString(playerid, PlayerText:text, const string[], GLOBAL_TAG_TYPES:...)
 #endif
 #else
-stock WC_PlayerTextDrawSetString(playerid, PlayerText:text, WC_CONST string[])
+stock WC_PlayerTextDrawSetString(playerid, PlayerText:text, const string[])
 #endif
 {
 	if (playerid < 0 || playerid >= MAX_PLAYERS) return 0;
 	if (_:text < 0 || text >= PlayerText:MAX_PLAYER_TEXT_DRAWS || s_InternalPlayerTextDraw[playerid][text]) return 0;
 	#if defined _INC_y_va
-		return PlayerTextDrawSetString(playerid, text, string, ___(3));
+		return va_PlayerTextDrawSetString(playerid, text, string, ___(3));
 	#else
 		return PlayerTextDrawSetString(playerid, text, string);
 	#endif
@@ -2564,7 +2564,7 @@ stock WC_PlayerTextDrawSetPreviewVehC(playerid, PlayerText:text, color1, color2)
 		if (_:textid < 0 || textid >= Text:MAX_TEXT_DRAWS || s_InternalTextDraw[textid]) return false;
 		if (playerid < 0 || playerid >= MAX_PLAYERS) return false;
 		#if defined _INC_y_va
-			return TextDrawSetStringForPlayer(textid, playerid, format, ___(3));
+			return va_TextDrawSetStringForPlayer(textid, playerid, format, ___(3));
 		#else
 			return TextDrawSetStringForPlayer(textid, playerid, format);
 		#endif
@@ -7319,15 +7319,6 @@ CHAIN_FORWARD:WC_OnPlayerDeathFinished(playerid, bool:cancelable) = 1;
 	#define _ALS_SetPlayerSpecialAction
 #endif
 #define SetPlayerSpecialAction WC_SetPlayerSpecialAction
-
-
-#if defined _ALS_TextDrawCreate
-	#undef TextDrawCreate
-#else
-	#define _ALS_TextDrawCreate
-#endif
-#define TextDrawCreate WC_TextDrawCreate
-
 
 #if defined _ALS_TextDrawDestroy
 	#undef TextDrawDestroy

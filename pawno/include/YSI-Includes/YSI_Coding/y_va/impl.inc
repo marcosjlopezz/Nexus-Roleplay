@@ -669,14 +669,24 @@ stock va_getstring(dest[], arg, len = sizeof (dest))
 	#emit STACK      16
 }
 
-stock PlayerText:va_CreatePlayerTextDraw(playerid, Float:x, Float:y, fmat[], va_args<>)
+stock PlayerText:va_CreatePlayerTextDraw(playerid, Float:x, Float:y, const fmat[], va_args<>)
 {
 	return CreatePlayerTextDraw(playerid, x, y, va_return(fmat, va_start<4>));
 }
 
-stock Text:va_TextDrawCreate(Float:x, Float:y, fmat[], va_args<>)
+stock Text:va_TextDrawCreate(Float:x, Float:y, const fmat[], va_args<>)
 {
 	return TextDrawCreate(x, y, va_return(fmat, va_start<3>));
+}
+
+stock va_TextDrawSetString(Text:text, const fmat[], va_args<>)
+{
+	return TextDrawSetString(text, va_return(fmat, va_start<2>));
+}
+
+stock va_PlayerTextDrawSetString(playerid, PlayerText:text, const fmat[], va_args<>)
+{
+	return PlayerTextDrawSetString(playerid, text, va_return(fmat, va_start<3>));
 }
 
 stock va_SendClientMessage(playerid, colour, const fmat[], va_args<>)
