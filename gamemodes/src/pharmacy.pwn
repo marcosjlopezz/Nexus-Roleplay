@@ -35,6 +35,9 @@ new Float:PharmacyBuyInfo[3] = {-425.3830, -1725.8013, 2244.3611};
 
 stock ShowPharmacyDialog(playerid, extra)
 {
+	PlayerTemp[playerid][pt_DIALOG_RESPONDED] = false;
+	PlayerTemp[playerid][pt_DIALOG_ID] = extra;
+
     switch(extra)
     {
         case DIALOG_PHARMACY:

@@ -41,7 +41,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.0 Alpha"
+#define SERVER_VERSION			"1.1 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -16934,11 +16934,12 @@ RegisterNewPlayer(playerid)
 				config_admin,\
 				phone_visible_number,\
 				doubt_channel,\
-				global_channel\
+				global_channel,\
+				vip_expire_date\
 			) \
 			VALUES\
 			(\
-				'%e', '%e', '%e', '%e', '%e', '%e', %d, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %d, %d, %f, %f, %f, %d, %d, %d, %d, %d, %d\
+				'%e', '%e', '%e', '%e', '%e', '%e', %d, %d, %d, %d, %d, %d, %d, %d, %f, %f, %f, %f, %d, %d, %f, %f, %f, %d, %d, %d, %d, %d, %d, '0000-00-00 00:00:00'\
 			);\
 		",
 			PI[playerid][pNAME], PI[playerid][pIP], PI[playerid][pEMAIL], PI[playerid][pPASS], 

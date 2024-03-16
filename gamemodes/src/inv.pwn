@@ -27,6 +27,9 @@
 stock ShowPlayerInventoryMenu(playerid, pid)
 {
     if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return 1;
+	
+	PlayerTemp[playerid][pt_DIALOG_RESPONDED] = false;
+	PlayerTemp[playerid][pt_DIALOG_ID] = DIALOG_INVENTORY;
 
     pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] = pid;
     pTemp(playerid)[pt_INVENTORY_PLAYERID] = playerid;
