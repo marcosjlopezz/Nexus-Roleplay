@@ -11,10 +11,10 @@ AntiAmx()
     #pragma unused a
 }
 
-#define MYSQL_HOST "127.0.0.1"
-#define MYSQL_USER "root"
-#define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""
+#define MYSQL_HOST "92.119.129.228"
+#define MYSQL_USER "u9_rRbMrzQ3an"
+#define MYSQL_DB "s9_swrp_db"
+#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -38,6 +38,7 @@ AntiAmx()
 #include <samp_bcrypt>
 #include <mobile>
 #include <eSelection>
+#include <discord-connector>
 
 /* NOMBRES */
 #define SERVER_VERSION			"1.0 Alpha"
@@ -5946,6 +5947,11 @@ CMD:tg(playerid, params[])
 		}
 	}
 
+	//Discord
+	new tittle[443]; format(tittle, sizeof(tittle), "**[Telegram] • %s**", pTemp(playerid)[pt_NAME]);
+	SendGlobalDiscordMessage(tittle, params[0], playerid);
+	//====================
+
 	new message[445]; format(message, 445, "[Telegram] • {ffffff}#{2AABEE}%s {ffffff}(%d): %s", pTemp(playerid)[pt_NAME], playerid, params[0]);
 	SendMessageToGlobalChannel(playerid, message);
 	return 1;
@@ -5972,6 +5978,11 @@ CMD:atg(playerid, params[])
 			return 1;
 		}
 	}
+
+	//Discord
+	new tittle[443]; format(tittle, sizeof(tittle), "**[Telegram] •** ***[#:%d]***", PI[playerid][pID]);
+	SendGlobalDiscordMessage(tittle, params[0], playerid);
+	//====================
 
 	new message[445]; format(message, 445, "[Telegram] • {666666}[#:%d]: {ffffff}%s", PI[playerid][pID], params[0]);
 	SendMessageToGlobalChannel(playerid, message);
@@ -31978,3 +31989,4 @@ stock GetNearVehicle(playerid, Float:fDis = 5.0)
 #include "src/server_play.pwn"
 #include "src/player_data.pwn"
 #include "src/pharmacy.pwn"
+#include "src/discord.pwn"
