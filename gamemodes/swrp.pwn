@@ -167,10 +167,7 @@ new Welcome_Messages[][] =
 #define PRESSED(%0) (((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 #define RELEASED(%0) (((newkeys & (%0)) != (%0)) && ((oldkeys & (%0)) == (%0)))
 
-main() 
-{
-	ConfigDiscordBot();
-}
+main() {}
 
 #define NEARS_PLAYERS_DISTANCE 4.0
 
@@ -5177,6 +5174,7 @@ public OnGameModeInit()
 	LoadServerInfo();
 	LoadAntiCheatInfo();
 	SetRandomRconPassword();
+	ConfigDiscordBot();
 
 	SetWorldMinutesForDay(180); // 3 horas reales = 24 horas en juego
 	DisableInteriorEnterExits();
@@ -5982,8 +5980,8 @@ CMD:tg(playerid, params[])
 	}
 
 	//Discord
-	new tittle[443]; format(tittle, sizeof(tittle), "**[Telegram] • %s**", pTemp(playerid)[pt_NAME]); new messaged[256]; format(messaged, 256, "%s", params[0]);
-	SendGlobalDiscordMessage(tittle, messaged);
+	new messaged[443]; format(messaged, sizeof(messaged), "```[Telegram] • #%s (%d): %s```", pTemp(playerid)[pt_NAME], playerid, params[0]);
+	SendGlobalDiscordMessage(messaged);
 	//====================
 
 	new message[445]; format(message, 445, "[Telegram] • {ffffff}#{2AABEE}%s {ffffff}(%d): %s", pTemp(playerid)[pt_NAME], playerid, params[0]);
@@ -6014,8 +6012,8 @@ CMD:atg(playerid, params[])
 	}
 
 	//Discord
-	new tittle[443]; format(tittle, sizeof(tittle), "**[Telegram] •** ***[#:%d]***", PI[playerid][pID]);
-	SendGlobalDiscordMessage(tittle, params[0]);
+	new messaged[443]; format(messaged, sizeof(messaged), "```[Telegram] • [#:%d]: %s```", PI[playerid][pID], params[0]);
+	SendGlobalDiscordMessage(messaged);
 	//====================
 
 	new message[445]; format(message, 445, "[Telegram] • {666666}[#:%d]: {ffffff}%s", PI[playerid][pID], params[0]);
