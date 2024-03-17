@@ -23,8 +23,9 @@ callbackp:SendGlobalDiscordMessage(const tittle[], const message[], playerid)
     return 1;
 }*/
 
-hook OnScriptInit()
+stock ConfigDiscordBot()
 {
     Global_Channel_Discord = DCC_FindChannelById(GLOBAL_CHANNEL_ID);
     //Sell_Channel_Discord = DCC_FindChannelById(SELL_CHANNEL_ID);
+    return 1;
 }

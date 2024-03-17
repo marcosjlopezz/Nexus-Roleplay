@@ -11,10 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-#define MYSQL_HOST "92.119.129.228"
+/*#define MYSQL_HOST "92.119.129.228"
 #define MYSQL_USER "u9_rRbMrzQ3an"
 #define MYSQL_DB "s9_swrp_db"
-#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"
+#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"*/
+
+#define MYSQL_HOST "localhost"
+#define MYSQL_USER "root"
+#define MYSQL_DB "swrp_db"
+#define MYSQL_PASS ""
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -41,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.2 Alpha"
+#define SERVER_VERSION			"1.3 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -49,7 +54,7 @@ AntiAmx()
 #define	SERVER_NAME1			"Samp"
 #define	SERVER_NAME2			"World"
 
-#define SERVER_GAMEMODE			"Roleplay en Español"
+#define SERVER_GAMEMODE			"Roleplay r"SERVER_VERSION""
 #define SERVER_LANGUAGE			"Español - Spanish"
 #define SERVER_WEBSITE			"-"
 #define	SERVER_DISCORD			"-"
@@ -162,7 +167,10 @@ new Welcome_Messages[][] =
 #define PRESSED(%0) (((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 #define RELEASED(%0) (((newkeys & (%0)) != (%0)) && ((oldkeys & (%0)) == (%0)))
 
-main() {}
+main() 
+{
+	ConfigDiscordBot();
+}
 
 #define NEARS_PLAYERS_DISTANCE 4.0
 
@@ -268,6 +276,28 @@ new Float:Driving_School_Points[][] =
 	{-2164.760986, -67.964546, 35.04682},
 	{-2080.382324, -72.316001, 35.04682},
 	{-2025.379638, -95.889015, 35.03900}
+};
+
+enum e_ELEVATOR_INFO
+{
+	Float:initial_pos_x,
+	Float:initial_pos_y,
+	Float:initial_pos_z,
+	Float:initial_pos_angle,
+
+	Float:secondary_pos_x,
+	Float:secondary_pos_y,
+	Float:secondary_pos_z,
+	Float:secondary_pos_angle,
+
+	elevator_interior
+};
+new ELEVATOR_INFO[][e_ELEVATOR_INFO] =
+{
+	{932.5338, -1458.0327, 2754.3318, 180.0,	932.5161, -1458.1503, 2761.0164, 180.0,	1}, //Gobierno
+	{929.4949, -1458.2985, 2754.3318, 180.0,	929.5954, -1458.4185, 2761.0063, 180.0, 1}, //Gobierno
+	{906.4886, -1457.7817, 2754.3218, 180.0,	906.6495, -1457.8956, 2761.0164, 180.0, 1}, //Gobierno
+	{909.4767, -1458.2749, 2754.3218, 180.0,	909.5597, -1458.1979, 2761.0164, 180.0,	1}	//Gobierno
 };
 
 enum e_PLAYER_AC_INFO
@@ -489,7 +519,8 @@ enum
 	DIALOG_PHARMACY,
 	DIALOG_PHARMACY_BUY_MEDICINE,
 	DIALOG_PHARMACY_MEDICINE_BUY,
-	DIALOG_PHARMACY_BUY_MEDIKITS
+	DIALOG_PHARMACY_BUY_MEDIKITS,
+	DIALOG_CONFIRM_ELEVATOR
 }
 
 enum
@@ -2981,7 +3012,9 @@ enum Temp_Enum
 	Float:pt_INVENTORY_POCKET_EXTRA_3,
 	Float:pt_INVENTORY_POCKET_EXTRA_4,
 	pt_MEDICINE_TIMER,
-	pt_INJURED_TIMER_POS
+	pt_INJURED_TIMER_POS,
+	pt_ELEVATOR_INDEX,
+	pt_ELEVATOR_OPTION
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3142,7 +3175,7 @@ new ENTER_EXIT[][Enter_Exits] = // EE = EnterExits
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Banco Los Santos", INTERIOR_BANK_LS, -1, true, 5, 5, 1412.077880, 1315.779907, 1501.087890, 90.0,	52, false, 0, 0, 1477.583740, -1010.425170, 26.843750, 180.0, 8, 22, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Banco San Fierro", INTERIOR_BANK_SF, -1, true, 10, 10, 1104.824462, 1515.503173, 1452.807128, 0.0, 52, false, 0, 0, -1961.384887, 441.804687, 35.171875, 90.0, 8, 22, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Banco Las Venturas", INTERIOR_BANK_LV, -1, true, 15, 15, 2673.430908, -610.844604, -71.658203, 270.0, 52, false, 0, 0, 2474.557861, 1024.154052, 10.820312, 180.0, 8, 22, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{1000, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Gobierno San Andreas", INTERIOR_CITY_HALL_LS, -1, true, 20, 20, -501.181243, 286.212188, 2001.094970, 0.0, 3, false, 0, 0, 1480.966918, -1772.065673, 18.795755, 0.0, 8, 21, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{1000, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Gobierno San Andreas", INTERIOR_CITY_HALL_LS, -1, true, 1, 1, 920.2025, -1474.7396, 2754.3318, 0.0, 3, false, 0, 0, 1480.966918, -1772.065673, 18.795755, 0.0, 8, 21, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Unity Station", INTERIOR_UNITY_STATION, -1, false, 0, 3, 1494.416015, 1303.681884, 1093.289062, 0.0, -1, false, 0, 0, 1752.603881, -1894.155883, 13.557376, 270.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Camioneros", INTERIOR_TRUCK, -1, true, 25, 18, 1297.457031, -61.437820, 1002.498046, 180.0, -1, false, 0, 0, -510.699890, -539.409118, 25.523437, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_LS, -1, false, 0, 6, 246.827011, 62.424068, 1003.640625, 0.0, 30, false, 0, 0, 1555.400390, -1675.611694, 16.195312, 90.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
@@ -3853,7 +3886,8 @@ enum
 	PICKUP_TYPE_OBTAIN_WORK,
 	PICKUP_TYPE_HELP,
 	PICKUP_TYPE_FUELSTATION,
-	PICKUP_TYPE_PHARMACY
+	PICKUP_TYPE_PHARMACY,
+	PICKUP_TYPE_ELEVATOR
 };
 
 enum Fuel_Stations_Info
@@ -5948,8 +5982,8 @@ CMD:tg(playerid, params[])
 	}
 
 	//Discord
-	new tittle[443]; format(tittle, sizeof(tittle), "**[Telegram] • %s**", pTemp(playerid)[pt_NAME]);
-	SendGlobalDiscordMessage(tittle, params[0], playerid);
+	new tittle[443]; format(tittle, sizeof(tittle), "**[Telegram] • %s**", pTemp(playerid)[pt_NAME]); new messaged[256]; format(messaged, 256, "%s", params[0]);
+	SendGlobalDiscordMessage(tittle, messaged, playerid);
 	//====================
 
 	new message[445]; format(message, 445, "[Telegram] • {ffffff}#{2AABEE}%s {ffffff}(%d): %s", pTemp(playerid)[pt_NAME], playerid, params[0]);
@@ -10400,6 +10434,7 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_FUEL_STATION: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Gasolinera - Opciones", "{d1d1d1}Opcion\t{d1d1d1}Precio\n{d1d1d1}Repostar\t{"#GREEN_COLOR"}5$/Litro\n{d1d1d1}Comprar Bidon\t{"#GREEN_COLOR"}100$", "Continuar", "Cerrar");
 		case DIALOG_FUEL_DRUM_CONFIRM: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Gasolinera - Confirmar Compra", "{d1d1d1}¿Estas seguro que quieres comprar un bidon de 20 Litros por 100$?", "Comprar", "Atras");
 		case DIALOG_FUEL: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_INPUT, "Gasolinera - Repostar", "{d1d1d1}Escribe la cantidad de litros que deseas repostar\n\n{d1d1d1}Precio: 5$/Litro.", "Confirmar", "Atras");
+		case DIALOG_CONFIRM_ELEVATOR: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Elevador", "{d1d1d1}¿Estas seguro que quieres usar este elevador?", "Continuar", "Cancelar");
 		default: return 0;
 	}
 	return 1;
@@ -16264,6 +16299,49 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				ShowDialog(playerid, DIALOG_FUEL_STATION);
 			}
 		}
+		case DIALOG_CONFIRM_ELEVATOR:
+		{
+			if(response)
+			{
+				switch(PlayerTemp[playerid][pt_ELEVATOR_OPTION])
+				{
+					case 0:
+					{
+						SetPlayerPosEx
+						(
+							playerid, 
+							
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][secondary_pos_x], 
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][secondary_pos_y], 
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][secondary_pos_z], 
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][secondary_pos_angle], 
+							
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][elevator_interior], 
+							GetPlayerVirtualWorld(playerid), 
+							
+							1, 0
+						);
+					}
+					case 1:
+					{
+						SetPlayerPosEx
+						(
+							playerid, 
+							
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][initial_pos_x], 
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][initial_pos_y], 
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][initial_pos_z], 
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][initial_pos_angle], 
+							
+							ELEVATOR_INFO[ PlayerTemp[playerid][pt_ELEVATOR_INDEX] ][elevator_interior], 
+							GetPlayerVirtualWorld(playerid), 
+							
+							1, 0
+						);
+					}
+				}
+			}
+		}
 	}
 	return 0;
 }//OnDialogResponse
@@ -19128,6 +19206,12 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 		{
 			ShowPharmacyDialog(playerid, DIALOG_PHARMACY);
 		}
+		case PICKUP_TYPE_ELEVATOR:
+		{
+			PlayerTemp[playerid][pt_ELEVATOR_INDEX] = info[1];
+			PlayerTemp[playerid][pt_ELEVATOR_OPTION] = info[2];
+			ShowDialog(playerid, DIALOG_CONFIRM_ELEVATOR);
+		}
 	}
 
 	PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
@@ -19987,10 +20071,10 @@ CreateInteriorActor(interior_type, world, interior)
 		{
 			InteriorActorInfo[0][ia_VALID]	= true;
 			InteriorActorInfo[0][ia_SKIN]	= 186;
-			InteriorActorInfo[0][ia_POS_X] 	= -474.572387;
-			InteriorActorInfo[0][ia_POS_Y] 	= 287.982879;
-			InteriorActorInfo[0][ia_POS_Z] 	= 2004.584960;
-			InteriorActorInfo[0][ia_POS_A]	= 0.0;
+			InteriorActorInfo[0][ia_POS_X] 	= 945.8759;
+			InteriorActorInfo[0][ia_POS_Y] 	= -1464.4989;
+			InteriorActorInfo[0][ia_POS_Z] 	= 2761.0164;
+			InteriorActorInfo[0][ia_POS_A]	= 85.0;
 		}
 		case INTERIOR_UNITY_STATION:
 		{
@@ -29056,6 +29140,27 @@ stock LoadServerInfo()
 		info[2] = 0; // Nada
 		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, help_actor_pickup, E_STREAMER_EXTRA_ID, info);	
 	}
+
+	Loop(i, sizeof(ELEVATOR_INFO), 0)
+	{
+		new info[3];
+
+		CreateDynamic3DTextLabel("Elevador\n"COME_INTERACTION_MESSAGE"para subir", 0xFFFFFFFF, ELEVATOR_INFO[i][initial_pos_x], ELEVATOR_INFO[i][initial_pos_y], ELEVATOR_INFO[i][initial_pos_z], 15.0, .testlos = true, .worldid = -1, .interiorid = ELEVATOR_INFO[i][elevator_interior]);
+		new Elevator_Pickup_Up = CreateDynamicPickup(0, 1, ELEVATOR_INFO[i][initial_pos_x], ELEVATOR_INFO[i][initial_pos_y], ELEVATOR_INFO[i][initial_pos_z], -1, ELEVATOR_INFO[i][elevator_interior]);
+
+		info[0] = PICKUP_TYPE_ELEVATOR;
+		info[1] = i; // Index
+		info[2] = 0; // Subir
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, Elevator_Pickup_Up, E_STREAMER_EXTRA_ID, info);
+
+		CreateDynamic3DTextLabel("Elevador\n"COME_INTERACTION_MESSAGE"para bajar", 0xFFFFFFFF, ELEVATOR_INFO[i][secondary_pos_x], ELEVATOR_INFO[i][secondary_pos_y], ELEVATOR_INFO[i][secondary_pos_z], 15.0, .testlos = true, .worldid = -1, .interiorid = ELEVATOR_INFO[i][elevator_interior]);
+		new Elevator_Pickup_Down = CreateDynamicPickup(0, 1, ELEVATOR_INFO[i][secondary_pos_x], ELEVATOR_INFO[i][secondary_pos_y], ELEVATOR_INFO[i][secondary_pos_z], -1, ELEVATOR_INFO[i][elevator_interior]);
+
+		info[0] = PICKUP_TYPE_ELEVATOR;
+		info[1] = i; // Index
+		info[2] = 1; // Bajar
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, Elevator_Pickup_Down, E_STREAMER_EXTRA_ID, info);	
+	}
 	
 	//autoescuela
 	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/examen {FFFFFF}para realizar el examen por 500$.", 0xFFFFFFFF, 1063.718994, -343.093566, 2797.699951, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
@@ -29279,16 +29384,16 @@ stock LoadServerInfo()
 	}
 	
 	//Notario
-	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para vender\nalguna propiedad o vehículo", 0xFFFFFFFF, -474.596282, 289.679107, 2004.584960, 10.0, .testlos = true, .interiorid = 20);
-	new nto_pickup = CreateDynamicPickup(0, 1, -474.596282, 289.679107, 2004.584960 + 0.10, -1, 20), nto_info[3];
+	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para vender\nalguna propiedad o vehículo", 0xFFFFFFFF, 943.3202, -1464.3085, 2761.0164, 10.0, .testlos = true, .interiorid = 1);
+	new nto_pickup = CreateDynamicPickup(0, 1, 943.3202, -1464.3085, 2761.0164 + 0.10, -1, 1), nto_info[3];
 	nto_info[0] = PICKUP_TYPE_NOTARY;
 	nto_info[1] = 0; // Nada
 	nto_info[2] = 0; // Nada
 	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, nto_pickup, E_STREAMER_EXTRA_ID, nto_info);
 
 	//Grua
-	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para solicitar\nel servicio de grua a un vehículo", 0xFFFFFFFF, -508.645385, 322.147644, 2004.585937, 10.0, .testlos = true, .interiorid = 20);
-	new crane_pickup = CreateDynamicPickup(0, 1, -508.645385, 322.147644, 2004.585937 + 0.10, -1, 20), crn_info[3];
+	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para solicitar\nel servicio de grua a un vehículo", 0xFFFFFFFF, 943.6078, -1467.0909, 2761.0164, 10.0, .testlos = true, .interiorid = 1);
+	new crane_pickup = CreateDynamicPickup(0, 1, 943.6078, -1467.0909, 2761.0164 + 0.10, -1, 20), crn_info[3];
 	crn_info[0] = PICKUP_TYPE_CRANE;
 	crn_info[1] = 0; // Nada
 	crn_info[2] = 0; // Nada
@@ -30793,15 +30898,14 @@ CMD:selectobject(playerid, params[])
 {
 	SendClientMessagef(playerid, -1, "Entraste en seleccion de objetos");
 	SelectObject(playerid);
-
 	return 1;
 }
 
-CMD:std(playerid, params[]) {
+CMD:std(playerid, params[]) 
+{
 	SelectTextDrawEx(playerid, 0xe8d08fFF);
 	return 1;
 }
-
 
 CMD:historial(playerid, params[])
 {	
