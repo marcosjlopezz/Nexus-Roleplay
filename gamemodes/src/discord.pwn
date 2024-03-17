@@ -9,17 +9,46 @@ new DCC_Channel:Global_Channel_Discord;
 //new DCC_Channel:Sell_Channel_Discord;
 
 //Impl
-callbackp:SendGlobalDiscordMessage(const tittle[], const message[], playerid)
+stock SendGlobalDiscordMessage(const tittle[], const message[])
 {
-    new DCC_Embed:GlobalMessage = DCC_CreateEmbed(tittle, message);
-    DCC_SendChannelEmbedMessage(Global_Channel_Discord, GlobalMessage);
+    new tittle_fixed[256], message_fixed[256]; format(tittle_fixed, 256, "%s", tittle); format(message_fixed, 256, "%s", message);
+    
+    new DCC_Embed:e_GlobalMessage; 
+    e_GlobalMessage = DCC_CreateEmbed
+    (
+        tittle_fixed, 
+        message_fixed, 
+        "", 
+        "", 
+        1752220, 
+        "", 
+        "", 
+        "", 
+        ""
+    );
+    DCC_SendChannelEmbedMessage(Global_Channel_Discord, e_GlobalMessage, "");
+
     return 1;
 }
 
-/*callbackp:SendSellDiscordMessage(const tittle[], const message[], playerid)
+/*stock SendSellDiscordMessage(const tittle[], const message[])
 {
-    new DCC_Embed:SellMessage = DCC_CreateEmbed(tittle, message);
-    DCC_SendChannelEmbedMessage(Sell_Channel_Discord, SellMessage);
+    new tittle_fixed[256], message_fixed[256]; format(tittle_fixed, 256, "%s", tittle); format(message_fixed, 256, "%s", message);
+    
+    new DCC_Embed:e_SellMessage; 
+    e_SellMessage = DCC_CreateEmbed
+    (
+        tittle_fixed, 
+        message_fixed, 
+        "", 
+        "", 
+        1752220, 
+        "", 
+        "", 
+        "", 
+        ""
+    );
+    DCC_SendChannelEmbedMessage(Sell_Channel_Discord, e_SellMessage, "");
     return 1;
 }*/
 

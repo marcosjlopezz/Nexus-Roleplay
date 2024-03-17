@@ -5983,7 +5983,7 @@ CMD:tg(playerid, params[])
 
 	//Discord
 	new tittle[443]; format(tittle, sizeof(tittle), "**[Telegram] • %s**", pTemp(playerid)[pt_NAME]); new messaged[256]; format(messaged, 256, "%s", params[0]);
-	SendGlobalDiscordMessage(tittle, messaged, playerid);
+	SendGlobalDiscordMessage(tittle, messaged);
 	//====================
 
 	new message[445]; format(message, 445, "[Telegram] • {ffffff}#{2AABEE}%s {ffffff}(%d): %s", pTemp(playerid)[pt_NAME], playerid, params[0]);
@@ -6015,7 +6015,7 @@ CMD:atg(playerid, params[])
 
 	//Discord
 	new tittle[443]; format(tittle, sizeof(tittle), "**[Telegram] •** ***[#:%d]***", PI[playerid][pID]);
-	SendGlobalDiscordMessage(tittle, params[0], playerid);
+	SendGlobalDiscordMessage(tittle, params[0]);
 	//====================
 
 	new message[445]; format(message, 445, "[Telegram] • {666666}[#:%d]: {ffffff}%s", PI[playerid][pID], params[0]);
