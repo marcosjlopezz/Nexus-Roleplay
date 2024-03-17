@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-/*#define MYSQL_HOST "92.119.129.228"
+#define MYSQL_HOST "92.119.129.228"
 #define MYSQL_USER "u9_rRbMrzQ3an"
 #define MYSQL_DB "s9_swrp_db"
-#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"*/
+#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"
 
-#define MYSQL_HOST "localhost"
+/*#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""
+#define MYSQL_PASS ""*/
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.3 Alpha"
+#define SERVER_VERSION			"1.4 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -4507,6 +4507,8 @@ public OnPlayerSpawn(playerid)
 		ApplyAnimation(playerid,"POLICE","null",0.0,0,0,0,0,0);
 
 		PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
+
+		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "Hola, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs y damos recompensa por encontrar bugs a los que son Interinos\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
 
 		if(PI[playerid][pPOLICE_DUTY] != 0)
 		{
