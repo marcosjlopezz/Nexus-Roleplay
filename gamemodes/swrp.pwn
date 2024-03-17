@@ -5174,7 +5174,6 @@ public OnGameModeInit()
 	LoadServerInfo();
 	LoadAntiCheatInfo();
 	SetRandomRconPassword();
-	ConfigDiscordBot();
 
 	SetWorldMinutesForDay(180); // 3 horas reales = 24 horas en juego
 	DisableInteriorEnterExits();
@@ -5979,11 +5978,6 @@ CMD:tg(playerid, params[])
 		}
 	}
 
-	//Discord
-	new messaged[443]; format(messaged, sizeof(messaged), "```[Telegram] • #%s (%d): %s```", pTemp(playerid)[pt_NAME], playerid, params[0]);
-	SendGlobalDiscordMessage(messaged);
-	//====================
-
 	new message[445]; format(message, 445, "[Telegram] • {ffffff}#{2AABEE}%s {ffffff}(%d): %s", pTemp(playerid)[pt_NAME], playerid, params[0]);
 	SendMessageToGlobalChannel(playerid, message);
 	return 1;
@@ -6010,11 +6004,6 @@ CMD:atg(playerid, params[])
 			return 1;
 		}
 	}
-
-	//Discord
-	new messaged[443]; format(messaged, sizeof(messaged), "```[Telegram] • [#:%d]: %s```", PI[playerid][pID], params[0]);
-	SendGlobalDiscordMessage(messaged);
-	//====================
 
 	new message[445]; format(message, 445, "[Telegram] • {666666}[#:%d]: {ffffff}%s", PI[playerid][pID], params[0]);
 	SendMessageToGlobalChannel(playerid, message);
