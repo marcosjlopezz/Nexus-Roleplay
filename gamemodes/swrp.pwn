@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-/*#define MYSQL_HOST "92.119.129.228"
+#define MYSQL_HOST "92.119.129.228"
 #define MYSQL_USER "u9_rRbMrzQ3an"
 #define MYSQL_DB "s9_swrp_db"
-#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"*/
+#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"
 
-#define MYSQL_HOST "localhost"
+/*#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""
+#define MYSQL_PASS ""*/
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -249,30 +249,37 @@ new ac_Info[][e_ac_Info] = /* Valores por defecto si no se carga de AC.txt */
 
 new Float:Driving_School_Points[][] =
 {
-	{-2046.806640, -78.443099, 35.04331},
-	{-2013.774780, -72.396865, 35.04462},
-	{-2007.532470, -187.772094, 35.5859},
-	{-2008.538696, -286.359100, 35.1949},
-	{-2197.762207, -289.570770, 35.1921},
-	{-2208.258300, -192.957733, 35.0926},
-	{-2346.990966, -187.385894, 35.0468},
-	{-2371.669677, -73.981056, 35.15266},
-	{-2438.013671, -68.217697, 34.54619},
-	{-2496.469482, -65.725486, 25.43449},
-	{-2497.072021, 34.770183, 25.335966},
-	{-2423.709716, 39.920101, 34.890605},
-	{-2414.502197, 232.563766, 34.89061},
-	{-2314.661621, 412.145690, 34.89409},
-	{-2382.651123, 557.856140, 24.61735},
-	{-2195.194335, 562.594299, 34.89065},
-	{-2015.883666, 562.195312, 34.89488},
-	{-2007.202514, 330.878173, 34.88609},
-	{-2143.078613, 322.394317, 35.04595},
-	{-2148.475097, 225.861907, 35.04685},
-	{-2163.534179, 89.445915, 35.046863},
-	{-2164.760986, -67.964546, 35.04682},
-	{-2080.382324, -72.316001, 35.04682},
-	{-2025.379638, -95.889015, 35.03900}
+	{1104.8827,-1741.1328,13.2559}, // punto
+	{1133.0331,-1741.3047,13.2109}, // punto
+	{1168.5569,-1741.5630,13.2056}, // punto
+	{1173.2051,-1722.0657,13.4306}, // punto
+	{1196.7122,-1714.7490,13.1833}, // punto
+	{1229.5729,-1714.5195,13.1841}, // punto
+	{1254.4447,-1714.4352,13.1841}, // punto
+	{1284.7510,-1714.3323,13.1841}, // punto
+	{1299.2788,-1678.1302,13.1841}, // punto
+	{1299.4734,-1641.7588,13.1841}, // punto
+	{1299.3717,-1612.6628,13.1841}, // punto
+	{1299.2944,-1590.6459,13.1841}, // punto
+	{1287.1683,-1569.5261,13.1850}, // punto
+	{1250.9747,-1570.2340,13.1841}, // punto
+	{1210.9746,-1570.5568,13.1919}, // punto
+	{1180.1412,-1570.4323,13.1500}, // punto
+	{1158.6393,-1570.3004,13.0758}, // punto
+	{1147.3596,-1585.3689,13.1604}, // punto
+	{1147.4038,-1609.9360,13.5827}, // punto
+	{1147.3285,-1640.2021,13.5825}, // punto
+	{1147.3080,-1692.4600,13.5825}, // punto
+	{1147.1932,-1709.3774,13.5825}, // punto
+	{1165.6476,-1715.0933,13.5395}, // punto
+	{1173.4233,-1732.9067,13.3116}, // punto
+	{1161.9344,-1738.7157,13.2855}, // punto
+	{1139.3585,-1738.7482,13.2853}, // punto
+	{1120.4847,-1738.9301,13.2782}, // punto
+	{1095.7839,-1739.6091,13.3210}, // punto
+	{1090.0487,-1755.4176,13.1742}, // punto
+	{1089.7566,-1767.8524,13.1564}, // punto
+	{1098.4475,-1772.7090,13.1469} // punto
 };
 
 enum e_ELEVATOR_INFO
@@ -517,7 +524,8 @@ enum
 	DIALOG_PHARMACY_BUY_MEDICINE,
 	DIALOG_PHARMACY_MEDICINE_BUY,
 	DIALOG_PHARMACY_BUY_MEDIKITS,
-	DIALOG_CONFIRM_ELEVATOR
+	DIALOG_CONFIRM_ELEVATOR,
+	DIALOG_DRIVING_EXAM
 }
 
 enum
@@ -1245,31 +1253,7 @@ new San_Andreas_Vehicles[][San_Andreas_Vehicles_Info] =
 	{VEHICLE_TYPE_WORK, WORK_MEDIC, 0, 416, 1612.3330, 1841.6625, 10.6855, 0.00000, 1, 3, 0, 0},
 	{VEHICLE_TYPE_WORK, WORK_MEDIC, 0, 416, 1607.3164, 1841.8850, 10.6855, 0.00000, 1, 3, 0, 0},
 	{VEHICLE_TYPE_WORK, WORK_MEDIC, 0, 416, 1602.5084, 1841.9370, 10.6855, 0.00000, 1, 3, 0, 0},
-	{VEHICLE_TYPE_WORK, WORK_MEDIC, 0, 416, 1597.7699, 1841.7919, 10.6855, 0.00000, 1, 3, 0, 0},
-	
-	//renta.
-	{VEHICLE_TYPE_NONE, WORK_NONE, 0, 509, 1769.0483, -1905.9906, 13.0658, 0.00000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_NONE, WORK_NONE, 0, 509, 1766.8649, -1906.0200, 13.0658, 0.00000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_NONE, WORK_NONE, 0, 509, 1756.9684, -1905.9261, 13.0658, 0.00000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_NONE, WORK_NONE, 0, 509, 1764.8287, -1905.9766, 13.0658, 0.00000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_NONE, WORK_NONE, 0, 509, 1762.6488, -1905.9103, 13.0658, 0.00000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_NONE, WORK_NONE, 0, 509, 1760.6249, -1905.9413, 13.0658, 0.00000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_NONE, WORK_NONE, 0, 509, 1758.7451, -1905.8674, 13.0658, 0.00000, -1, -1, 0, 0},
-
-	//autoescuela
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2065.4507, -83.7185, 35.0203, 180.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2068.9507, -83.7185, 35.0203, 180.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2073.4507, -83.7185, 35.0203, 180.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2077.4507, -83.7185, 35.0203, 180.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2081.4507, -83.7185, 35.0203, 180.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2085.4507, -83.7185, 35.0203, 180.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2090.4507, -83.7185, 35.0203, 180.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2090.4507, -97.7185, 35.0203, 0.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2084.4507, -97.7185, 35.0203, 0.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2080.4507, -97.7185, 35.0203, 0.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2076.9507, -97.7185, 35.0203, 0.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2072.9507, -97.7185, 35.0203, 0.0000, -1, -1, 0, 0},
-	{VEHICLE_TYPE_DRIVING_SCHOOL, WORK_NONE, 0, 445, -2069.4507, -97.7185, 35.0203, 0.0000, -1, -1, 0, 0}
+	{VEHICLE_TYPE_WORK, WORK_MEDIC, 0, 416, 1597.7699, 1841.7919, 10.6855, 0.00000, 1, 3, 0, 0}
 };
 
 enum San_Andreas_Barriers_Info
@@ -3884,7 +3868,9 @@ enum
 	PICKUP_TYPE_HELP,
 	PICKUP_TYPE_FUELSTATION,
 	PICKUP_TYPE_PHARMACY,
-	PICKUP_TYPE_ELEVATOR
+	PICKUP_TYPE_ELEVATOR,
+	PICKUP_TYPE_DRIVING_EXAM,
+	PICKUP_TYPE_DS_VEHICLE
 };
 
 enum Fuel_Stations_Info
@@ -5873,37 +5859,6 @@ hook OnPlayerText(playerid, text[])
 	}
 	ProxDetector(playerid, 15.0, str_text, COLOR_FADE1, COLOR_FADE2, COLOR_FADE3, COLOR_FADE4, COLOR_FADE5, 85);
 	return 0;
-}
-
-CMD:examen(playerid, params[])
-{
-	if(PlayerTemp[playerid][pt_INTERIOR_INDEX] != -1)
-	{
-		if(ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] == INTERIOR_DRIVING_SCHOOL)
-		{
-			if(IsPlayerInRangeOfPoint(playerid, 1.5, 1063.718994, -343.093566, 2797.699951))
-			{
-				if(PlayerTemp[playerid][pt_DL_EXAM]) SendClientMessagef(playerid, -1, "Ya estás en el examen, sal afuera y toma un vehículo para empezar con el examen.");
-				else
-				{
-					if(PI[playerid][pDRIVE_LICENSE_POINTS] > 6) SendClientMessagef(playerid, -1, "Tienes más de 6 puntos del carnet, no te hace falta hacer el examen.");
-					else
-					{
-						if(GivePlayerCash(playerid, -1750, false, true)) {
-							PlayerTemp[playerid][pt_DL_EXAM] = true;
-							PlayerTemp[playerid][pt_DL_EXAM_PROCCESS] = 0;
-							SendClientMessagef(playerid, -1, "Para comenzar con el examen subete a un vehículo de la autoescuela, están en el aparcamiento.");
-						}
-						else SendClientMessagef(playerid, -1, "No tienes suficiente dinero.");
-					}
-				}
-				return 1;
-			}
-		}
-	}
-	
-	SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	return 1;
 }
 
 CMD:bebida(playerid, params[])
@@ -10422,6 +10377,7 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_FUEL_DRUM_CONFIRM: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Gasolinera - Confirmar Compra", "{d1d1d1}¿Estas seguro que quieres comprar un bidon de 20 Litros por 100$?", "Comprar", "Atras");
 		case DIALOG_FUEL: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_INPUT, "Gasolinera - Repostar", "{d1d1d1}Escribe la cantidad de litros que deseas repostar\n\n{d1d1d1}Precio: 5$/Litro.", "Confirmar", "Atras");
 		case DIALOG_CONFIRM_ELEVATOR: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Elevador", "{d1d1d1}¿Estas seguro que quieres usar este elevador?", "Continuar", "Cancelar");
+		case DIALOG_DRIVING_EXAM: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Auto Escuela", "{d1d1d1}¿Estas seguro que quieres realizar el examen de conduccion por 1500$?", "Pagar", "Cancelar");
 		default: return 0;
 	}
 	return 1;
@@ -16329,6 +16285,19 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 			}
 		}
+		case DIALOG_DRIVING_EXAM:
+		{
+			if(response)
+			{
+				if(GivePlayerCash(playerid, -1500, false, true)) 
+				{
+					PlayerTemp[playerid][pt_DL_EXAM] = true;
+					PlayerTemp[playerid][pt_DL_EXAM_PROCCESS] = 0;
+					SendInfoMessage(playerid, "Auto Escuela~n~~n~Has pagado: ~g~1500$~w~ para hacer el examen de conduccion.~n~~n~Para comenzar con el examen subete a un vehículo de la autoescuela, están en el aparcamiento.");
+				}
+				else SendClientMessagef(playerid, -1, "No tienes suficiente dinero.");
+			}
+		}
 	}
 	return 0;
 }//OnDialogResponse
@@ -19198,6 +19167,58 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 			PlayerTemp[playerid][pt_ELEVATOR_INDEX] = info[1];
 			PlayerTemp[playerid][pt_ELEVATOR_OPTION] = info[2];
 			ShowDialog(playerid, DIALOG_CONFIRM_ELEVATOR);
+		}
+		case PICKUP_TYPE_DRIVING_EXAM:
+		{
+			if(PlayerTemp[playerid][pt_DL_EXAM]) SendMessage(playerid, "Ya estás en el examen, sal afuera y toma un vehículo para empezar con el examen.");
+			else
+			{
+				if(PI[playerid][pDRIVE_LICENSE_POINTS] > 6) SendMessage(playerid, "Para renovar tu licencia debes tener 6 puntos o menos.");
+				else ShowDialog(playerid, DIALOG_DRIVING_EXAM);	
+			}
+		}
+		case PICKUP_TYPE_DS_VEHICLE:
+		{
+			if(PlayerTemp[playerid][pt_DL_EXAM])
+			{
+				new vehicle_id = INVALID_VEHICLE_ID;
+				vehicle_id = CreateVehicle(551, 1064.2238, -1736.8141, 13.4836, 270.0, 3, 3, -1, false);
+				if(vehicle_id == INVALID_VEHICLE_ID) return SendMessage(playerid, "No se pueden crear mas vehiculos, Intenta de nuevo mas tarde...");
+				
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VALID] = true;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] = VEHICLE_TYPE_DRIVING_SCHOOL;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] = 551;
+				format(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_NUMBER_PLATE], 32, "ESCUELA-%04d", getRandomLetter(), getRandomLetter(), getRandomLetter(), random(9999));
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X] = 1064.2238;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y] = -1736.8141;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z] = 13.4836;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_ANGLE] = 270.0;
+				
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][0] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][1] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][2] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z];
+				
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_HEALTH] = 1000.0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_PANELS] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_DOORS] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_LIGHTS] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_TIRES] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_1] = 3;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_2] = 3;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_PAINTJOB] = 3; // No paintjob
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS] = VEHICLE_INFO[ GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_MAX_GAS];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_GAS] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_STATE] = VEHICLE_STATE_NORMAL;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VIP] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_WORLD] = 0;
+				
+				SetVehicleToRespawnEx(vehicle_id);
+				PutPlayerInVehicleEx(playerid, vehicle_id, 0);
+			}
+			else
+			{
+				SendMessage(playerid, "No estas en el examen, entra a la auto escuela.");
+			}
 		}
 	}
 
@@ -23471,7 +23492,7 @@ public OnPlayerEnterDynamicRaceCP(playerid, checkpointid)
 					if(vhealth >= 800.0)
 					{
 						PI[playerid][pDRIVE_LICENSE_POINTS] = 12;
-						SendClientMessagef(playerid, -1, "¡Felicidades! te has sacado el carnet de conducir, cuentas con 12 puntos.");
+						SendInfoMessage(playerid, "Auto Escuela~n~~n~Felicitaciones, has completado el examen de conducción, ahora tienes una ~r~licencia de conducir~w~ con ~y~12 puntos~w~.");
 					}
 					else SendClientMessagef(playerid, -1, "No has superado el examen.");
 
@@ -23480,16 +23501,15 @@ public OnPlayerEnterDynamicRaceCP(playerid, checkpointid)
 						DestroyDynamicRaceCP(PlayerTemp[playerid][pt_DL_EXAM_CP]);
 						PlayerTemp[playerid][pt_DL_EXAM_CP] = INVALID_STREAMER_ID;
 					}
+
 					PlayerTemp[playerid][pt_DL_EXAM] = false;
 					PlayerTemp[playerid][pt_DL_EXAM_PROCCESS] = 0;
-					SetVehicleToRespawnEx(PlayerTemp[playerid][pt_LAST_VEHICLE_ID]);
+					DestroyVehicleEx(PlayerTemp[playerid][pt_LAST_VEHICLE_ID]);
 					return 1;
 				}
 
-				new str[50];
-				format(str, sizeof str, " checkpoint_%d/%d", PlayerTemp[playerid][pt_DL_EXAM_PROCCESS] + 1, sizeof(Driving_School_Points));
-				GameTextForPlayer(playerid, str, 2000, 3);
-				
+				SendMessagef(playerid, "Punto de Control ~r~%d~w~/~g~%d", PlayerTemp[playerid][pt_DL_EXAM_PROCCESS] + 1, sizeof(Driving_School_Points));
+
 				PlayerTemp[playerid][pt_DL_EXAM_PROCCESS] ++;
 				SetPlayerDrivingSchoolCP(playerid);
 			}
@@ -29150,7 +29170,21 @@ stock LoadServerInfo()
 	}
 	
 	//autoescuela
-	CreateDynamic3DTextLabel("Usa {"#PRIMARY_COLOR"}/examen {FFFFFF}para realizar el examen por 500$.", 0xFFFFFFFF, 1063.718994, -343.093566, 2797.699951, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
+	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para realizar el examen por {"#GREEN_COLOR"}1500$.", 0xFFFFFFFF, 1083.5474, -1765.8229, 13.9284, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
+	new DS_Pickup = CreateDynamicPickup(0, 1, 1083.5474, -1765.8229, 13.9284, -1, -1), driving_school_info[3];
+
+	driving_school_info[0] = PICKUP_TYPE_DRIVING_EXAM;
+	driving_school_info[1] = 0; // Nada
+	driving_school_info[2] = 0; // Nada
+	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, DS_Pickup, E_STREAMER_EXTRA_ID, driving_school_info);
+
+	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para sacar un vehiculo de la auto escuela.", 0xFFFFFFFF, 1064.2238, -1736.8141, 13.4836, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
+	new DSV_Pickup = CreateDynamicPickup(19134, 1, 1064.2238, -1736.8141, 13.4836, -1, -1);
+
+	driving_school_info[0] = PICKUP_TYPE_DS_VEHICLE;
+	driving_school_info[1] = 0; // Nada
+	driving_school_info[2] = 0; // Nada
+	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, DSV_Pickup, E_STREAMER_EXTRA_ID, driving_school_info);
 
 	//3d texts armarios
 	for(new i = 0; i < sizeof PROPERTY_CLOSET_POS; i++)
