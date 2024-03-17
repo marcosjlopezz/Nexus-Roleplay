@@ -66,6 +66,9 @@ stock SendMessage(playerid, const text[])
 {
     _ShowNotificationTextdraws(playerid, text);
 
+    if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER) PlayerTextDrawSetPos(playerid, PlayerMessageTD[playerid][0], 320.0, 380.0);
+    else PlayerTextDrawSetPos(playerid, PlayerMessageTD[playerid][0], 320.0, 415.0);
+
     KillTimer(pMessageTimer[playerid]);
     pMessageTimer[playerid] = SetTimerEx("_HideNotificationTextdraws", 3 * 1000, false, "i", playerid);
     return 1;

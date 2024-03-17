@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.4 Alpha"
+#define SERVER_VERSION			"1.5 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -4508,7 +4508,7 @@ public OnPlayerSpawn(playerid)
 
 		PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
 
-		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "Hola, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs y damos recompensa por encontrar bugs a los que son Interinos\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
+		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "{d1d1d1}Bienvenido, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs\ny damos recompensa por encontrar bugs a los que son Interinos\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
 
 		if(PI[playerid][pPOLICE_DUTY] != 0)
 		{
@@ -25701,6 +25701,10 @@ public OnPlayerEditDynamicObject(playerid, STREAMER_TAG_OBJECT objectid, respons
 					POLICE_OBJECTS[ info[1] ][police_object_OBJECT_ID] = INVALID_STREAMER_ID;
 					SendClientMessagef(playerid, -1, "Objeto policial eliminado.");
 				}
+				case OBJECT_TYPE_TEST: 
+				{
+					DestroyDynamicObject(objectid);
+				}
 			}
 		}
 		case EDIT_RESPONSE_FINAL:
@@ -25742,8 +25746,10 @@ public OnPlayerEditDynamicObject(playerid, STREAMER_TAG_OBJECT objectid, respons
 					format(POLICE_OBJECTS[ info[1] ][police_object_USER], 24, "%s", PI[playerid][pNAME]);
 
 				}
-				case OBJECT_TYPE_TEST: {
+				case OBJECT_TYPE_TEST: 
+				{
 					printf("CreateDynamicObject(%d, %f, %f, %f, %f, %f, %f);", Streamer_GetIntData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_MODEL_ID), x, y, z, rx, ry, rz);
+					SetCorrectObjectPos(objectid);
 				}
 			}
 		}
@@ -30943,7 +30949,8 @@ CMD:changeflags(playerid, params[])
 	return 1;
 }
 
-CMD:cobject(playerid, params[]) {
+CMD:cobject(playerid, params[]) 
+{
 	new modelid;
 	if(sscanf(params, "d", modelid)) return SendClientMessagef(playerid, -1, "Uso: /cobject [modelid]");
 
@@ -31315,20 +31322,8 @@ public OnPlayerRegister(playerid)
 
 	SendClientMessagef(playerid, PRIMARY_COLOR2, "{ffffff}Bienvenido {"#BLUE_COLOR"}%s, {ffffff}gracias por jugar en {"#GOLD_COLOR"}"SERVER_NAME".", PlayerTemp[playerid][pt_NAME]);
 	SendClientMessagef(playerid, PRIMARY_COLOR2, "{ffffff}Si necesitas ayuda puedes utilizar el comando {"#PURPLE_COLOR"}/ayuda {ffffff}o puedes usar el canal de dudas.");
-	
-	for(new i = 0; i != MAX_PLAYERS; i++)
-	{
-		if(IsPlayerConnected(i))
-		{
-			if(PlayerTemp[i][pt_USER_LOGGED])
-			{
-				if(PI[i][pCONFIG_GLOBAL])
-				{
-					SendClientMessagef(i, 0x229ED9FF, "[Telegram] • {ffffff}#{2AABEE}%s {ffffff}(%d) %s", pInfo(playerid)[pNAME], playerid, Welcome_Messages[ random(sizeof(Welcome_Messages)) ]);
-				}
-			}
-		}
-	}
+
+	SendClientMessageToAllf(0x229ED9FF, "[Telegram] • {ffffff}#{2AABEE}%s {ffffff}(%d) %s", PlayerTemp[playerid][pt_NAME], playerid, Welcome_Messages[ random(sizeof(Welcome_Messages)) ]);
 	return 1;
 }
 
