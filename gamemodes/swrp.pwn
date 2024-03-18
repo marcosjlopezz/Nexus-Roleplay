@@ -19225,7 +19225,6 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	else if(newkeys & KEY_FIRE)
 	{
 		if(PI[playerid][pLEVEL] == 1 && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_NONE) ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
-		if(pTemp(playerid)[pt_CUFFED] && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_NONE) ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
 	}
 	else if(newkeys & KEY_CROUCH)
 	{
