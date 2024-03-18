@@ -49,11 +49,37 @@ stock DropHandWeapon(playerid)
 
             new label_str[256];
             format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%s\n{FFFFFF}Presiona {"#GREEN_COLOR"}[ C ] {FFFFFF}para recoger el objeto", WEAPON_INFO[weaponid][weapon_info_NAME]);
-            weaponInfo[dw_LABELID] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z] - 0.7, 5.0, .testlos = true, .interiorid = weaponInfo[dw_INTERIOR], .worldid = weaponInfo[dw_WORLD]);
+            weaponInfo[dw_LABELID] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, weaponInfo[dw_X] + frandom(2.7, 0.9, 2), weaponInfo[dw_Y] + frandom(3.4, 1.2, 2), weaponInfo[dw_Z] - 0.7, 5.0, .testlos = true, .interiorid = weaponInfo[dw_INTERIOR], .worldid = weaponInfo[dw_WORLD]);
 
             list_add_arr(DroppedWeapons, weaponInfo);
         }   
     }
+}
+
+stock DropWeapon(playerid, slot)
+{
+    new weaponid, ammo;
+    GetPlayerWeaponData(playerid, slot, weaponid, ammo);
+    
+    if(weaponid > 0 && ammo > 0 && WEAPON_INFO[weaponid][weapon_info_DROP] && PLAYER_WEAPONS[playerid][slot][player_weapon_VALID] && PLAYER_WEAPONS[playerid][slot][player_weapon_ID] == weaponid) 
+    {
+        RemovePlayerSlotWeapon(playerid, slot, true);
+
+        new weaponInfo[E_DroppedWeapons];
+        weaponInfo[dw_WEAPONID] = weaponid;
+        weaponInfo[dw_AMMO] = ammo;
+        weaponInfo[dw_WORLD] = GetPlayerVirtualWorld(playerid);
+        weaponInfo[dw_INTERIOR] = GetPlayerInterior(playerid);
+        GetPlayerPos(playerid, weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z]);
+
+        weaponInfo[dw_OBJECTID] = CreateDynamicObject(WEAPON_INFO[weaponid][weapon_info_MODEL], weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z] - 1.0, 90.0, 0.0, float(random(360)), weaponInfo[dw_WORLD], weaponInfo[dw_INTERIOR]);
+
+        new label_str[256];
+        format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}%s\n{FFFFFF}Presiona {"#GREEN_COLOR"}[ C ] {FFFFFF}para recoger el objeto", WEAPON_INFO[weaponid][weapon_info_NAME]);
+        weaponInfo[dw_LABELID] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, weaponInfo[dw_X] + frandom(2.7, 0.9, 2), weaponInfo[dw_Y] + frandom(3.4, 1.2, 2), weaponInfo[dw_Z] - 0.7, 5.0, .testlos = true, .interiorid = weaponInfo[dw_INTERIOR], .worldid = weaponInfo[dw_WORLD]);
+
+        list_add_arr(DroppedWeapons, weaponInfo);
+    }   
 }
 
 hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys) 

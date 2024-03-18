@@ -15,7 +15,6 @@
 	DIALOG_PLAYER_WEAPONS
 	DIALOG_PLAYER_WEAPONS_OPTIONS
 	DIALOG_PLAYER_WEAPONS_DELETE_A
-	DIALOG_PLAYER_WEAPONS_DELETE
 	DIALOG_PLAYER_POCKET
 	DIALOG_PLAYER_POCKET_OPTIONS
 	DIALOG_PLAYER_POCKET_DELETE_ALL
@@ -1563,7 +1562,10 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 						ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
 					}
-					case 2: ShowDialog(playerid, DIALOG_PLAYER_WEAPONS_DELETE);
+					case 2:
+					{
+						DropWeapon(playerid, PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT]);
+					}
 					case 3: 
 					{
 						//guardar

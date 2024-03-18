@@ -416,7 +416,6 @@ enum
 	DIALOG_PLAYER_WEAPONS,
 	DIALOG_PLAYER_WEAPONS_OPTIONS,
 	DIALOG_PLAYER_WEAPONS_DELETE_A,
-	DIALOG_PLAYER_WEAPONS_DELETE,
 	DIALOG_ANIMS,
 	DIALOG_TRICKS_FOOD,
 	DIALOG_TRICKS_MEDICINE,
@@ -7711,7 +7710,7 @@ stock ShowDialog(playerid, dialogid)
 			new caption[64];
 			format(caption, sizeof caption, "Arma - %s", WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PlayerTemp[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID] ][weapon_info_NAME]);
 
-			new dialog_body[1024] = "- Dar\n- Vender\n- Eliminar\n";
+			new dialog_body[1024] = "- Dar\n- Vender\n- Tirar\n";
 
 			if(PI[playerid][pSTATE] == ROLEPLAY_STATE_NORMAL || PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) {
 				new vehicleid = GetNearVehicle(playerid);
@@ -8942,14 +8941,6 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_PLAYER_WEAPONS_DELETE_A:
 		{
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Mis armas - Eliminar todo", "¿Estás seguro de que quiere eliminar todas sus armas?\nEsta opcion no se puede deshacer.", "Eliminar", "Atrás");	
-			return 1;
-		}
-		case DIALOG_PLAYER_WEAPONS_DELETE:
-		{
-			new dialog[150];
-			format(dialog, sizeof dialog, "Arma: %s\nMunicion: %s\n\n¿Estás seguro de que quiere eliminar esta arma?\nEsta opcion no se puede deshacer.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PlayerTemp[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID] ][weapon_info_NAME], number_format_thousand(PLAYER_WEAPONS[playerid][ PlayerTemp[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_AMMO]));
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Mis armas - Eliminar arma", dialog, "Eliminar", "Cerrar");	
 			return 1;
 		}
 		case DIALOG_ANIMS: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Animaciones", DIALOG_ANIMS_String, "Continuar", "X");
@@ -13308,19 +13299,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				Auto_SendPlayerAction(playerid, "tira todas sus armas al suelo");
 			}
 			else ShowDialog(playerid, DIALOG_PLAYER_WEAPONS);
-			return 1;
-		}
-		case DIALOG_PLAYER_WEAPONS_DELETE:
-		{
-			if(response)
-			{
-				SendClientMessagef(playerid, -1, "Has eliminado tu '%s' de tus armas.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PlayerTemp[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID] ][weapon_info_NAME]);
-				new string[64];
-				format(string, sizeof string, "tira su %s al suelo", WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PlayerTemp[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID] ][weapon_info_NAME]);
-				Auto_SendPlayerAction(playerid, string);
-
-				RemovePlayerSlotWeapon(playerid, PlayerTemp[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT], true);
-			}
 			return 1;
 		}
 		case DIALOG_ANIMS:
