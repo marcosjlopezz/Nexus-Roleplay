@@ -1243,6 +1243,32 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							}
 						}
 					}
+					case INVENTORY_TYPE_WEAPON_OPTIONS:
+					{
+						switch(pTemp(playerid)[pt_INVENTORY_POCKET_OPTION])
+						{
+							case SELECTION_TYPE_GIVE: //dar
+							{
+								new params_extra;
+								if(sscanf(inputtext, "d", params_extra)) return SendMessage(playerid, "Error en los parametros, intentalo de nuevo.");
+
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = params_extra;
+
+								new command[445];
+								format(command, sizeof command, "/dar arma %d %d", params_extra, PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT]);
+								PC_EmulateCommand(playerid, command);
+							}
+							case SELECTION_TYPE_SELL:
+							{
+								new params_extra;
+								if(sscanf(inputtext, "d", params_extra)) return SendMessage(playerid, "Error en los parametros, intentalo de nuevo.");
+
+								pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = params_extra;
+
+								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Precio del Arma", "{d1d1d1}Escribe el precio del arma que quieres vender:", "Confirmar", "Cancelar");
+							}
+						}
+					}
 				}
 			}
 			else ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -1394,6 +1420,13 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						format(cmd, 445, "/dar botiquin %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], params_extra);
 						PC_EmulateCommand(playerid, cmd);
 					}
+					case INVENTORY_TYPE_WEAPON_OPTIONS:
+					{
+						new params_extra;
+						if(sscanf(inputtext, "d", params_extra)) return SendMessage(playerid, "Error en los parametros, intentalo de nuevo.");
+						format(cmd, sizeof cmd, "/vender arma %d %d %d", pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0], PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT], params_extra);
+						PC_EmulateCommand(playerid, cmd);
+					}
 				}
 			}
 			else ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
@@ -1443,6 +1476,99 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
             else ShowPlayerInventoryMenu(playerid, pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER]);
 			return Y_HOOKS_BREAK_RETURN_1;
+		}
+		case DIALOG_PLAYER_WEAPONS_OPTIONS: 
+		{
+			if(response) 
+			{
+				switch(listitem) 
+				{
+					case 0:
+					{
+						new dialog[445], line_str[445];
+						pTemp(playerid)[pt_INVENTORY_POCKET_TYPE] = INVENTORY_TYPE_WEAPON_OPTIONS;
+						pTemp(playerid)[pt_INVENTORY_POCKET_OPTION] = SELECTION_TYPE_GIVE; //dar
+
+						format(f_pocket, "{d1d1d1}Escribe la ID del jugador al que quieres darle el arma, el usuario debe estar conectado\n{d1d1d1}y a una distancia de 4 o menos metros de ti.\n\n{d1d1d1}Jugadores Cercanos:\n");
+
+						new Float:oldposx, Float:oldposy, Float:oldposz, current_vw = GetPlayerVirtualWorld(playerid), current_int = GetPlayerInterior(playerid);
+						GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+
+						new total_players = 0;
+						LoopEx(i, MAX_PLAYERS, 0)
+						{
+							if(!IsPlayerConnected(i)) continue;
+							if(!pTemp(i)[pt_USER_LOGGED]) continue;
+							if(GetPlayerVirtualWorld(i) != current_vw) continue;
+							if(GetPlayerInterior(i) != current_int) continue;
+							if(i == playerid) continue;
+							if(GetPlayerState(i) == PLAYER_STATE_SPECTATING) continue;
+
+							if(IsPlayerInRangeOfPoint(i, 4.0, oldposx, oldposy, oldposz))
+							{
+								format(line_str, sizeof(line_str), "{"#YELLOW_COLOR"}%s {d1d1d1}[{ffffff}ID: %d{d1d1d1}]\n", pTemp(i)[pt_NAME], i);
+								strcat(dialog, line_str);
+
+								total_players ++;
+							}
+						}
+
+						if(total_players <= 0)
+						{
+							SendMessage(playerid, "No hay jugadores cerca.");
+							return 1;
+						}
+
+						ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
+					}
+					case 1:
+					{
+						new dialog[445], line_str[445];
+						pTemp(playerid)[pt_INVENTORY_POCKET_TYPE] = INVENTORY_TYPE_WEAPON_OPTIONS;
+						pTemp(playerid)[pt_INVENTORY_POCKET_OPTION] = SELECTION_TYPE_SELL; //vender
+
+						format(f_pocket, "{d1d1d1}Escribe la ID del jugador al que quieres venderle el arma, el usuario debe estar conectado\n{d1d1d1}y a una distancia de 4 o menos metros de ti.\n\n{d1d1d1}Jugadores Cercanos:\n");
+
+						new Float:oldposx, Float:oldposy, Float:oldposz, current_vw = GetPlayerVirtualWorld(playerid), current_int = GetPlayerInterior(playerid);
+						GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+
+						new total_players = 0;
+						LoopEx(i, MAX_PLAYERS, 0)
+						{
+							if(!IsPlayerConnected(i)) continue;
+							if(!pTemp(i)[pt_USER_LOGGED]) continue;
+							if(GetPlayerVirtualWorld(i) != current_vw) continue;
+							if(GetPlayerInterior(i) != current_int) continue;
+							if(i == playerid) continue;
+							if(GetPlayerState(i) == PLAYER_STATE_SPECTATING) continue;
+
+							if(IsPlayerInRangeOfPoint(i, 4.0, oldposx, oldposy, oldposz))
+							{
+								format(line_str, sizeof(line_str), "{"#YELLOW_COLOR"}%s {d1d1d1}[{ffffff}ID: %d{d1d1d1}]\n", pTemp(i)[pt_NAME], i);
+								strcat(dialog, line_str);
+
+								total_players ++;
+							}
+						}
+
+						if(total_players <= 0)
+						{
+							SendMessage(playerid, "No hay jugadores cerca.");
+							return 1;
+						}
+
+						ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
+					}
+					case 2: ShowDialog(playerid, DIALOG_PLAYER_WEAPONS_DELETE);
+					case 3: 
+					{
+						//guardar
+						new command[128];
+						format(command, sizeof command, "/guardar arma %d", PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT]);
+						PC_EmulateCommand(playerid, command);
+					}
+				}
+			}
 		}
 		case DIALOG_PLAYER_TOYS:
 		{

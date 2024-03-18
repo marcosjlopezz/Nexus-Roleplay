@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.7 Alpha"
+#define SERVER_VERSION			"1.8 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -11319,25 +11319,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			else ShowDialog(playerid, DIALOG_PLAYER_POCKET);
 			return 1;
-		}
-		case DIALOG_PLAYER_WEAPONS_OPTIONS: 
-		{
-			if(response) 
-			{
-				switch(listitem) 
-				{
-					case 0: return 1;
-					case 1: return 1;
-					case 2: ShowDialog(playerid, DIALOG_PLAYER_WEAPONS_DELETE);
-					case 3: 
-					{
-						//guardar
-						new command[128];
-						format(command, sizeof command, "/guardar arma %d", PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT]);
-						PC_EmulateCommand(playerid, command);
-					}
-				}
-			}
 		}
 		case DIALOG_PHONE:
 		{
@@ -23733,7 +23714,7 @@ public DestroyFlashObject(objectid)
 
 enum
 {
-	INVENTORY_TYPE_CASH,
+	INVENTORY_TYPE_CASH = 0,
 	INVENTORY_TYPE_DRIVE_LICENCE,
 	INVENTORY_TYPE_PHONE,
 	INVENTORY_TYPE_GPS,
@@ -23747,7 +23728,14 @@ enum
 	INVENTORY_TYPE_CANNABIS,
 	INVENTORY_TYPE_CRACK,
 	INVENTORY_TYPE_MECHANIC_KITS,
-	INVENTORY_TYPE_MEDICAL_KITS
+	INVENTORY_TYPE_MEDICAL_KITS,
+	INVENTORY_TYPE_WEAPON_OPTIONS
+}
+
+enum
+{
+	SELECTION_TYPE_GIVE = 0,
+	SELECTION_TYPE_SELL
 }
 
 ShowPlayerInventory(playerid, pid)
@@ -28570,6 +28558,8 @@ public StandUp(medic, playerid)
 	else SetPlayerHealthEx(playerid, 25.0);
 	ApplyAnimation(playerid, "CARRY", "crry_prtial", 4.1, 0, 0, 0, 0, 0, true);
 	ClearAnimations(playerid);
+
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE) SetPlayerPosEx(playerid, 1555.400390, -1675.611694, 16.195312, 90.0, 0, 0);
 	return 1;
 }
 
@@ -29966,6 +29956,8 @@ CMD:revivir(playerid, params[])
 	ApplyAnimation(to_playerid, "CARRY", "crry_prtial", 4.1, 0, 0, 0, 0, 0, true);
 	ClearAnimations(to_playerid);
 	
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE) SetPlayerPosEx(playerid, 1555.400390, -1675.611694, 16.195312, 90.0, 0, 0);
+
 	SendCmdLogToAdmins(playerid, "revivir", params);
 	return 1;
 }
@@ -30306,7 +30298,7 @@ public OnPlayerCommandPerformed(playerid, cmd[], params[], result, flags)
 { 
     if(result == -1) 
     { 
-		SendInfoMessagef(playerid, "Error~n~~n~El comando ~r~/%s~w~ no existe, para mas informacion, Escribe ~b~/ayuda~w~.");
+		SendInfoMessagef(playerid, "Error~n~~n~El comando ~r~/%s~w~ no existe, para mas informacion, Escribe ~b~/ayuda~w~.", cmd);
         return 0;
     }
     return 1; 
