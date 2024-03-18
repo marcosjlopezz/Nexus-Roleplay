@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.5 Alpha"
+#define SERVER_VERSION			"1.6 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -56,8 +56,8 @@ AntiAmx()
 
 #define SERVER_GAMEMODE			"Roleplay r"SERVER_VERSION""
 #define SERVER_LANGUAGE			"Español - Spanish"
-#define SERVER_WEBSITE			"-"
-#define	SERVER_DISCORD			"-"
+#define SERVER_WEBSITE			"https://discord.gg/Zy4Sc2nhnd"
+#define	SERVER_DISCORD			"https://discord.gg/Zy4Sc2nhnd"
 #define SERVER_HOSTNAME 		"(ESP) • "SERVER_NAME"® • [Android/PC]"
 
 #define SERVER_COIN				"Yuan"
@@ -640,25 +640,6 @@ new Float:HARVEST_CHECKPOINTS[][] =
 	{-387.908111, -1532.118774, 23.47214}
 };
 
-new Float:FUMIGATOR_CHECKPOINTS[][] =
-{
-	{-1308.387573, -2168.723632, 22.671110},
-	{-1307.323974, -2024.588623, 43.277305},
-	{-1377.214965, -1801.599121, 65.306808},
-	{-1567.830932, -1792.607299, 75.021827},
-	{-1827.273315, -1838.340209, 91.367256},
-	{-2028.804809, -1925.853393, 96.918655},
-	{-2059.277832, -2109.719482, 68.355422},
-	{-2022.684570, -2289.475097, 61.323108},
-	{-1947.646972, -2468.936279, 48.919281},
-	{-1651.936279, -2738.057373, 72.155830},
-	{-1482.577392, -2778.567871, 71.213356},
-	{-1339.633544, -2822.785400, 68.011917},
-	{-1154.241455, -2703.070068, 42.500530},
-	{-1259.402343, -2415.022216, 30.288431},
-	{-1296.651489, -2098.415283, 24.366895}
-};
-
 enum
 {
 	VEHICLE_TYPE_NONE,
@@ -747,13 +728,12 @@ enum _:E_WORKS
 	WORK_TRUCK = 2,
 	WORK_MECHANIC = 3,
 	WORK_HARVESTER = 4,
-	WORK_FUMIGATOR = 5,
-	WORK_TRASH = 6,
-	WORK_LUMBERJACK = 7,
-	WORK_FARMER = 8,
-	WORK_POLICE = 9,
-	WORK_PIZZA = 10,
-	WORK_MEDIC = 11
+	WORK_TRASH = 5,
+	WORK_LUMBERJACK = 6,
+	WORK_FARMER = 7,
+	WORK_POLICE = 8,
+	WORK_PIZZA = 9,
+	WORK_MEDIC = 10
 };
 enum work_info_info
 {
@@ -772,7 +752,6 @@ new work_info[][work_info_info] =
 	{WORK_TYPE_NORMAL, 1, "Camionero", false, 0, 0, 0},
 	{WORK_TYPE_NORMAL, 3, "Mecánico", true, 0, 0, 0},
 	{WORK_TYPE_NORMAL, 1, "Cosechador", false, 0, 0, 0},
-	{WORK_TYPE_NORMAL, 3, "Fumigador", false, 0, 0, 0},
 	{WORK_TYPE_NORMAL, 1, "Basurero", true, 0, 0, 0},
 	{WORK_TYPE_NORMAL, 1, "Talador", false, 0, 0, 0},
 	{WORK_TYPE_NORMAL, 3, "Agricultor", false, 0, 0, 0},
@@ -810,7 +789,6 @@ new Float:obtain_work_coords[][obtain_work_coords_info] =
 	{true, true, 1297.107543, -65.027748, 1002.498046, 18, true, 61, -510.699890, -539.409118, 25.523437}, //caminero
 	{true, true, 1622.9031, -2166.5078, 13.6650, 0, true, 27, 1622.9031, -2166.5078, 13.6650}, //mecanico
 	{true, true, -372.126922, -1435.706298, 25.726562, 0,	true, 61, -372.126922, -1435.706298, 25.726562}, //Cosechador
-	{true, true, -1342.295898, -2195.076660, 23.591030, 0, true, 61, -1342.295898, -2195.076660, 23.591030}, //Fumigador
 	{true, true, -1884.997314, -1636.733642, 21.750000, 0, true, 61, -1884.997314, -1636.733642, 21.750000}, //Basurero
 	{true, true, -532.029846, -97.514228, 63.296875, 0, true, 61, -532.029846, -97.514228, 63.296875}, //talador
 	{true, true, 1564.864257, 23.255302, 24.164062, 0, true, 61, 1564.864257, 23.255302, 24.164062}, //agricultor
@@ -1093,14 +1071,6 @@ new San_Andreas_Vehicles[][San_Andreas_Vehicles_Info] =
 	{VEHICLE_TYPE_WORK, WORK_HARVESTER, 0, 532, -379.832061, -1484.033203, 26.696950, 223.968917, 1, 1, 0, 0},
 	{VEHICLE_TYPE_WORK, WORK_HARVESTER, 0, 532, -389.124328, -1491.877197, 26.187450, 314.527038, 1, 1, 0, 0},
 	{VEHICLE_TYPE_WORK, WORK_HARVESTER, 0, 532, -382.092529, -1499.563842, 25.449359, 314.704895, 1, 1, 0, 0},
-	
-	//Fumigador
-	{VEHICLE_TYPE_WORK, WORK_FUMIGATOR, 0, 512, -1349.9589, -2185.4946, 23.5282, 250.3750, 1, 1, 0},
-	{VEHICLE_TYPE_WORK, WORK_FUMIGATOR, 0, 512, -1346.2903, -2172.7837, 23.5282, 258.3622, 1, 1, 0},
-	{VEHICLE_TYPE_WORK, WORK_FUMIGATOR, 0, 512, -1363.1548, -2182.3293, 23.5282, 250.3750, 1, 1, 0},
-	{VEHICLE_TYPE_WORK, WORK_FUMIGATOR, 0, 512, -1358.7863, -2169.9529, 23.5282, 258.3622, 1, 1, 0},
-	{VEHICLE_TYPE_WORK, WORK_FUMIGATOR, 0, 512, -1374.2833, -2178.7600, 23.5282, 250.3750, 1, 1, 0},
-	{VEHICLE_TYPE_WORK, WORK_FUMIGATOR, 0, 512, -1370.8667, -2167.2510, 23.5282, 261.9992, 1, 1, 0},
 	
 	//Basurero
 	{VEHICLE_TYPE_WORK, WORK_TRASH, 0, 408, -1913.5554, -1702.3322, 22.5969, 270.0000, 26, 26, 0, 0},
@@ -1768,7 +1738,6 @@ enum
 	CHECKPOINT_TYPE_UNLOAD_TRUCK,
 	CHECKPOINT_TYPE_FINISH_TRUCK,
 	CHECKPOINT_TYPE_HARVEST,
-	CHECKPOINT_TYPE_FUMIGATOR,
 	CHECKPOINT_TYPE_TRASH,
 	CHECKPOINT_TYPE_FINISH_TRASH,
 	CHECKPOINT_TYPE_LUMBERJACK,
@@ -2960,8 +2929,6 @@ enum Temp_Enum
 	pt_SELECTED_BYC_USER_ID,
 	bool:pt_DIALOG_RESPONDED,
 	pt_DIALOG_ID,
-	pt_FUMIGATOR_CHECKPOINT,
-	pt_FUMIGATOR_PROCCESS,
 	bool:pt_DL_EXAM,
 	pt_DL_EXAM_CP,
 	pt_DL_EXAM_PROCCESS,
@@ -5758,8 +5725,8 @@ CMD:a(playerid, params[])
 	if(isnull(params)) return ErrorCommandParams(playerid, "/a <texto>");
 
   	new string[145];
-    format(string, sizeof(string), "Admin Chat: {90D496}%s (%s): {"#SILVER_COLOR"}%s", PI[playerid][pNAME], ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], params);
-	SendChatMessageToAdmins(0x90C3D4FF, string);
+    format(string, sizeof(string), "[Admin Chat | %s] {"#YELLOW_COLOR"}/%s (%d): {"#SILVER_COLOR"}%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, params);
+	SendChatMessageToAdmins(GOLD_COLOR2, string);
 	return 1;
 }
 
@@ -5772,8 +5739,8 @@ hook OnPlayerText(playerid, text[])
 	if(text[0] == '#' && PI[playerid][pADMIN_LEVEL] > 1)
 	{
       	new string[145];
-        format(string, sizeof(string), "Admin Chat: {90D496}%s (%s): {"#SILVER_COLOR"}%s", PI[playerid][pNAME], ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], text[1]);
-		SendChatMessageToAdmins(0x90C3D4FF, string);
+		format(string, sizeof(string), "[Admin Chat | %s] {"#YELLOW_COLOR"}#%s (%d): {"#SILVER_COLOR"}%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, text[1]);
+		SendChatMessageToAdmins(GOLD_COLOR2, string);
 		return 0;
 	}
 
@@ -5895,12 +5862,12 @@ CMD:bebida(playerid, params[])
 #define IP_SPAM_MUTE_TIME		5 //minutos
 CMD:duda(playerid, params[])
 {
-	if(!PI[playerid][pDOUBT_CHANNEL]) return SendClientMessagef(playerid, -1, "Para enviar una duda primero debes activar el canal de dudas con /dudas");
-	if(isnull(params)) return ErrorCommandParams(playerid, "/duda [DUDA]");
+	if(!PI[playerid][pDOUBT_CHANNEL]) return SendMessagef(playerid, "Para enviar una duda primero debes activar el canal de dudas con /panel");
+	if(isnull(params)) return ErrorCommandParams(playerid, "/duda [mensaje]");
 	if(PI[playerid][pMUTE] > gettime())
 	{
 		new seconds = PI[playerid][pMUTE] - gettime();
-		SendClientMessagef(playerid, -1, "Estás silenciado en el canal de dudas por %s minutos.", TimeConvert(seconds));
+		SendClientMessagef(playerid, 0xCCCCCCCC, "Estás silenciado en el canal de dudas por %s minutos.", TimeConvert(seconds));
 		return 1;
 	}
 	if(!PI[playerid][pADMIN_LEVEL])
@@ -14146,19 +14113,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								header
 						);
 					}
-					case WORK_FUMIGATOR:
-					{
-						format(dialog, sizeof dialog, 
-						
-							"\
-							%s\
-							\n\
-							Subete a un avion y empieza a fumigar.\n\
-							\n\
-							",
-								header
-						);
-					}
 					case WORK_TRASH:
 					{
 						format(dialog, sizeof dialog, 
@@ -14211,38 +14165,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case WORK_POLICE:
 					{
-						format(dialog, sizeof dialog, 
-						
-							"\
-							%s\
-							\n\
-							Los policías en servicio aparecerán de color azul.\n\
-							Utiliza /policias para ver la lista de policías, los rangos altos podrán desde aquí\n\
-							bajar, subir el rango de los policías, también pueden expulsarlos del cuerpo.\n\
-							\n\
-							Para asignar un BYC una persona utiliza el comando /abyc.\n\
-							Usa /byc para ver los BYC de todos o de una persona, también para eliminarlos.\n\
-							Utiliza /esposar para esposar o desesposar a alguien que tenga nivel de busqueda.\n\
-							Utiliza /revisar para ver las pertenencias del jugador esposado, utiliza /requisar para requisar las pertenencias ilegales.\n\
-							Utiliza /arrestar en tu vehículo personal para detener a alguien que está esposado.\n\
-							Utiliza /ref para pedir refuerzos.\n\
-							Para utiliza el megáfono utiliza /m dentro de un vehículo policial.\n\
-							Para entregar a alguien tiene que estar arrestado en un vehículo policial\n\
-							y llevarlo a cualquiera de las 3 comisarías de San Andreas al parking y utilizar /entregar.\n\
-							\n\
-							Usa /control para agregar objetos como barreras etc.\n\
-							Usa /allanar para entrar a una casa.\n\
-							Usa /cepo para multar a un vehículo mal aparcado.\n\
-							\n\
-							Para ponerte de servicio ve a cualquier comisaría y busca el vestuario para /policia.\n\
-							Los policías pueden equiparse en la comisaría.\n\
-							Para utilizar la radio debes estar de servicio, puedes seleccionar la frecuencia con /frecuencias, uso: !texto.\n\
-							Puedes abrir cualquier puerta de la comisaría pulsando la tecla F cerca de la puerta.\n\
-							Los policías recibirán la paga en el payday, su paga dependerá de su rango.\n\
-							\n\
-							",
-								header
-						);
+						format(dialog, sizeof dialog, "{"#POLICE_COLOR"}Policia{ffffff}\n\nEste trabajo es especial, y no se puede obtener de una manera común para mas informacion.\n\nVisita: {"#GOLD_COLOR"}"SERVER_WEBSITE"");
 					}
 					case WORK_PIZZA:
 					{
@@ -21020,7 +20943,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 				
 				switch(WORK_VEHICLES[vehicleid][work_vehicle_WORK])
 				{
-					case WORK_TAXI, WORK_HARVESTER, WORK_FUMIGATOR: CallLocalFunction("StartPlayerJob", "iii", playerid, WORK_VEHICLES[vehicleid][work_vehicle_WORK], vehicleid);
+					case WORK_TAXI, WORK_HARVESTER: CallLocalFunction("StartPlayerJob", "iii", playerid, WORK_VEHICLES[vehicleid][work_vehicle_WORK], vehicleid);
 					case WORK_TRUCK:
 					{
 						if(TRUCK_VEHICLE[vehicleid][truck_vehicle_LOADED])
@@ -21341,7 +21264,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 			{
 				switch(WORK_VEHICLES[ PlayerTemp[playerid][pt_LAST_VEHICLE_ID] ][work_vehicle_WORK])
 				{
-					case WORK_TAXI, WORK_HARVESTER, WORK_FUMIGATOR, WORK_TRUCK: CallLocalFunction("EndPlayerJob", "iib", playerid, PlayerTemp[playerid][pt_WORKING_IN], true);
+					case WORK_TAXI, WORK_HARVESTER, WORK_TRUCK: CallLocalFunction("EndPlayerJob", "iib", playerid, PlayerTemp[playerid][pt_WORKING_IN], true);
 					case WORK_PIZZA:
 					{
 						if(PIZZA_VEHICLE[ PlayerTemp[playerid][pt_LAST_VEHICLE_ID] ][pizza_vehicle_STARTED])
@@ -23495,38 +23418,6 @@ public OnPlayerEnterDynamicRaceCP(playerid, checkpointid)
 			
 			PlayerTemp[playerid][pt_HARVERT_PROCCESS] ++;
 			Set_HARVEST_Checkpoint(playerid);
-		}
-		case CHECKPOINT_TYPE_FUMIGATOR:
-		{
-			if(PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] == sizeof(FUMIGATOR_CHECKPOINTS) - 1)
-			{
-				new vehicleid = GetPlayerVehicleID(playerid);
-				if(vehicleid == INVALID_VEHICLE_ID) return 1;
-				
-				new work_extra_payment;
-				if(work_info[WORK_FUMIGATOR][work_info_EXTRA_PAY] > 0 && work_info[WORK_FUMIGATOR][work_info_EXTRA_PAY_EXP] > 0)
-				{
-					work_extra_payment = (work_info[WORK_FUMIGATOR][work_info_EXTRA_PAY] * floatround(floatdiv(PLAYER_WORKS[playerid][WORK_FUMIGATOR][pwork_LEVEL], work_info[WORK_FUMIGATOR][work_info_EXTRA_PAY_EXP])));
-					if(work_info[WORK_FUMIGATOR][work_info_EXTRA_PAY_LIMIT] != 0) if(work_extra_payment > work_info[WORK_FUMIGATOR][work_info_EXTRA_PAY_LIMIT]) work_extra_payment = work_info[WORK_FUMIGATOR][work_info_EXTRA_PAY_LIMIT];
-				}
-				
-				new money = minrand(1200, 1500) + work_extra_payment;
-				GivePlayerCash(playerid, money, true, false);
-				
-				PLAYER_WORKS[playerid][WORK_FUMIGATOR][pwork_LEVEL] ++;
-				
-				SendClientMessagef(playerid, -1, "Gracias por fumigar nuestros cielos, has ganado %s$.", number_format_thousand(money));
-				
-				CallLocalFunction("EndPlayerJob", "iib", playerid, PlayerTemp[playerid][pt_WORKING_IN], true);
-				return 1;
-			}
-			
-			new str[50];
-			format(str, sizeof str, " checkpoint_%d/%d", PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] + 1, sizeof(FUMIGATOR_CHECKPOINTS));
-			GameTextForPlayer(playerid, str, 2000, 3);
-			
-			PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] ++;
-			Set_FUMIGATOR_Checkpoint(playerid);
 		}
 		case CHECKPOINT_TYPE_DRIVING_SCHOOL:
 		{
@@ -26495,7 +26386,6 @@ CMD:id(playerid, params[])
 
 CMD:admins(playerid, params[])
 {
-	if(PI[playerid][pADMIN_LEVEL] < 2) return SendClientMessagef(playerid, -1, "SERVER: Unknown command.");
 	PlayerTemp[playerid][pt_DIALOG_DB_LIMIT] = 10;
 	PlayerTemp[playerid][pt_DIALOG_DB_PAGE] = 0;
 	ShowDialog(playerid, DIALOG_ADMIN_LIST);
@@ -26833,7 +26723,6 @@ alias:gotoveh("irvehiculo", "gotocar", "iracarro");
 
 CMD:duty(playerid)
 {
-	if(PI[playerid][pADMIN_LEVEL] < 1) return SendClientMessagef(playerid, -1, "SERVER: Unknown command.");
 	if(PlayerTemp[playerid][pt_ADMIN_SERVICE])
 	{
 		PlayerTemp[playerid][pt_ADMIN_SERVICE] = false;
@@ -26859,17 +26748,9 @@ CMD:duty(playerid)
 		}
 		
 		new label_str[64];
-		switch(PI[playerid][pADMIN_LEVEL])
-		{
-			case 1: format(label_str, sizeof label_str, "{0099FF}%s en servicio", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
-			case 2: format(label_str, sizeof label_str, "{FFFF00}%s en servicio", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
-			case 3: format(label_str, sizeof label_str, "{00CC00}%s en servicio", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
-			case 4: format(label_str, sizeof label_str, "{FFCC00}%s en servicio", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
-			case 5: format(label_str, sizeof label_str, "{FFFFCC}%s en servicio", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
-		}
-		PlayerTemp[playerid][pt_ADMIN_LABEL] = CreateDynamic3DTextLabel(label_str, -1, 0.0, 0.0, 0.3, 20.0, playerid, .testlos = true);
+ 		format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}[%s]\n{ffffff}En Servicio", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
+		PlayerTemp[playerid][pt_ADMIN_LABEL] = CreateDynamic3DTextLabel(label_str, -1, 0.0, 0.0, 0.4, 20.0, playerid, .testlos = true);
 
-		if(PlayerTemp[playerid][pt_WORKING_IN]) SendClientMessagef(playerid, -1, "Deberías dejar de estar de servicio como %s para administrar mejor...", work_info[ PlayerTemp[playerid][pt_WORKING_IN] ][work_info_NAME]);
 		SendClientMessagef(playerid, -1, "Ahora estás de servicio como %s.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
 	}
 	return 1;
@@ -28169,16 +28050,6 @@ public StartPlayerJob(playerid, work, vehicleid)
 			SendClientMessagef(playerid, -1, "Si te bajas de la cosechadora se cancelará el trabajo.");
 			Set_HARVEST_Checkpoint(playerid);
 		}
-		case WORK_FUMIGATOR:
-		{	
-			PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] = 0;
-			SendClientMessagef(playerid, -1, "Ve hasta los puntos de control para completar el trabajo.");
-			SendClientMessagef(playerid, -1, "Si te bajas del avion se cancelará el trabajo.");
-			Set_FUMIGATOR_Checkpoint(playerid);
-			
-			GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_ENGINE] = 1;
-			UpdateVehicleParams(vehicleid);
-		}
 		case WORK_LUMBERJACK:
 		{
 			PlayerTemp[playerid][pt_PLAYER_CARRYING_TREE] = false;
@@ -28304,18 +28175,6 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 			if(PlayerTemp[playerid][pt_LAST_VEHICLE_ID] != INVALID_VEHICLE_ID)
 			{
 				if(WORK_VEHICLES[ PlayerTemp[playerid][pt_LAST_VEHICLE_ID] ][work_vehicle_WORK] == WORK_HARVESTER) SetVehicleToRespawnEx(PlayerTemp[playerid][pt_LAST_VEHICLE_ID]);
-			}
-		}
-		case WORK_FUMIGATOR:
-		{
-			if(IsValidDynamicRaceCP(PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT]))
-			{
-				DestroyDynamicRaceCP(PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT]);
-				PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT] = INVALID_STREAMER_ID;
-			}
-			if(PlayerTemp[playerid][pt_LAST_VEHICLE_ID] != INVALID_VEHICLE_ID)
-			{
-				if(WORK_VEHICLES[ PlayerTemp[playerid][pt_LAST_VEHICLE_ID] ][work_vehicle_WORK] == WORK_FUMIGATOR) SetVehicleToRespawnEx(PlayerTemp[playerid][pt_LAST_VEHICLE_ID]);
 			}
 		}
 		case WORK_LUMBERJACK: CancelLumberjackWork(playerid);
@@ -30397,7 +30256,7 @@ public OnPlayerCommandPerformed(playerid, cmd[], params[], result, flags)
 { 
     if(result == -1) 
     { 
-		SendClientMessagef(playerid, -1, "El comando \"%s\" no existe. Utiliza el comando \"/ayuda\" para ver informacion sobre el servidor.", cmd);
+		SendInfoMessagef(playerid, "Error~n~~n~El comando ~r~/%s~w~ no existe, para mas informacion, Escribe ~b~/ayuda~w~.");
         return 0;
     }
     return 1; 
@@ -30406,8 +30265,8 @@ public OnPlayerCommandPerformed(playerid, cmd[], params[], result, flags)
 SendMessageToDoubtChannel(playerid, message[])
 {
 	new str[445];
-	if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "{"#PRIMARY_COLOR"}[Dudas] {"#SILVER_COLOR"}%s (%d) [%s]: %s", PlayerTemp[playerid][pt_NAME], playerid, ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], message);
-	else format(str, 445, "{"#PRIMARY_COLOR"}[Dudas] {"#SILVER_COLOR"}%s (%d) [Nivel %d]: %s", PlayerTemp[playerid][pt_NAME], playerid, PI[playerid][pLEVEL], message);
+	if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "[Canal /duda | %s] {"#BLUE_COLOR"}%s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PlayerTemp[playerid][pt_NAME], playerid, message);
+	else format(str, 445, "[Canal /duda | Nivel: %d] {"#BLUE_COLOR"}%s (%d): %s", PI[playerid][pLEVEL], PlayerTemp[playerid][pt_NAME], playerid, message);
 
 	PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();
 	for(new i = 0; i != MAX_PLAYERS; i++)
@@ -30416,7 +30275,7 @@ SendMessageToDoubtChannel(playerid, message[])
 		{
 			if((pTemp(i)[pt_GAME_STATE] == GAME_STATE_NORMAL || pTemp(i)[pt_GAME_STATE] == GAME_STATE_DEAD) && PI[i][pDOUBT_CHANNEL])
 			{
-				SendClientMessage(i, 0x77c7ffFF, str);
+				SendClientMessage(i, PRIMARY_COLOR2, str);
 			}
 		}
 	}
@@ -30443,7 +30302,7 @@ CMD:muteard(playerid, params[])
 {
     new to_playerid, reason[128], time;
     if(sscanf(params, "uds[128]", to_playerid, time, reason)) return ErrorCommandParams(playerid, "/muteard <player_id> <minutos> <razon>");
-	if(time < 0 || time > 1440) return SendClientMessagef(playerid, -1, "Intervalo de minutos incorrecto.");
+	if(time < 0 || time > 1440) return SendClientMessagef(playerid, -1, "Intervalo de minutos incorrecto. Max: 1440");
     if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
     if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
 	if(gettime() < PI[to_playerid][pMUTE]) return SendClientMessagef(playerid, -1, "El jugador ya está muteado.");
@@ -30465,7 +30324,7 @@ CMD:mutearg(playerid, params[])
 {
     new to_playerid, reason[128], time;
     if(sscanf(params, "uds[128]", to_playerid, time, reason)) return ErrorCommandParams(playerid, "/mutearg <player_id> <minutos> <razon>");
-	if(time < 0 || time > 1440) return SendClientMessagef(playerid, -1, "Intervalo de minutos incorrecto.");
+	if(time < 0 || time > 1440) return SendClientMessagef(playerid, -1, "Intervalo de minutos incorrecto. Max: 1440");
     if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
     if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
 	if(gettime() < PI[to_playerid][pGLOBAL_MUTE]) return SendClientMessagef(playerid, -1, "El jugador ya está muteado.");
@@ -30678,9 +30537,9 @@ CMD:countp(playerid, params[])
 	return 1;
 }
 
-CMD:presolv(playerid, params[])
+CMD:inumber(playerid, params[])
 {
-	if(sscanf(params, "d", params[0])) return ErrorCommandParams(playerid, "/presolv <numero>");
+	if(sscanf(params, "d", params[0])) return ErrorCommandParams(playerid, "/inumber <numero>");
 	
 	inline OnInfoQueryLoad()
 	{
@@ -30701,59 +30560,6 @@ CMD:presolv(playerid, params[])
 	}
 	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT id, name, connected, playerid FROM player WHERE phone_number = %d LIMIT 1;", params[0]);
 	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnInfoQueryLoad);
-	return 1;
-}
-
-
-Set_FUMIGATOR_Checkpoint(playerid)
-{
-	if(IsValidDynamicRaceCP(PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT]))
-	{
-		DestroyDynamicRaceCP(PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT]);
-		PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT] = INVALID_STREAMER_ID;
-	}
-	
-	if(PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] == sizeof(FUMIGATOR_CHECKPOINTS) - 1)
-	{
-		PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT] =	CreateDynamicRaceCP
-														(
-															4,
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] ][0],
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] ][1],
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] ][2],
-															0.0,
-															0.0,
-															0.0,
-															10.0, 
-															0,
-															0,
-															playerid,
-															999999.0
-														);
-	}
-	else
-	{
-		PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT] =	CreateDynamicRaceCP
-														(
-															3,
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] ][0],
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] ][1],
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] ][2],
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] + 1 ][0],
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] + 1 ][1],
-															FUMIGATOR_CHECKPOINTS[ PlayerTemp[playerid][pt_FUMIGATOR_PROCCESS] + 1 ][2],
-															10.0, 
-															0,
-															0,
-															playerid,
-															999999.0
-														);
-	}
-	
-	new info[1];
-	info[0] = CHECKPOINT_TYPE_FUMIGATOR;
-	Streamer_SetArrayData(STREAMER_TYPE_RACE_CP, PlayerTemp[playerid][pt_FUMIGATOR_CHECKPOINT], E_STREAMER_EXTRA_ID, info);
-	
 	return 1;
 }
 
@@ -31068,22 +30874,6 @@ CMD:arma(playerid, params[])
 	return 1;
 }
 
-CMD:printtestvehicles(playerid, params[])
-{
-	for(new i, j = GetVehiclePoolSize(); i <= j; i++)
-	{
-		if(GLOBAL_VEHICLES[i][gb_vehicle_VALID] && GLOBAL_VEHICLES[i][gb_vehicle_TYPE] == VEHICLE_TYPE_TEST)
-		{
-			new Float:x, Float:y, Float:z, Float:angle;
-			GetVehiclePos(i, x, y, z);
-			GetVehicleZAngle(i, angle);
-			printf("{VEHICLE_TYPE_, WORK_, exp, %d, %f, %f, %f, %f, color1, color2, vip, world},", GetVehicleModel(i), x, y, z, angle);
-		}
-	}
-	SendClientMessagef(playerid, -1, "Se hizo un printf de todos los vehiculos de prueba - revisa la consola o el server_log.txt");
-	return 1;
-}
-
 CMD:vehicles(playerid, params[])
 {
 	new to_playerid;
@@ -31112,13 +30902,13 @@ CMD:vehicles(playerid, params[])
 	}
 	if(total_vehicles == 0) strcat(dialog, "{"#SILVER_COLOR"}El jugador no tiene vehiculos");
 	
-	ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_TABLIST_HEADERS, "Vehiculos", dialog, "OK", "");
+	ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_TABLIST_HEADERS, "Vehiculos", dialog, "Cerrar", "");
 	return 1;
 }
 alias:vehicles("vehiculos");
 
-
 //Ayudante
+flags:duty(CMD_HELPER);
 flags:muteard(CMD_HELPER);
 flags:desmuteard(CMD_HELPER);
 flags:mutearg(CMD_HELPER);
@@ -31126,7 +30916,8 @@ flags:desmutearg(CMD_HELPER);
 flags:cls(CMD_HELPER);
 
 //Mod-Ayudante
-flags:presolv(CMD_MODERATOR);
+flags:admins(CMD_MODERATOR);
+flags:inumber(CMD_MODERATOR);
 flags:trabajos(CMD_MODERATOR);
 flags:getid(CMD_MODERATOR);
 flags:getname(CMD_MODERATOR);
@@ -31141,65 +30932,67 @@ flags:jail(CMD_MODERATOR);
 flags:unjail(CMD_MODERATOR);
 flags:notifica(CMD_MODERATOR);
 flags:ls(CMD_MODERATOR);
+flags:pest(CMD_MODERATOR);
+flags:pinv(CMD_MODERATOR);
+flags:pexp(CMD_MODERATOR);
+flags:parmas(CMD_MODERATOR);
+flags:pbank(CMD_MODERATOR);
+flags:traerveh(CMD_MODERATOR);
+flags:gotoveh(CMD_MODERATOR);
+flags:goto(CMD_MODERATOR);
+flags:get(CMD_MODERATOR);
+flags:pm(CMD_MODERATOR);
+flags:tban(CMD_MODERATOR);
+flags:dtban(CMD_MODERATOR);
+flags:lsdb(CMD_MODERATOR);
 
 //Moderador
-flags:pest(CMD_GLOBAL_MODERATOR);
-flags:pinv(CMD_GLOBAL_MODERATOR);
-flags:pexp(CMD_GLOBAL_MODERATOR);
-flags:parmas(CMD_GLOBAL_MODERATOR);
-flags:pbank(CMD_GLOBAL_MODERATOR);
-flags:traerveh(CMD_GLOBAL_MODERATOR);
-flags:gotoveh(CMD_GLOBAL_MODERATOR);
-flags:goto(CMD_GLOBAL_MODERATOR);
-flags:get(CMD_GLOBAL_MODERATOR);
 flags:unban(CMD_GLOBAL_MODERATOR);
-flags:tban(CMD_GLOBAL_MODERATOR);
 flags:dban(CMD_GLOBAL_MODERATOR);
-flags:dtban(CMD_GLOBAL_MODERATOR);
 flags:rac(CMD_GLOBAL_MODERATOR);
 flags:rac2(CMD_GLOBAL_MODERATOR);
 flags:rv(CMD_GLOBAL_MODERATOR);
-flags:setthirst(CMD_GLOBAL_MODERATOR);
-flags:sethunger(CMD_GLOBAL_MODERATOR);
-flags:setgas(CMD_GLOBAL_MODERATOR);
 flags:repairveh(CMD_GLOBAL_MODERATOR);
-flags:lsdb(CMD_GLOBAL_MODERATOR);
 flags:revivir(CMD_GLOBAL_MODERATOR);
 flags:borrarop(CMD_GLOBAL_MODERATOR);
 flags:historial(CMD_GLOBAL_MODERATOR);
 flags:getversion(CMD_GLOBAL_MODERATOR);
+flags:ban(CMD_GLOBAL_MODERATOR);
 
 //Administrador
-flags:pm(CMD_ADMINISTRATOR);
-flags:settime(CMD_ADMINISTRATOR);
-flags:setweather(CMD_ADMINISTRATOR);
-flags:sethealth(CMD_ADMINISTRATOR);
-flags:setarmour(CMD_ADMINISTRATOR);
+flags:v(CMD_ADMINISTRATOR);
+flags:dv(CMD_ADMINISTRATOR);
 flags:givemod(CMD_ADMINISTRATOR);
 flags:asay(CMD_ADMINISTRATOR);
-flags:ban(CMD_ADMINISTRATOR);
-flags:setcoins(CMD_ADMINISTRATOR);
-flags:say(CMD_ADMINISTRATOR);
 flags:rproperty(CMD_ADMINISTRATOR);
 flags:eproperty(CMD_ADMINISTRATOR);
 flags:cproperty(CMD_ADMINISTRATOR);
+flags:setwork(CMD_ADMINISTRATOR);
+flags:setpass(CMD_ADMINISTRATOR);
+flags:setnameplayer(CMD_ADMINISTRATOR);
+flags:setnametemp(CMD_ADMINISTRATOR);
 
 //Desarrollador
 flags:ip(CMD_OWNER);
 flags:ac(CMD_OWNER);
+flags:say(CMD_OWNER);
+flags:sethealth(CMD_OWNER);
+flags:setarmour(CMD_OWNER);
+flags:setcoins(CMD_OWNER);
+flags:setgas(CMD_OWNER);
+flags:setthirst(CMD_OWNER);
+flags:sethunger(CMD_OWNER);
+flags:settime(CMD_OWNER);
+flags:setweather(CMD_OWNER);
 flags:setlevel(CMD_OWNER);
-flags:setwork(CMD_OWNER);
 flags:setworkexp(CMD_OWNER);
 flags:setcash(CMD_OWNER);
 flags:givecash(CMD_OWNER);
 flags:spos(CMD_OWNER);
-flags:v(CMD_OWNER);
-flags:dv(CMD_OWNER);
 flags:restart(CMD_OWNER);
 flags:setname(CMD_OWNER);
 flags:exproperty(CMD_OWNER);
 flags:gotoproperty(CMD_OWNER);
-flags:setpass(CMD_OWNER);
 flags:osetname(CMD_OWNER);
 flags:delete(CMD_OWNER);
 flags:givecoins(CMD_OWNER);
@@ -31213,10 +31006,7 @@ flags:ogivecoins(CMD_OWNER);
 flags:con(CMD_OWNER);
 flags:changeflags(CMD_OWNER);
 flags:selectobject(CMD_OWNER);
-flags:setnameplayer(CMD_OWNER);
-flags:setnametemp(CMD_OWNER);
 flags:arma(CMD_OWNER);
-flags:printtestvehicles(CMD_OWNER);
 flags:gpos(CMD_OWNER);
 flags:cpos(CMD_OWNER);
 flags:setwlevel(CMD_OWNER);
@@ -31225,7 +31015,7 @@ flags:anim(CMD_OWNER);
 flags:anmindex(CMD_OWNER);
 flags:cobject(CMD_OWNER);
 flags:rep(CMD_OWNER);
-flags:setfdrum(CMD_ADMINISTRATOR);
+flags:setfdrum(CMD_OWNER);
 
 getPhoneNumber(dbid)
 {

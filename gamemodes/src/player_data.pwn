@@ -161,8 +161,6 @@ stock ClearPlayerTempData(playerid)
     pTemp(playerid)[pt_SELECTED_BYC_USER_ID] = 0;
     pTemp(playerid)[pt_DIALOG_RESPONDED] = false;
     pTemp(playerid)[pt_DIALOG_ID] = 0;
-    pTemp(playerid)[pt_FUMIGATOR_CHECKPOINT] = 0;
-    pTemp(playerid)[pt_FUMIGATOR_PROCCESS] = 0;
     pTemp(playerid)[pt_DL_EXAM] = false;
     pTemp(playerid)[pt_DL_EXAM_CP] = 0;
     pTemp(playerid)[pt_DL_EXAM_PROCCESS] = 0;
@@ -184,5 +182,20 @@ stock ClearPlayerTempData(playerid)
     pTemp(playerid)[pt_PICKUP_TIMER] = 0;
     pTemp(playerid)[pt_DIALOG_OPENED] = false;
     pTemp(playerid)[pt_LAST_PICKUP_CHECKED] = 0;
+	pTemp(playerid)[pt_GLOBAL_TIMER] = 0;
+	pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] = 0;
+	pTemp(playerid)[pt_INVENTORY_PLAYERID] = 0;
+	pTemp(playerid)[pt_POCKET_SLOT_SELECTED] = 0;
+	pTemp(playerid)[pt_INVENTORY_POCKET_TYPE] = 0;
+	pTemp(playerid)[pt_INVENTORY_POCKET_OPTION] = 0;
+	pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0] = 0;
+	pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_1] = 0;
+	pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_2] = 0;
+	pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_3] = 0;
+	pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_4] = 0;
+	pTemp(playerid)[pt_MEDICINE_TIMER] = 0;
+	pTemp(playerid)[pt_INJURED_TIMER_POS] = 0;
+	pTemp(playerid)[pt_ELEVATOR_INDEX] = 0;
+	pTemp(playerid)[pt_ELEVATOR_OPTION] = 0;
     return 1;
 }
