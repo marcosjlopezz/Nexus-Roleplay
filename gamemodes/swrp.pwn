@@ -5736,7 +5736,12 @@ hook OnPlayerText(playerid, text[])
 {
 	if(PlayerTemp[playerid][pt_KICKED]) return 0;
 	
-	if(PlayerTemp[playerid][pt_GAME_STATE] != GAME_STATE_NORMAL || PlayerTemp[playerid][pt_SELECT_TEXTDRAW]) return SendMessage(playerid, "No puedes hablar ahora.");
+	if(PlayerTemp[playerid][pt_GAME_STATE] != GAME_STATE_NORMAL || PlayerTemp[playerid][pt_SELECT_TEXTDRAW])
+	{
+		SendMessage(playerid, "No puedes hablar ahora.");
+		return 0;
+	}
+
 	if(text[0] == '#' && PI[playerid][pADMIN_LEVEL] > 1)
 	{
       	new string[145];
@@ -27603,7 +27608,9 @@ CMD:dv(playerid, params[])
 CMD:restart(playerid, params[])
 {
 	mysql_tquery(handle_db, "UPDATE player SET connected = 0, playerid = 0;");
-	SendRconCommand("gmx");
+	LoopEx(i, MAX_PLAYERS, 0) Kick(i);
+	wait_ms(500);
+	SendRconCommand("exit");
 	return 1;
 }
 
