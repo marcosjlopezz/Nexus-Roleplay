@@ -24,12 +24,18 @@ hook OnScriptInit()
 
 hook OnPlayerDeath(playerid, killerid, reason) 
 {
+    DropHandWeapon(playerid);
+}
+
+stock DropHandWeapon(playerid)
+{
     new weaponid = GetPlayerWeapon(playerid);
     if(weaponid > 0) 
     {
         new slot = WEAPON_INFO[weaponid][weapon_info_SLOT], ammo;
         GetPlayerWeaponData(playerid, slot, weaponid, ammo);
-        if(weaponid > 0 && ammo > 0 && WEAPON_INFO[weaponid][weapon_info_DROP] && PLAYER_WEAPONS[playerid][slot][player_weapon_VALID] && PLAYER_WEAPONS[playerid][slot][player_weapon_ID] == weaponid) {
+        if(weaponid > 0 && ammo > 0 && WEAPON_INFO[weaponid][weapon_info_DROP] && PLAYER_WEAPONS[playerid][slot][player_weapon_VALID] && PLAYER_WEAPONS[playerid][slot][player_weapon_ID] == weaponid) 
+        {
             RemovePlayerSlotWeapon(playerid, slot, true);
 
             new weaponInfo[E_DroppedWeapons];
