@@ -143,9 +143,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 if(GivePlayerCash(playerid, -PHARMACY_MEDIKIT_PRICE, true, true)) 
                 {
                     PI[playerid][pMEDICAL_KITS] += 1;
-                    SendClientMessagef(playerid, -1, "--------------------------------------------------------------------------------------------------------------------------");
-                    SendClientMessagef(playerid, -1, "Has comprado un {ff0000}botiquín{ffffff}, para usararlo usa {"#GOLD_COLOR"}/curar{ffffff} cerca de la persona que quieras curar.");
-                    SendClientMessagef(playerid, -1, "--------------------------------------------------------------------------------------------------------------------------");
+                    SendInfoMessagef(playerid, "~r~Farmacia~n~~n~~w~Has comprado un ~r~botiquín~w~, para usarlo escribe ~y~/curar~w~ cerca de la persona que quieras curar.");
                 }
                 else SendClientMessagef(playerid, 0xCCCCCCCC, "No tienes suficiente dinero.");
             }
