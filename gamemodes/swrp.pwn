@@ -6081,6 +6081,23 @@ ptask AutoSavePlayerData[30000](playerid)
 	}
 }
 
+ptask UpdatePlayerInfo[1000](playerid)
+{
+	if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
+
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) SendAlertToMedics(playerid);
+	if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
+	
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
+	{
+		SetPlayerColorEx(playerid, PLAYER_POLICE_COLOR);
+	}
+	else
+	{
+		SetPlayerNormalColor(playerid);
+	}
+}
+
 CMD:ayuda(playerid, params[])
 {
 	switch(YHash(params, false))
@@ -26107,7 +26124,7 @@ GetPlayerZones(playerid, city[], zone[])
 	return 1;
 }
 
-SetPlayerWantedLevelEx(playerid, level)
+stock SetPlayerWantedLevelEx(playerid, level)
 {
 	PI[playerid][pWANTED_LEVEL] = level;
 	SetPlayerWantedLevel(playerid, level);
