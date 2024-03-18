@@ -1485,6 +1485,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				{
 					case 0:
 					{
+						if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "Los policias no pueden hacer esto.");
+
 						new dialog[445], line_str[445];
 						pTemp(playerid)[pt_INVENTORY_POCKET_TYPE] = INVENTORY_TYPE_WEAPON_OPTIONS;
 						pTemp(playerid)[pt_INVENTORY_POCKET_OPTION] = SELECTION_TYPE_GIVE; //dar
@@ -1523,6 +1525,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 1:
 					{
+						if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "Los policias no pueden hacer esto.");
+						
 						new dialog[445], line_str[445];
 						pTemp(playerid)[pt_INVENTORY_POCKET_TYPE] = INVENTORY_TYPE_WEAPON_OPTIONS;
 						pTemp(playerid)[pt_INVENTORY_POCKET_OPTION] = SELECTION_TYPE_SELL; //vender
