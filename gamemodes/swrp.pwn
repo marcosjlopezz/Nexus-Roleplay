@@ -6053,49 +6053,16 @@ ptask UpdatePlayerInfo[1000](playerid)
 {
 	if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
 
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) SendAlertToMedics(playerid);
-	if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
-
-	new territory_index = GetPlayerCurrentTerritory(playerid);
-	new bool:in_crew_war = false;
-
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
 		SetPlayerColorEx(playerid, PLAYER_POLICE_COLOR);
+		
+		if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) SendAlertToMedics(playerid);
+		if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
 	}
-	else
-	{
-		if(PI[playerid][pCREW])
-		{
-			if(territory_index == -10) in_crew_war = false;
-			else
-			{
-				if(TERRITORIES[territory_index][territory_WAR])
-				{
-					new r, g, b, a;
-					HexToRGBA(CREW_INFO[ pTemp(playerid)[pt_CREW_INDEX] ][crew_COLOR], r, g, b, a);
-					SetPlayerColorEx(playerid, RGBAToHex(r, g, b, 0));
-					in_crew_war = true;
-				}
-				else in_crew_war = false;
-			}
-		}
-		else in_crew_war = false;
-	}
-
-	if(!in_crew_war || PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE || PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK || !PlayerTemp[playerid][pt_WANT_TAXI]) SetPlayerNormalColor(playerid);
-}
-
-stock GetPlayerCurrentTerritory(playerid)
-{
-	LoopEx(i, MAX_TERRITORIES, 0)
-	{
-		if(IsPlayerInDynamicArea(playerid, TERRITORIES[i][territory_AREA]))
-		{
-			return i;
-		}
-	}
-	return -10;
+	else if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) SendAlertToMedics(playerid);
+	else if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
+	else SetPlayerNormalColor(playerid);
 }
 
 CMD:ayuda(playerid, params[])
