@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.6 Alpha"
+#define SERVER_VERSION			"1.7 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -2964,7 +2964,8 @@ enum Temp_Enum
 	pt_MEDICINE_TIMER,
 	pt_INJURED_TIMER_POS,
 	pt_ELEVATOR_INDEX,
-	pt_ELEVATOR_OPTION
+	pt_ELEVATOR_OPTION,
+	pt_GIVECASHALL_TIME
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -6054,15 +6055,47 @@ ptask UpdatePlayerInfo[1000](playerid)
 
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) SendAlertToMedics(playerid);
 	if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
-	
+
+	new territory_index = GetPlayerCurrentTerritory(playerid);
+	new bool:in_crew_war = false;
+
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
 		SetPlayerColorEx(playerid, PLAYER_POLICE_COLOR);
 	}
 	else
 	{
-		SetPlayerNormalColor(playerid);
+		if(PI[playerid][pCREW])
+		{
+			if(territory_index == -10) in_crew_war = false;
+			else
+			{
+				if(TERRITORIES[territory_index][territory_WAR])
+				{
+					new r, g, b, a;
+					HexToRGBA(CREW_INFO[ pTemp(playerid)[pt_CREW_INDEX] ][crew_COLOR], r, g, b, a);
+					SetPlayerColorEx(playerid, RGBAToHex(r, g, b, 0));
+					in_crew_war = true;
+				}
+				else in_crew_war = false;
+			}
+		}
+		else in_crew_war = false;
 	}
+
+	if(!in_crew_war || PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE || PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK || !PlayerTemp[playerid][pt_WANT_TAXI]) SetPlayerNormalColor(playerid);
+}
+
+stock GetPlayerCurrentTerritory(playerid)
+{
+	LoopEx(i, MAX_TERRITORIES, 0)
+	{
+		if(IsPlayerInDynamicArea(playerid, TERRITORIES[i][territory_AREA]))
+		{
+			return i;
+		}
+	}
+	return -10;
 }
 
 CMD:ayuda(playerid, params[])
@@ -19220,6 +19253,7 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	else if(newkeys & KEY_FIRE)
 	{
 		if(PI[playerid][pLEVEL] == 1 && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_NONE) ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
+		if(pTemp(playerid)[pt_CUFFED] && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_NONE) ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
 	}
 	else if(newkeys & KEY_CROUCH)
 	{
@@ -20786,7 +20820,17 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 				}
 			}
 		}
-		
+
+		if(pTemp(playerid)[pt_CUFFED])
+		{
+			new Float:sx, Float:sy, Float:sz;
+			GetPlayerPos(playerid, sx, sy, sz);
+	
+			RemovePlayerFromVehicle(playerid);
+			SetPlayerPos(playerid, sx, sy, sz);
+			ResyncPlayer(playerid);
+		}
+
 		SetPlayerArmedWeapon(playerid, 0);
 		PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_HEALTH][p_ac_info_IMMUNITY] = gettime() + 3;
 		PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
@@ -20795,10 +20839,13 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 		GLOBAL_VEHICLES[vehicleid][gb_vehicle_DRIVER] = playerid;
 		GLOBAL_VEHICLES[vehicleid][gb_vehicle_LAST_DRIVER] = playerid;
 		GLOBAL_VEHICLES[vehicleid][gb_vehicle_OCCUPIED] = true;
+		UpdateVehicleParams(vehicleid);
+
 		if(PI[playerid][pDRIVE_LICENSE_POINTS] == 0 && !PlayerTemp[playerid][pt_DL_EXAM] && VEHICLE_INFO[ GLOBAL_VEHICLES[vehicleid][gb_vehicle_MODELID] - 400][vehicle_info_NORMAL_SPEEDO])
 		{
-			SendClientMessagef(playerid, -1, "Deberias sacar una licencia de conducir para evitar multas.");
+			SendClientMessagef(playerid, YELLOW_COLOR2, "Deberias sacar una licencia de conducir para evitar multas.");
 		}
+
 		if(GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_DOORS] && VEHICLE_INFO[ GLOBAL_VEHICLES[vehicleid][gb_vehicle_MODELID] - 400][vehicle_info_DRIVER_DOOR]) //cerrado
 		{
 			if(gettime() - GLOBAL_VEHICLES[vehicleid][gb_vehicle_LAST_CLOSED_TIME] > 5) // Si el tiempo que paso desde que cerro es mayor a 5
@@ -27473,6 +27520,41 @@ CMD:givecash(playerid, params[])
 	return 1;
 }
 
+CMD:givecashall(playerid, params[])
+{
+	new value;
+	if(sscanf(params, "d", value)) return ErrorCommandParams(playerid, "/givecashall <amount>");
+
+	if(PI[playerid][pADMIN_LEVEL] <= CMD_ADMINISTRATOR)
+	{
+		if(value > 5000)
+		{
+			SendClientMessagef(playerid, 0xCCCCCCCC, "Solo puedes dar como maximo 5000$.");
+			return 1;
+		}
+
+		if(gettime() < PlayerTemp[playerid][pt_GIVECASHALL_TIME] + minutes(30))
+		{
+			new time = (minutes(30)-(gettime()-PlayerTemp[playerid][pt_GIVECASHALL_TIME]));
+			SendClientMessagef(playerid, 0xCCCCCCCC, "Tienes que esperar %s minutos para volver a dar dinero.", TimeConvert(time));
+			return 1;
+		}
+	}
+
+	LoopEx(i, MAX_PLAYERS, 0)
+	{
+		if(!IsPlayerConnected(i)) continue;
+		GivePlayerCash(i, value, true, value < 0 ? true : false);
+	}
+
+	pTemp(playerid)[pt_GIVECASHALL_TIME] = gettime();
+
+	SendClientMessageToAllf(GOLD_COLOR2, "El %s %s ha regalado %s$ a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
+	
+	SendCmdLogToAdmins(playerid, "givecashall", params);
+	return 1;
+}
+
 CMD:asay(playerid, params[])
 {
 	if(isnull(params)) return ErrorCommandParams(playerid, "/asay <message>");
@@ -27578,14 +27660,6 @@ CMD:setnametemp(playerid, params[])
 
 	if(SetPlayerName(to_playerid, new_name) == 1) 
 	{
-		for(new i = 0; i < 24; i++) 
-		{
-			if(new_name[i] == '_')
-			{
-				new_name[i] = ' ';
-			}
-		}
-
 		format(PlayerTemp[to_playerid][pt_NAME], 24, "%s", new_name);
 		SendClientMessagef(playerid, -1, "Nombre cambiado temporalmente.");
 	}
@@ -27599,9 +27673,12 @@ CMD:setnameplayer(playerid, params[])
 	if(sscanf(params, "u", to_playerid)) return ErrorCommandParams(playerid, "/setnameplayer <player_id>");
 	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
 
-	SetRolePlayNames(to_playerid);
+	format(PlayerTemp[to_playerid][pt_NAME], 24, "%s", PI[to_playerid][pNAME]);
 	SetPlayerName(to_playerid, PI[to_playerid][pNAME]);
-	SendClientMessagef(playerid, -1, "Nombre cambiado.");
+	
+	SetRolePlayNames(to_playerid);
+
+	SendClientMessagef(playerid, -1, "Ahora {"#YELLOW_COLOR"}%s (%d){ffffff} Tiene su nombre original.", PI[to_playerid][pNAME], to_playerid);
 	return 1;
 }
 
@@ -27910,14 +27987,14 @@ SendMessageToAdmins(color, const message[], level = 1)
 
 SendCmdLogToAdmins(playerid, const cmdtext[], const params[])
 {
-	new message[145];
-	if(isnull(params)) format(message, sizeof message, "El administrador %s (%d) ha utilizado el comando /%s", PI[playerid][pNAME], playerid, cmdtext);
-	else format(message, sizeof message, "El administrador %s (%d) ha utilizado el comando /%s %s", PI[playerid][pNAME], playerid, cmdtext, params);
+	new message[445];
+	if(isnull(params)) format(message, sizeof message, "[CMD | %s]{ffffff} %s (%d) ha utilizado el comando {"#YELLOW_COLOR"}/%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, cmdtext);
+	else format(message, sizeof message, "[CMD | %s]{ffffff} %s (%d) ha utilizado el comando {"#YELLOW_COLOR"}/%s %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, cmdtext, params);
 	
 	for(new i = 0; i != MAX_PLAYERS; i++) 
 	    if(IsPlayerConnected(i) && pTemp(i)[pt_USER_LOGGED])
 	        if(PI[i][pADMIN_LEVEL] >= PI[playerid][pADMIN_LEVEL] && pTemp(i)[pt_SEE_ACMD_LOG] /*&& pTemp(i)[pt_ADMIN_SERVICE]*/)
-	            SendClientMessage(i, 0xA9C4E4FF, message);
+	            SendClientMessage(i, GOLD_COLOR2, message);
 	
 	return 1;
 }
@@ -30971,6 +31048,7 @@ flags:setwork(CMD_ADMINISTRATOR);
 flags:setpass(CMD_ADMINISTRATOR);
 flags:setnameplayer(CMD_ADMINISTRATOR);
 flags:setnametemp(CMD_ADMINISTRATOR);
+flags:givecashall(CMD_ADMINISTRATOR);
 
 //Desarrollador
 flags:ip(CMD_OWNER);
@@ -31253,6 +31331,7 @@ public OnPlayerLogin(playerid)
 	StopAudioStreamForPlayer(playerid);
 	CancelSelectTextDrawEx(playerid);
 	PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
+	pTemp(playerid)[pt_GIVECASHALL_TIME] = gettime();
 
 	PlayerTemp[playerid][pt_INJURED_POS][0] = PI[playerid][pPOS_X];
 	PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
