@@ -2,7 +2,8 @@
 
 #define MAX_DROPPED_WEAPONS 1000
 
-enum _:E_DroppedWeapons {
+enum _:E_DroppedWeapons 
+{
     dw_WEAPONID,
     dw_AMMO,
     dw_OBJECTID,
@@ -16,13 +17,16 @@ enum _:E_DroppedWeapons {
 
 new List:DroppedWeapons;
 
-hook OnScriptInit() {
+hook OnScriptInit() 
+{
     DroppedWeapons = list_new();
 }
 
-hook OnPlayerDeath(playerid, killerid, reason) {
+hook OnPlayerDeath(playerid, killerid, reason) 
+{
     new weaponid = GetPlayerWeapon(playerid);
-    if(weaponid > 0) {
+    if(weaponid > 0) 
+    {
         new slot = WEAPON_INFO[weaponid][weapon_info_SLOT], ammo;
         GetPlayerWeaponData(playerid, slot, weaponid, ammo);
         if(weaponid > 0 && ammo > 0 && WEAPON_INFO[weaponid][weapon_info_DROP] && PLAYER_WEAPONS[playerid][slot][player_weapon_VALID] && PLAYER_WEAPONS[playerid][slot][player_weapon_ID] == weaponid) {
@@ -73,11 +77,19 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
                             DestroyDynamicObject(weaponInfo[dw_OBJECTID]);
                             DestroyDynamic3DTextLabel(weaponInfo[dw_LABELID]);
                             list_remove(DroppedWeapons, i);
-
-                            GivePlayerWeaponEx(playerid, weaponInfo[dw_WEAPONID], weaponInfo[dw_AMMO]);
-                            RegisterNewPlayerWeapon(playerid, weapon_slot);
-                            Auto_SendPlayerAction(playerid, "recoge un objeto del suelo.");
-                            Streamer_Update(playerid);
+                            
+                            if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
+                            {
+                                Auto_SendPlayerAction(playerid, "recoge un objeto del suelo y lo guarda en una bolsa.");
+                                Streamer_Update(playerid);
+                            }
+                            else
+                            {
+                                GivePlayerWeaponEx(playerid, weaponInfo[dw_WEAPONID], weaponInfo[dw_AMMO]);
+                                RegisterNewPlayerWeapon(playerid, weapon_slot);
+                                Auto_SendPlayerAction(playerid, "recoge un objeto del suelo.");
+                                Streamer_Update(playerid);
+                            }
                         }
                     }
                     return Y_HOOKS_BREAK_RETURN_1;
