@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.8 Alpha"
+#define SERVER_VERSION			"1.9 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -26781,6 +26781,17 @@ CMD:kick(playerid, params[])
 	return 1;
 }
 
+CMD:ojet(playerid, params[])
+{
+	new player_action = GetPlayerSpecialAction(playerid);
+	if(player_action == SPECIAL_ACTION_USEJETPACK)
+	{
+		SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
+	}
+	else SetPlayerSpecialAction(playerid, SPECIAL_ACTION_USEJETPACK);
+	return 1;
+}
+
 CMD:spec(playerid, params[])
 {
 	new to_playerid;
@@ -31328,6 +31339,7 @@ flags:setpass(CMD_ADMINISTRATOR);
 flags:setnameplayer(CMD_ADMINISTRATOR);
 flags:setnametemp(CMD_ADMINISTRATOR);
 flags:givecashall(CMD_ADMINISTRATOR);
+flags:ojet(CMD_ADMINISTRATOR);
 
 //Desarrollador
 flags:ip(CMD_OWNER);
