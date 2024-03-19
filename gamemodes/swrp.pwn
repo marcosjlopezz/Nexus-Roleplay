@@ -30281,7 +30281,7 @@ CMD:revivir(playerid, params[])
 	ApplyAnimation(to_playerid, "CARRY", "crry_prtial", 4.1, 0, 0, 0, 0, 0, true);
 	ClearAnimations(to_playerid);
 	
-	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE) SetPlayerPosEx(playerid, 1555.400390, -1675.611694, 16.195312, 90.0, 0, 0);
+	if(PLAYER_WORKS[to_playerid][WORK_POLICE][pwork_SET] && PlayerTemp[to_playerid][pt_WORKING_IN] == WORK_POLICE) SetPlayerPosEx(to_playerid, 1555.400390, -1675.611694, 16.195312, 90.0, 0, 0);
 
 	SendCmdLogToAdmins(playerid, "revivir", params);
 	return 1;
