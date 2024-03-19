@@ -27843,6 +27843,7 @@ CMD:asay(playerid, params[])
 {
 	if(isnull(params)) return ErrorCommandParams(playerid, "/asay <message>");
 
+	StrToUpper(params, 445);
 	SendClientMessageToAllf(PRIMARY_COLOR2, "[SERVIDOR]: {ffffff}%s", params);
 	SendCmdLogToAdmins(playerid, "asay", params);
 	return 1;
