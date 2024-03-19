@@ -6086,8 +6086,6 @@ ptask AutoSavePlayerData[30000](playerid)
 
 ptask UpdatePlayerInfo[1000](playerid)
 {
-	if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
-
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
 		SetPlayerColorEx(playerid, PLAYER_POLICE_COLOR);
@@ -6097,7 +6095,13 @@ ptask UpdatePlayerInfo[1000](playerid)
 	}
 	else if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) SendAlertToMedics(playerid);
 	else if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
-	else SetPlayerNormalColor(playerid);
+	else
+	{
+		if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
+		else SetPlayerNormalColor(playerid);
+	}
+
+	if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
 }
 
 CMD:ayuda(playerid, params[])
@@ -27832,7 +27836,7 @@ CMD:givednall(playerid, params[])
 		GivePlayerBlackCash(i, value, true, value < 0 ? true : false);
 
 		if(value < 0) SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha descontado %s {"#GRAY_COLOR"}DN${"#GOLD_COLOR"} a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
-		else SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha regalado %s {"#GRAY_COLOR"}DN${"#GOLD_COLOR"} a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value))
+		else SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha regalado %s {"#GRAY_COLOR"}DN${"#GOLD_COLOR"} a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
 	}
 
 	pTemp(playerid)[pt_GIVECASHALL_TIME] = gettime();
