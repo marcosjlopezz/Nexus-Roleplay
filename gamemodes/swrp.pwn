@@ -6036,6 +6036,29 @@ CMD:me(playerid, params[])
 	return 1;
 }
 
+CMD:1(playerid, params[])
+{
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
+	
+	new str_text[190];
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
+	{
+		SendPlayerAction(playerid, "desenfunda su arma con autoridad y determinación.");
+		format(str_text, sizeof(str_text), "* %s (( ..::Click::.. ..::Clack::.. Arma lista para disparar ))", PlayerTemp[playerid][pt_NAME]);
+		ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+	}
+	else
+	{
+		SendPlayerAction(playerid, "saca su arma con un gesto rápido y amenazante.");
+		format(str_text, sizeof(str_text), "* %s (( ..::Click::.. ..::Clack::.. Arma lista para disparar ))", PlayerTemp[playerid][pt_NAME]);
+		ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+		format(str_text, sizeof(str_text), "* %s (( Se verian a todos los civiles correr cuando ven al sujeto armado ))", PlayerTemp[playerid][pt_NAME]);
+		ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+	}
+	return 1;
+}
+
+
 CMD:experiencia(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
@@ -25580,12 +25603,19 @@ CMD:esposar(playerid, params[])
 	
 	if(!pTemp(params[0])[pt_CUFFING])
 	{
-		if(oldstate == ROLEPLAY_STATE_CRACK) {
+		if(oldstate == ROLEPLAY_STATE_CRACK) 
+		{
 			CuffPlayer(params[0]);
 		}
-		else {
+		else 
+		{
 			SendClientMessagef(params[0], -1, "Estás siendo esposado, puedes /resistirse.");
 			SendClientMessagef(playerid, -1, "Estás esposando a esta persona, aun puede resistirse.");
+
+			new str_text[445];
+			SendPlayerAction(playerid, "saca sus esposas y rapidamente se las coloca al sujeto.");
+			format(str_text, sizeof(str_text), "* %s (( ¿Pondra resistencia? Si esta abatido entonces no ))", PlayerTemp[playerid][pt_NAME]);
+			ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
 			
 			pTemp(params[0])[pt_CUFFED] = false;
 			pTemp(params[0])[pt_CUFFING] = true;
@@ -26133,6 +26163,11 @@ CMD:resistirse(playerid, params[])
 		PlayerTemp[playerid][pt_CUFFING] = false;
 		TogglePlayerControllableEx(playerid, true);
 		SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
+
+		new str_text[445];
+		format(str_text, sizeof(str_text), "* %s (( Si ))", PlayerTemp[playerid][pt_NAME]);
+		ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+
 		Auto_SendPlayerAction(playerid, "se resiste.");
 	}
 	return 1;
@@ -26164,6 +26199,10 @@ public CuffPlayer(playerid)
 	PlayerTemp[playerid][pt_CUFFING] = false;
 	TogglePlayerControllableEx(playerid, true);
 	SetPlayerSpecialAction(playerid, SPECIAL_ACTION_CUFFED);
+
+	new str_text[445];
+	format(str_text, sizeof(str_text), "* %s (( No ))", PlayerTemp[playerid][pt_NAME]);
+	ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
 	return 1;
 }
 
