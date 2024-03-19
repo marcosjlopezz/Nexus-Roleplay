@@ -28764,6 +28764,7 @@ DeleteIlegalInv(playerid)
 	PI[playerid][pSEED_CRACK] = 0;
 	PI[playerid][pCANNABIS] = 0;
 	PI[playerid][pCRACK] = 0;
+	PI[playerid][pBLACK_CASH] = 0;
 	return 1;
 }
 
