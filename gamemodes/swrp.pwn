@@ -27764,11 +27764,12 @@ CMD:givecashall(playerid, params[])
 	{
 		if(!IsPlayerConnected(i)) continue;
 		GivePlayerCash(i, value, true, value < 0 ? true : false);
+
+		if(value < 0) SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha descontado %s$ a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
+		else SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha regalado %s$ a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
 	}
 
 	pTemp(playerid)[pt_GIVECASHALL_TIME] = gettime();
-
-	SendClientMessageToAllf(GOLD_COLOR2, "El %s %s ha regalado %s$ a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
 	
 	SendCmdLogToAdmins(playerid, "givecashall", params);
 	return 1;
@@ -27829,12 +27830,13 @@ CMD:givednall(playerid, params[])
 		if(!PI[i][pCREW]) continue;
 
 		GivePlayerBlackCash(i, value, true, value < 0 ? true : false);
+
+		if(value < 0) SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha descontado %s {"#GRAY_COLOR"}DN${"#GOLD_COLOR"} a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
+		else SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha regalado %s {"#GRAY_COLOR"}DN${"#GOLD_COLOR"} a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value))
 	}
 
 	pTemp(playerid)[pt_GIVECASHALL_TIME] = gettime();
 
-	SendClientMessageToAllf(GOLD_COLOR2, "El %s %s ha regalado %s {"#GRAY_COLOR"}DN${"#GOLD_COLOR"} a todos los jugadores que pertenecen a una banda.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
-	
 	SendCmdLogToAdmins(playerid, "givednall", params);
 	return 1;
 }
