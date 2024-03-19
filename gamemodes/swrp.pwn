@@ -27777,7 +27777,7 @@ CMD:setdn(playerid, params[])
 	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
 	if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
 	
-	PI[playerid][pBLACK_CASH] = value;
+	PI[to_playerid][pBLACK_CASH] = value;
 	SendClientMessagef(playerid, -1, "El dinero negro de %s (%d) ahora es %d.", PI[to_playerid][pNAME], to_playerid, value);
 	
 	SendCmdLogToAdmins(playerid, "setdn", params);
