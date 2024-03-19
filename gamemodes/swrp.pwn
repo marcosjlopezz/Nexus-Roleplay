@@ -22500,6 +22500,10 @@ public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_
 					if(spawn_distance > 10.0) SetVehicleToRespawnEx(vehicleid);
 				}
 			}
+			case VEHICLE_TYPE_DRIVING_SCHOOL:
+			{
+				if(spawn_distance > 10.0) DestroyVehicleEx(vehicleid);
+			}
 		}
 	}
     return 1;
