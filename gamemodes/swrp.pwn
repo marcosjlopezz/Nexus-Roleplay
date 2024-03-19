@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-/*#define MYSQL_HOST "92.119.129.228"
+#define MYSQL_HOST "92.119.129.228"
 #define MYSQL_USER "u9_rRbMrzQ3an"
 #define MYSQL_DB "s9_swrp_db"
-#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"*/
+#define MYSQL_PASS "c4wyFo@3!y8vN1fIo1nbYR=k"
 
-#define MYSQL_HOST "localhost"
+/*#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""
+#define MYSQL_PASS ""*/
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -94,6 +94,8 @@ AntiAmx()
 
 #define	LIGHT_RED				"FF2D2D"
 #define	LIGHT_RED2				0xFF2D2DFF
+
+#define	GRAY_COLOR				"191919"
 
 #define	POLICE_COLOR			"696eff"
 #define	POLICE_COLOR2			0x696effff
@@ -525,7 +527,12 @@ enum
 	DIALOG_PHARMACY_BUY_MEDIKITS,
 	DIALOG_CONFIRM_ELEVATOR,
 	DIALOG_DRIVING_EXAM,
-	DIALOG_DRIVING_SCHOOL_BRIBE
+	DIALOG_DRIVING_SCHOOL_BRIBE,
+	DIALOG_BLACK_MARKET,
+	DIALOG_BLACK_MARKET_WEAPONS,
+	DIALOG_BLACK_MARKET_SELECT_WEA,
+	DIALOG_BLACK_MARKET_AMMO,
+	DIALOG_BLACK_MARKET_ARMOUR,
 }
 
 enum
@@ -3005,8 +3012,8 @@ enum
 	INTERIOR_POLICE_GARAGE,
 	INTERIOR_HOSPITAL,
 	INTERIOR_CLUB,
-	INTERIOR_DRIVING_SCHOOL,
-	INTERIOR_PHARMACY
+	INTERIOR_PHARMACY,
+	INTERIOR_BLACK_MARKET
 }
 enum Enter_Exits
 {
@@ -3144,12 +3151,13 @@ new ENTER_EXIT[][Enter_Exits] = // EE = EnterExits
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Hospital", INTERIOR_HOSPITAL, -1, false, 7, 3, -2029.700683, -119.617759, 1035.171875, 0.0, 22, false, 0, 0,	-1514.855590, 2520.366699, 55.909828, 0.0	, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Hospital", INTERIOR_HOSPITAL, -1, false, 8, 3, -2029.700683, -119.617759, 1035.171875, 0.0, 22, false, 0, 0,	1583.311401, 1768.952758, 10.820312, 90.0	, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Club", INTERIOR_CLUB, -1, false, 0, 3, 1212.160522, -26.097007, 1000.953125, 180.0, 21, false, 0, 0, 693.761047, 1967.498168, 5.539062, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Autoescuela", INTERIOR_DRIVING_SCHOOL,  -1, false, 1, 1, 1067.775512, -338.253540, 2797.699951, 180.0, 36, false, 0, 0,	-2026.736938, -101.953544, 35.164062, 359.273956, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 1, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	2063.144531, -1897.216918, 13.553800, 350.875305, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 2, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	2352.009277, -1412.268188, 23.992412, 273.470184, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 3, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	984.542358, -1131.203247, 23.820327, 359.603851, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 4, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	1284.649047, -1585.623779, 13.546875, 155.803787, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}
-}; 
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Farmacia", INTERIOR_PHARMACY,  -1, false, 4, 1, -429.8470, -1729.5017, 2244.3611, 355.0, 22, false, 0, 0,	1284.649047, -1585.623779, 13.546875, 155.803787, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Mercado Negro", INTERIOR_BLACK_MARKET,  -1, false, 1, 1, -730.4490, 1449.3657, -90.4973, 260.0, -1, false, 0, 0, 2770.6680, -1628.6982, 12.1775, 2.3955, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Mercado Negro", INTERIOR_BLACK_MARKET,  -1, false, 2, 1, -730.4490, 1449.3657, -90.4973, 260.0, -1, false, 0, 0, 2494.0979, -1464.7142, 24.0255, 355.8577, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}
+};
 
 enum enum_JAIL_POSITIONS
 {
@@ -3840,7 +3848,8 @@ enum
 	PICKUP_TYPE_ELEVATOR,
 	PICKUP_TYPE_DRIVING_EXAM,
 	PICKUP_TYPE_DS_VEHICLE,
-	PICKUP_TYPE_DS_BRIBE
+	PICKUP_TYPE_DS_BRIBE,
+	PICKUP_TYPE_BLACK_MARKET
 };
 
 enum Fuel_Stations_Info
@@ -3919,7 +3928,8 @@ enum Textdraws_Enum
 	Text:textdraw_COMBAT_MODE,
 	Text:textdraw_PLAY[4],
 	Text:textdraw_GENDER[10],
-	Text:textdraw_SAFE_ZONE
+	Text:textdraw_SAFE_ZONE,
+	Text:textdraw_SERVER_MARK
 }
 new Textdraws[Textdraws_Enum];
 
@@ -4001,7 +4011,8 @@ enum enum_PI
 	pMECHANIC_KITS,
 	pMEDICAL_KITS,
 	pCONFIG_GLOBAL,
-	pGLOBAL_MUTE
+	pGLOBAL_MUTE,
+	pBLACK_CASH
 };
 new PI[MAX_PLAYERS][enum_PI];
 
@@ -4095,6 +4106,33 @@ new WEAPON_INFO[][enum_WEAPON_INFO] =
 	{false, false, true, false, NO_WEAPON, "Gafas de vision nocturna", 11, 0, 368, false},
 	{false, false, true, false, NO_WEAPON, "Gafas térmicas", 11, 0, 369, false},
 	{false, false, false, false, WEAPON_PARACHUTE, "Paracaídas", 11, 0, 371, true}
+};
+
+#define NULL ""
+#define NONE -1
+
+enum
+{
+	BLACK_MARKET_TYPE_WEAPON
+}
+
+enum enum_BLACK_MARKT_ARTICLES
+{
+	black_market_ARTICLE_NAME[24],
+	black_market_WEAPON_ID,
+	black_market_ARTICLE_PRICE,
+	black_market_TYPE
+}
+new BLACK_MARKT_ARTICLES[][enum_BLACK_MARKT_ARTICLES] = 
+{
+	{NULL, 22, 1500, BLACK_MARKET_TYPE_WEAPON},
+	{NULL, 23, 1500, BLACK_MARKET_TYPE_WEAPON},
+	{NULL, 24, 5000, BLACK_MARKET_TYPE_WEAPON},
+	{NULL, 25, 15000, BLACK_MARKET_TYPE_WEAPON},
+	{NULL, 27, 30000, BLACK_MARKET_TYPE_WEAPON},
+	{NULL, 29, 45000, BLACK_MARKET_TYPE_WEAPON},
+	{NULL, 30, 25000, BLACK_MARKET_TYPE_WEAPON},
+	{NULL, 31, 50000, BLACK_MARKET_TYPE_WEAPON}
 };
 
 enum enum_PLAYER_WEAPONS
@@ -4474,7 +4512,8 @@ public OnPlayerSpawn(playerid)
 		ApplyAnimation(playerid,"POLICE","null",0.0,0,0,0,0,0);
 
 		PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
-
+		
+		TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
 		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "{d1d1d1}Bienvenido, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs\ny damos recompensa por encontrar bugs a los que son Interinos\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
 
 		if(PI[playerid][pPOLICE_DUTY] != 0)
@@ -5349,53 +5388,49 @@ CreateTextDraws()
 	TextDrawSetProportional(Textdraws[textdraw_SAFE_ZONE], 1);
 	TextDrawSetSelectable(Textdraws[textdraw_SAFE_ZONE], 0);
 
-    Textdraws[textdraw_HUD][0] = TextDrawCreate(320.000000, 425.000000, "_");
-    TextDrawFont(Textdraws[textdraw_HUD][0], 1);
-    TextDrawLetterSize(Textdraws[textdraw_HUD][0], 0.000000, 2.000000);
-    TextDrawTextSize(Textdraws[textdraw_HUD][0], 298.500000, 400.000000);
-    TextDrawSetOutline(Textdraws[textdraw_HUD][0], 1);
-    TextDrawSetShadow(Textdraws[textdraw_HUD][0], 0);
+	Textdraws[textdraw_SERVER_MARK] = TextDrawCreate(1.000, 432.000, SERVER_NAME);
+	TextDrawLetterSize(Textdraws[textdraw_SERVER_MARK], 0.300, 1.500);
+	TextDrawTextSize(Textdraws[textdraw_SERVER_MARK], 900.000, 0.000);
+	TextDrawAlignment(Textdraws[textdraw_SERVER_MARK], 1);
+	TextDrawColor(Textdraws[textdraw_SERVER_MARK], -1);
+	TextDrawSetShadow(Textdraws[textdraw_SERVER_MARK], 0);
+	TextDrawSetOutline(Textdraws[textdraw_SERVER_MARK], 0);
+	TextDrawBackgroundColor(Textdraws[textdraw_SERVER_MARK], 150);
+	TextDrawFont(Textdraws[textdraw_SERVER_MARK], 1);
+	TextDrawSetProportional(Textdraws[textdraw_SERVER_MARK], 1);
+
+    Textdraws[textdraw_HUD][0] = TextDrawCreate(319.000, 428.000, "bar");
+    TextDrawLetterSize(Textdraws[textdraw_HUD][0], 0.000, 1.800);
+    TextDrawTextSize(Textdraws[textdraw_HUD][0], 0.000, 490.000);
     TextDrawAlignment(Textdraws[textdraw_HUD][0], 2);
     TextDrawColor(Textdraws[textdraw_HUD][0], -1);
-    TextDrawBackgroundColor(Textdraws[textdraw_HUD][0], 255);
-    TextDrawBoxColor(Textdraws[textdraw_HUD][0], 30);
     TextDrawUseBox(Textdraws[textdraw_HUD][0], 1);
+    TextDrawBoxColor(Textdraws[textdraw_HUD][0], 150);
+    TextDrawSetShadow(Textdraws[textdraw_HUD][0], 1);
+    TextDrawSetOutline(Textdraws[textdraw_HUD][0], 1);
+    TextDrawBackgroundColor(Textdraws[textdraw_HUD][0], 150);
+    TextDrawFont(Textdraws[textdraw_HUD][0], 1);
     TextDrawSetProportional(Textdraws[textdraw_HUD][0], 1);
-    TextDrawSetSelectable(Textdraws[textdraw_HUD][0], 0);
 
-    Textdraws[textdraw_HUD][1] = TextDrawCreate(418.000000, 419.000000, "Pizza");
-    TextDrawFont(Textdraws[textdraw_HUD][1], 5);
-    TextDrawLetterSize(Textdraws[textdraw_HUD][1], 0.600000, 2.000000);
-    TextDrawTextSize(Textdraws[textdraw_HUD][1], 43.000000, 27.500000);
-    TextDrawSetOutline(Textdraws[textdraw_HUD][1], 1);
-    TextDrawSetShadow(Textdraws[textdraw_HUD][1], 0);
+    Textdraws[textdraw_HUD][1] = TextDrawCreate(478.000, 429.000, "HUD:radar_burgerShot");
+    TextDrawTextSize(Textdraws[textdraw_HUD][1], 16.000, 15.000);
     TextDrawAlignment(Textdraws[textdraw_HUD][1], 1);
     TextDrawColor(Textdraws[textdraw_HUD][1], -1);
-    TextDrawBackgroundColor(Textdraws[textdraw_HUD][1], 0);
-    TextDrawBoxColor(Textdraws[textdraw_HUD][1], 50);
-    TextDrawUseBox(Textdraws[textdraw_HUD][1], 0);
+    TextDrawSetShadow(Textdraws[textdraw_HUD][1], 0);
+    TextDrawSetOutline(Textdraws[textdraw_HUD][1], 0);
+    TextDrawBackgroundColor(Textdraws[textdraw_HUD][1], 255);
+    TextDrawFont(Textdraws[textdraw_HUD][1], 4);
     TextDrawSetProportional(Textdraws[textdraw_HUD][1], 1);
-    TextDrawSetSelectable(Textdraws[textdraw_HUD][1], 0);
-    TextDrawSetPreviewModel(Textdraws[textdraw_HUD][1], 2702);
-    TextDrawSetPreviewRot(Textdraws[textdraw_HUD][1], 75.000000, -70.000000, 170.000000, 1.000000);
-    TextDrawSetPreviewVehCol(Textdraws[textdraw_HUD][1], 1, 1);
 
-    Textdraws[textdraw_HUD][2] = TextDrawCreate(468.000000, 421.000000, "Agua");
-    TextDrawFont(Textdraws[textdraw_HUD][2], 5);
-    TextDrawLetterSize(Textdraws[textdraw_HUD][2], 0.600000, 2.000000);
-    TextDrawTextSize(Textdraws[textdraw_HUD][2], 38.000000, 24.000000);
-    TextDrawSetOutline(Textdraws[textdraw_HUD][2], 1);
-    TextDrawSetShadow(Textdraws[textdraw_HUD][2], 0);
+    Textdraws[textdraw_HUD][2] = TextDrawCreate(525.000, 428.000, "HUD:radar_diner");
+    TextDrawTextSize(Textdraws[textdraw_HUD][2], 16.000, 15.000);
     TextDrawAlignment(Textdraws[textdraw_HUD][2], 1);
     TextDrawColor(Textdraws[textdraw_HUD][2], -1);
-    TextDrawBackgroundColor(Textdraws[textdraw_HUD][2], 0);
-    TextDrawBoxColor(Textdraws[textdraw_HUD][2], 50);
-    TextDrawUseBox(Textdraws[textdraw_HUD][2], 0);
+    TextDrawSetShadow(Textdraws[textdraw_HUD][2], 0);
+    TextDrawSetOutline(Textdraws[textdraw_HUD][2], 0);
+    TextDrawBackgroundColor(Textdraws[textdraw_HUD][2], 255);
+    TextDrawFont(Textdraws[textdraw_HUD][2], 4);
     TextDrawSetProportional(Textdraws[textdraw_HUD][2], 1);
-    TextDrawSetSelectable(Textdraws[textdraw_HUD][2], 0);
-    TextDrawSetPreviewModel(Textdraws[textdraw_HUD][2], 1544);
-    TextDrawSetPreviewRot(Textdraws[textdraw_HUD][2], 0.000000, 0.000000, 260.000000, 1.000000);
-    TextDrawSetPreviewVehCol(Textdraws[textdraw_HUD][2], 1, 1);
 
 	Textdraws[textdraw_PLAYER_REP_BACK][0] = TextDrawCreate(500.000000, 13.000000, "box");
 	TextDrawLetterSize(Textdraws[textdraw_PLAYER_REP_BACK][0], 0.000000, 0.633333);
@@ -5467,19 +5502,15 @@ CreateTextDraws()
 	TextDrawFont(Textdraws[textdraw_LOAD_SCREEN][3], 2);
 	TextDrawSetProportional(Textdraws[textdraw_LOAD_SCREEN][3], 1);
 	
-    Textdraws[textdraw_SERVER_TIME] = TextDrawCreate(125.000000, 427.000000, "00:00");
-    TextDrawFont(Textdraws[textdraw_SERVER_TIME], 2);
-    TextDrawLetterSize(Textdraws[textdraw_SERVER_TIME], 0.300000, 1.549999);
-    TextDrawTextSize(Textdraws[textdraw_SERVER_TIME], 400.000000, 17.000000);
-    TextDrawSetOutline(Textdraws[textdraw_SERVER_TIME], 0);
-    TextDrawSetShadow(Textdraws[textdraw_SERVER_TIME], 1);
-    TextDrawAlignment(Textdraws[textdraw_SERVER_TIME], 1);
+    Textdraws[textdraw_SERVER_TIME] = TextDrawCreate(320.000, 429.000, "00:00");
+    TextDrawLetterSize(Textdraws[textdraw_SERVER_TIME], 0.300, 1.500);
+    TextDrawAlignment(Textdraws[textdraw_SERVER_TIME], 2);
     TextDrawColor(Textdraws[textdraw_SERVER_TIME], -1);
-    TextDrawBackgroundColor(Textdraws[textdraw_SERVER_TIME], 255);
-    TextDrawBoxColor(Textdraws[textdraw_SERVER_TIME], 50);
-    TextDrawUseBox(Textdraws[textdraw_SERVER_TIME], 0);
+    TextDrawSetShadow(Textdraws[textdraw_SERVER_TIME], 0);
+    TextDrawSetOutline(Textdraws[textdraw_SERVER_TIME], 0);
+    TextDrawBackgroundColor(Textdraws[textdraw_SERVER_TIME], 150);
+    TextDrawFont(Textdraws[textdraw_SERVER_TIME], 2);
     TextDrawSetProportional(Textdraws[textdraw_SERVER_TIME], 1);
-    TextDrawSetSelectable(Textdraws[textdraw_SERVER_TIME], 0);
 	
 	Textdraws[textdraw_TERRITORY_BOX] = TextDrawCreate(320.000000, 355.000000, "-");
 	TextDrawLetterSize(Textdraws[textdraw_TERRITORY_BOX], 12.321674, 9.937778);
@@ -5492,10 +5523,10 @@ CreateTextDraws()
 	TextDrawSetProportional(Textdraws[textdraw_TERRITORY_BOX], 1);
 	TextDrawSetShadow(Textdraws[textdraw_TERRITORY_BOX], 0);
 
-    Textdraws[textdraw_PLAY][0] = TextDrawCreate(320.000000, 170.000000, ""SERVER_NAME1""SERVER_NAME2"");
+    Textdraws[textdraw_PLAY][0] = TextDrawCreate(320.000000, 170.000000, ""SERVER_NAME1"~b~"SERVER_NAME2"");
     TextDrawFont(Textdraws[textdraw_PLAY][0], 1);
     TextDrawLetterSize(Textdraws[textdraw_PLAY][0], 2.000000, 5.300000);
-    TextDrawTextSize(Textdraws[textdraw_PLAY][0], 400.000000, 17.000000);
+    TextDrawTextSize(Textdraws[textdraw_PLAY][0], 2048.000000, 2048.000000);
     TextDrawSetOutline(Textdraws[textdraw_PLAY][0], 0);
     TextDrawSetShadow(Textdraws[textdraw_PLAY][0], 1);
     TextDrawAlignment(Textdraws[textdraw_PLAY][0], 2);
@@ -10364,6 +10395,67 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_CONFIRM_ELEVATOR: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Elevador", "{d1d1d1}¿Estas seguro que quieres usar este elevador?", "Continuar", "Cancelar");
 		case DIALOG_DRIVING_EXAM: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Auto Escuela", "{d1d1d1}¿Estas seguro que quieres realizar el examen de conduccion por 1500$?", "Pagar", "Cancelar");
 		case DIALOG_DRIVING_SCHOOL_BRIBE:return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Auto Escuela", "{d1d1d1}¿Estas seguro que quieres sobornar al instructor por 3500$?", "Pagar", "Cancelar");
+		case DIALOG_BLACK_MARKET:
+		{
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Mercado Negro", "{"#SILVER_COLOR"}- Comprar articulos\n{"#SILVER_COLOR"}- Comprar Munición\n{"#SILVER_COLOR"}- Comprar Chalecos", "Comprar", "Cerrar");
+			return 1;
+		}
+		case DIALOG_BLACK_MARKET_WEAPONS:
+		{
+			new dialog[64 * (sizeof(BLACK_MARKT_ARTICLES) + 2)];
+			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Producto\t{"#SILVER_COLOR"}Precio\n");
+			
+			for(new i = 0; i != sizeof BLACK_MARKT_ARTICLES; i ++)
+			{
+				new line_str[64];
+
+				switch(BLACK_MARKT_ARTICLES[i][black_market_TYPE])
+				{
+					case BLACK_MARKET_TYPE_WEAPON:
+					{
+						format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%s\t{"#SILVER_COLOR"}%s {"#GRAY_COLOR"}DN$\n", WEAPON_INFO[ BLACK_MARKT_ARTICLES[i][black_market_WEAPON_ID] ][weapon_info_NAME], number_format_thousand(BLACK_MARKT_ARTICLES[i][black_market_ARTICLE_PRICE]));
+						strcat(dialog, line_str);
+					}
+				}
+			}
+			
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Armas", dialog, "Comprar", "Cerrar");
+			return 1;
+		}
+		case DIALOG_BLACK_MARKET_SELECT_WEA:
+		{
+			for(new i = 0; i != MAX_LISTITEMS; i ++) PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			
+			new dialog[95 * 15], line_str[95], listitem;
+			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Arma\t{"#BLUE_COLOR"}Munición\t{"#SILVER_COLOR"}Slot\n");
+			
+			for(new i = 0; i < sizeof PLAYER_WEAPONS[]; i ++)
+			{
+				if(!PLAYER_WEAPONS[playerid][i][player_weapon_VALID]) continue;
+				
+				format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%s\t{"#BLUE_COLOR"}%s\t{"#SILVER_COLOR"}%d\n", WEAPON_INFO[ PLAYER_WEAPONS[playerid][i][player_weapon_ID] ][weapon_info_NAME], number_format_thousand(PLAYER_WEAPONS[playerid][i][player_weapon_AMMO]), i);
+				strcat(dialog, line_str);
+				
+				PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] = i; 
+				listitem ++;
+			}
+			if(listitem == 0) strcat(dialog, "{666666}No tienes armas");
+			
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Selecciona la arma a la que quieres comprarle munición", dialog, "Continuar", "Cerrar");
+			return 1;
+		}
+		case DIALOG_BLACK_MARKET_AMMO:
+		{
+			new dialog[145];
+			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Arma: %s\n{"#SILVER_COLOR"}Munición: %s\n\n{"#SILVER_COLOR"}El precio por bala es de 5 {"#GRAY_COLOR"}DN$\n{"#SILVER_COLOR"}¿Cuánto munición quiere comprar?", WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID] ][weapon_info_NAME], number_format_thousand(PLAYER_WEAPONS[playerid][ PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_AMMO]));
+			
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_INPUT, "Comprar munición", dialog, "Continuar", "Cerrar");
+			return 1;
+		}
+		case DIALOG_BLACK_MARKET_ARMOUR:
+		{
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Comprar Chaleco", "{d1d1d1}¿Estas seguro que quieres pagar 5000 {"#GRAY_COLOR"}DN${d1d1d1} por un chaleco anti balas?", "Comprar", "Cancelar");
+		}		
 		default: return 0;
 	}
 	return 1;
@@ -11749,7 +11841,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 7: ShowDialog(playerid, DIALOG_PLAYER_GPS_SITE_7);
 					case 8: SetPlayer_GPS_Checkpoint(playerid, 1480.966918, -1772.065673, 18.795755, 0, 0);
 					case 9: ShowDialog(playerid, DIALOG_PLAYER_GPS_SITE_8);
-					case 10: SetPlayer_GPS_Checkpoint(playerid, 263.592102, 22.960014, 2.170951, 0, 0);
+					case 10: SetPlayer_GPS_Checkpoint(playerid, 1079.3434, -1756.8495, 13.9284, 0, 0);
 					case 11: ShowDialog(playerid, DIALOG_PLAYER_GPS_SITE_9);
 				}
 			}
@@ -16220,6 +16312,148 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				else SendClientMessagef(playerid, -1, "No tienes suficiente dinero.");
 			}
 		}
+		case DIALOG_BLACK_MARKET:
+		{
+			if(response)
+			{
+				switch(listitem)
+				{
+					case 0:
+					{
+						if(PI[playerid][pLEVEL] < 3)
+						{
+							SendMessage(playerid, "Necesitas ser al menos nivel 3 para poder comprar armas.");
+							return 1;
+						}
+						if(!PI[playerid][pCREW] && !PI[playerid][pVIP])
+						{
+							SendMessage(playerid, "Solo puedes comprar armas aquí si perteneces a una banda o eres VIP (/ayuda).");
+							return 1;
+						}
+						
+						ShowDialog(playerid, DIALOG_BLACK_MARKET_WEAPONS);
+					}
+					case 1: ShowDialog(playerid, DIALOG_BLACK_MARKET_SELECT_WEA);
+					case 2: ShowDialog(playerid, DIALOG_BLACK_MARKET_ARMOUR);
+				}
+			}
+			return 1;
+		}
+		case DIALOG_BLACK_MARKET_WEAPONS:
+		{
+			if(response)
+			{
+				if(PI[playerid][pBLACK_CASH] >= BLACK_MARKT_ARTICLES[listitem][black_market_ARTICLE_PRICE])
+				{
+					switch(BLACK_MARKT_ARTICLES[listitem][black_market_TYPE])
+					{
+						case BLACK_MARKET_TYPE_WEAPON:
+						{
+							new weapon_slot = WEAPON_INFO[ BLACK_MARKT_ARTICLES[listitem][black_market_WEAPON_ID] ][weapon_info_SLOT];
+							if(PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] != 0)
+							{
+								SendMessagef(playerid, "Para comprar esta arma debes deshacerte de tu \"%s (%d)\" para tener espacio.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] ][weapon_info_NAME], weapon_slot);
+
+								return 1;
+							}
+
+							PI[playerid][pBLACK_CASH] -= BLACK_MARKT_ARTICLES[listitem][black_market_ARTICLE_PRICE];
+
+							if(WEAPON_INFO[ BLACK_MARKT_ARTICLES[listitem][black_market_WEAPON_ID] ][weapon_info_AMMO]) GivePlayerWeaponEx(playerid, BLACK_MARKT_ARTICLES[listitem][black_market_WEAPON_ID], 50);
+							else GivePlayerWeaponEx(playerid, BLACK_MARKT_ARTICLES[listitem][black_market_WEAPON_ID], 1);
+
+							RegisterNewPlayerWeapon(playerid, weapon_slot); 
+							SendMessagef(playerid, "Arma \"%s\" comprada por \"%s$\"", WEAPON_INFO[ BLACK_MARKT_ARTICLES[listitem][black_market_WEAPON_ID] ][weapon_info_NAME], number_format_thousand(BLACK_MARKT_ARTICLES[listitem][black_market_ARTICLE_PRICE]));
+							ShowDialog(playerid, DIALOG_BLACK_MARKET);
+						}
+					}
+				}
+				else
+				{
+					PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
+					SendMessagef(playerid, "No tienes dinero suficiente, te faltan %s DN$ para poder comprar este articulo.", number_format_thousand(BLACK_MARKT_ARTICLES[listitem][black_market_ARTICLE_PRICE] - PI[playerid][pBLACK_CASH]));
+					ShowDialog(playerid, DIALOG_BLACK_MARKET);
+				}
+			}
+			else ShowDialog(playerid, DIALOG_BLACK_MARKET);
+			return 1;
+		}
+		case DIALOG_BLACK_MARKET_SELECT_WEA:
+		{
+			if(response)
+			{
+				if(PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] == -1) return 1;
+				
+				PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] = PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem];
+				
+				if(!WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID] ][weapon_info_AMMO]) return SendMessage(playerid, "Este tipo de arma no necesita munición.");
+				
+				ShowDialog(playerid, DIALOG_BLACK_MARKET_AMMO);
+			}
+			else ShowDialog(playerid, DIALOG_BLACK_MARKET);
+			return 1;
+		}
+		case DIALOG_BLACK_MARKET_AMMO:
+		{
+			if(response)
+			{
+				if(sscanf(inputtext, "d", inputtext[0])) return ShowDialog(playerid, dialogid);
+				if(inputtext[0] <= 0 || inputtext[0] > 5000)
+				{
+					SendMessage(playerid, "La cantidad de munición no es correcta, Max: 5000.");
+					
+					return 1;
+				}
+				
+				new price = 5 * inputtext[0];
+				if(price > PI[playerid][pBLACK_CASH])
+				{
+					SendMessagef(playerid, "No tienes dinero suficiente, te faltan %s DN$ para poder comprar la munición.", number_format_thousand(price - PI[playerid][pBLACK_CASH]));
+					
+					return 1;
+				}
+				
+				if(PLAYER_WEAPONS[playerid][ PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_AMMO] + inputtext[0] > 9999)
+				{
+					SendMessage(playerid, "A esta arma no le entra tanta munición.");
+					
+					return 1;
+				}
+				
+				PI[playerid][pBLACK_CASH] -= price;
+				GivePlayerWeaponEx(playerid, PLAYER_WEAPONS[playerid][ PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID], inputtext[0]);
+				SendMessagef(playerid, "Has comprado %s balas para tu %s por %s DN$.", number_format_thousand(inputtext[0]), WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID] ][weapon_info_NAME], number_format_thousand(price));
+				ShowDialog(playerid, DIALOG_BLACK_MARKET);
+			}
+			else ShowDialog(playerid, DIALOG_BLACK_MARKET);
+			return 1;
+		}
+		case DIALOG_BLACK_MARKET_ARMOUR:
+		{
+			if(response)
+			{
+				if(5000 > PI[playerid][pBLACK_CASH])
+				{
+					SendMessagef(playerid, "No tienes dinero suficiente, te faltan %s DN$ para poder comprar el chaleco.", number_format_thousand(5000 - PI[playerid][pBLACK_CASH]));
+					
+					return 1;
+				}
+
+				GetPlayerArmour(playerid, PI[playerid][pARMOUR]);
+				if(PI[playerid][pARMOUR] > 99.5)
+				{
+					SendMessage(playerid, "Ya tienes un chaleco antibalas");
+					
+					return 1;
+				}
+
+				PI[playerid][pBLACK_CASH] -= 5000;
+				SetPlayerArmourEx(playerid, 100.0);
+				SendClientMessagef(playerid, -1, "Acabas de comprar un {"#BLUE_COLOR"}chaleco antibalas {ffffff}por 5000 {"#GRAY_COLOR"}DN$");
+				ShowDialog(playerid, DIALOG_BLACK_MARKET);
+			}
+			else ShowDialog(playerid, DIALOG_BLACK_MARKET);
+		}
 	}
 	return 0;
 }//OnDialogResponse
@@ -17880,47 +18114,35 @@ CreatePlayerTextDraws(playerid)
 	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_RECYCLE_TRASH][2], 1);
 	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_RECYCLE_TRASH][2], 0);
 
-    PlayerTextdraws[playerid][ptextdraw_HUD][0] = CreatePlayerTextDraw(playerid, 451.000000, 427.000000, "HAMBRE");
-    PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 2);
-    PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 0.324999, 1.500000);
-    PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 400.000000, 17.000000);
-    PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 0);
-    PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 1);
+    PlayerTextdraws[playerid][ptextdraw_HUD][0] = CreatePlayerTextDraw(playerid, 74.000, 429.000, "Nivel_0_Exp_(0/0)");
+    PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 0.300, 1.500);
     PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 1);
     PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], -1);
-    PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 255);
-    PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 50);
-    PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 0);
+    PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 0);
+    PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 0);
+    PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 150);
+    PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 2);
     PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 1);
-    PlayerTextDrawSetSelectable(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], 0);
 
-    PlayerTextdraws[playerid][ptextdraw_HUD][1] = CreatePlayerTextDraw(playerid, 493.000000, 427.000000, "SED");
-    PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 2);
-    PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 0.324999, 1.500000);
-    PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 400.000000, 17.000000);
-    PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 0);
-    PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 1);
+    PlayerTextdraws[playerid][ptextdraw_HUD][1] = CreatePlayerTextDraw(playerid, 496.000, 429.000, "hambre");
+    PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 0.300, 1.500);
     PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 1);
     PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], -1);
-    PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 255);
-    PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 50);
-    PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 0);
+    PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 0);
+    PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 0);
+    PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 150);
+    PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 2);
     PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 1);
-    PlayerTextDrawSetSelectable(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], 0);
 
-    PlayerTextdraws[playerid][ptextdraw_HUD][2] = CreatePlayerTextDraw(playerid, 320.000000, 429.000000, "Nivel_0_____Exp_0/0");
-    PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 2);
-    PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 0.220833, 1.200001);
-    PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 400.000000, 17.000000);
-    PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 0);
-    PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 1);
-    PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 2);
+    PlayerTextdraws[playerid][ptextdraw_HUD][2] = CreatePlayerTextDraw(playerid, 542.000, 429.000, "sed");
+    PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 0.300, 1.500);
+    PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 1);
     PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], -1);
-    PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 255);
-    PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 50);
-    PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 0);
+    PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 0);
+    PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 0);
+    PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 150);
+    PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 2);
     PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 1);
-    PlayerTextDrawSetSelectable(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], 0);
 	return 1;
 }
 
@@ -18430,8 +18652,8 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 UpdateReputationTextDraws(playerid)
 {
 	new neccessary_rep = PI[playerid][pLEVEL] * REP_MULTIPLIER, str[64];
-	format(str, sizeof str, "Nivel_%d_____Exp_%d/%d", PI[playerid][pLEVEL], PI[playerid][pREP], neccessary_rep);
-	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], str);
+	format(str, sizeof str, "Nivel_%d_Exp_%d/%d", PI[playerid][pLEVEL], PI[playerid][pREP], neccessary_rep);
+	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], str);
 	return 1;
 }
 
@@ -18515,6 +18737,23 @@ stock GivePlayerCash(playerid, amount, bool:update = true, bool:negative = false
 	if(update)
 	{
 		mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET cash = %d WHERE id = %d;", PI[playerid][pCASH], PI[playerid][pID]);
+		mysql_tquery(handle_db, QUERY_BUFFER);
+	}
+	return 1;
+}
+
+stock GivePlayerBlackCash(playerid, amount, bool:update = true, bool:negative = false)
+{
+	if(amount == 0) return 1;
+	if(!negative && amount < 0) return 0;
+	if(negative && amount > 0) return 0;
+	if(negative && (PI[playerid][pBLACK_CASH] + amount) < 0) return 0;
+
+	PI[playerid][pBLACK_CASH] += amount;
+	
+	if(update)
+	{
+		mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET black_cash = %d WHERE id = %d;", PI[playerid][pBLACK_CASH], PI[playerid][pID]);
 		mysql_tquery(handle_db, QUERY_BUFFER);
 	}
 	return 1;
@@ -19153,6 +19392,10 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 					ShowDialog(playerid, DIALOG_DRIVING_SCHOOL_BRIBE);
 				}
 			}
+		}
+		case PICKUP_TYPE_BLACK_MARKET:
+		{
+			ShowDialog(playerid, DIALOG_BLACK_MARKET);
 		}
 	}
 
@@ -19873,7 +20116,7 @@ TogglePlayerSpectatingEx(playerid, bool:spectate)
 	return TogglePlayerSpectating(playerid, spectate);
 }
 
-#define MAX_INTERIOR_ACTORS 10
+#define MAX_INTERIOR_ACTORS 5
 enum Interior_Actor_Enum
 {
 	bool:ia_VALID,
@@ -20045,14 +20288,26 @@ CreateInteriorActor(interior_type, world, interior)
 			InteriorActorInfo[0][ia_POS_Z] 	= 2244.3611;
 			InteriorActorInfo[0][ia_POS_A]	= 180.0;
 		}
+		case INTERIOR_BLACK_MARKET:
+		{
+			InteriorActorInfo[0][ia_VALID]	= true;
+			InteriorActorInfo[0][ia_SKIN]	= 73;
+			InteriorActorInfo[0][ia_POS_X] 	= -720.0476;
+			InteriorActorInfo[0][ia_POS_Y] 	= 1462.8925;
+			InteriorActorInfo[0][ia_POS_Z] 	= -90.5046;
+			InteriorActorInfo[0][ia_POS_A]	= 175.0;
+		}
 		default: return INVALID_ACTOR_ID;
 	}
 
 	new mainActor = INVALID_ACTOR_ID;
-	for(new i; i != sizeof InteriorActorInfo; i++) {
-		if(InteriorActorInfo[i][ia_VALID]) {
+	for(new i; i != sizeof InteriorActorInfo; i++) 
+	{
+		if(InteriorActorInfo[i][ia_VALID]) 
+		{
 			new tmp = CreateDynamicActor(InteriorActorInfo[i][ia_SKIN], InteriorActorInfo[i][ia_POS_X], InteriorActorInfo[i][ia_POS_Y], InteriorActorInfo[i][ia_POS_Z], InteriorActorInfo[i][ia_POS_A], true, 100.0, world, interior);
-			if(i == 0) {
+			if(i == 0) 
+			{
 				mainActor = tmp;
 			}
 		}
@@ -20475,10 +20730,10 @@ UpdatePlayerHud(playerid)
 	
 	new str[445];
 	format(str, sizeof str, "%d", floatround(PI[playerid][pHUNGRY]));
-	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][0], str);
+	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], str);
 
 	format(str, sizeof str, "%d", floatround(PI[playerid][pTHIRST]));
-	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][1], str);
+	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], str);
 
 	/*SetPlayerProgressBarValue(playerid, PlayerBars[playerid][pbarHungry], PI[playerid][pHUNGRY]);
 	SetPlayerProgressBarValue(playerid, PlayerBars[playerid][pbarThirst], PI[playerid][pTHIRST]);*/
@@ -20603,6 +20858,8 @@ stock ShowPlayerHudInfo(playerid, time = 5) //segundos
 	UpdatePlayerHud(playerid);
 	UpdateReputationTextDraws(playerid);
 
+	TextDrawHideForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
+
 	for(new i = 0; i < HUD_TEXTDRAWS_SIZE; i ++) 
 	{
 		TextDrawShowForPlayer(playerid, Textdraws[textdraw_HUD][i]);	
@@ -20635,6 +20892,7 @@ callbackp:HidePlayerHudInfo(playerid)
 	}
 
 	TextDrawHideForPlayer(playerid, Textdraws[textdraw_SERVER_TIME]);
+	TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
 
 	KillTimer(PlayerTemp[playerid][pt_TIMERS][23]);
 	PlayerTemp[playerid][pt_TIMERS][23] = -1;
@@ -23707,7 +23965,9 @@ enum
 	INVENTORY_TYPE_CRACK,
 	INVENTORY_TYPE_MECHANIC_KITS,
 	INVENTORY_TYPE_MEDICAL_KITS,
-	INVENTORY_TYPE_WEAPON_OPTIONS
+	INVENTORY_TYPE_BLACK_CASH,
+
+	INVENTORY_TYPE_WEAPON_OPTIONS //Siempre debajo
 }
 
 enum
@@ -23822,6 +24082,13 @@ ShowPlayerInventory(playerid, pid)
 		strcat(dialog, line_str);
 	}
 	else strcat(dialog, "{666666}Botiquines (0)\n");
+
+	if(PI[playerid][pBLACK_CASH] > 0)
+	{
+		format(line_str, sizeof line_str, "{"#SILVER_COLOR"}Dinero Negro {"#SILVER_COLOR"}({"#GRAY_COLOR"}%s${"#SILVER_COLOR"})\n", number_format_thousand(PI[pid][pBLACK_CASH]));
+		strcat(dialog, line_str);
+	}
+	else strcat(dialog, "{666666}Dinero Negro (0$)\n");
 	
 	ShowPlayerDialog(playerid, DIALOG_PLAYER_POCKETS, DIALOG_STYLE_TABLIST, caption, dialog, "Seleccionar", "Atras");	
 	return 1;
@@ -24259,7 +24526,7 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 								if(!TERRITORIES[ PlayerTemp[playerid][pt_LAST_TERRITORY] ][territory_OCCUPIED])
 								{
 									new attackers_in_area = CountCrewPlayersInTerritory(PlayerTemp[playerid][pt_CREW_INDEX], PlayerTemp[playerid][pt_LAST_TERRITORY]);
-									if(attackers_in_area >= 2) StartTerritoryAttack(PlayerTemp[playerid][pt_CREW_INDEX], PlayerTemp[playerid][pt_LAST_TERRITORY], 420);
+									if(attackers_in_area >= 2) StartTerritoryAttack(PlayerTemp[playerid][pt_CREW_INDEX], PlayerTemp[playerid][pt_LAST_TERRITORY], 160);
 								}
 								else
 								{
@@ -24268,7 +24535,7 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 										if(!CREW_INFO[ TERRITORIES[ PlayerTemp[playerid][pt_LAST_TERRITORY] ][territory_CREW_INDEX] ][crew_FIGHTING])
 										{	
 											new attackers_in_area = CountCrewPlayersInTerritory(PlayerTemp[playerid][pt_CREW_INDEX], PlayerTemp[playerid][pt_LAST_TERRITORY]);
-											if(attackers_in_area >= 5) StartTerritoryAttack(PlayerTemp[playerid][pt_CREW_INDEX], PlayerTemp[playerid][pt_LAST_TERRITORY], 420);
+											if(attackers_in_area >= 2) StartTerritoryAttack(PlayerTemp[playerid][pt_CREW_INDEX], PlayerTemp[playerid][pt_LAST_TERRITORY], 160);
 										}
 									}
 								}
@@ -27492,6 +27759,71 @@ CMD:givecashall(playerid, params[])
 	return 1;
 }
 
+CMD:setdn(playerid, params[])
+{
+	new to_playerid, value;
+	if(sscanf(params, "ud", to_playerid, value)) return ErrorCommandParams(playerid, "/setdn <player_id> <amount>");
+	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
+	if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
+	
+	PI[playerid][pBLACK_CASH] = value;
+	SendClientMessagef(playerid, -1, "El dinero negro de %s (%d) ahora es %d.", PI[to_playerid][pNAME], to_playerid, value);
+	
+	SendCmdLogToAdmins(playerid, "setdn", params);
+	return 1;
+}
+
+CMD:givedn(playerid, params[])
+{
+	new to_playerid, value;
+	if(sscanf(params, "ud", to_playerid, value)) return ErrorCommandParams(playerid, "/givedn <player_id> <amount>");
+	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
+	if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
+	
+	GivePlayerBlackCash(to_playerid, value, true, value < 0 ? true : false);
+	SendClientMessagef(playerid, -1, "El jugador %s (%d) ha recibido %d DN$.", PI[to_playerid][pNAME], to_playerid, value);
+	
+	SendCmdLogToAdmins(playerid, "givedn", params);
+	return 1;
+}
+
+CMD:givednall(playerid, params[])
+{
+	new value;
+	if(sscanf(params, "d", value)) return ErrorCommandParams(playerid, "/givednall <amount>");
+
+	if(PI[playerid][pADMIN_LEVEL] <= CMD_ADMINISTRATOR)
+	{
+		if(value > 5000)
+		{
+			SendClientMessagef(playerid, 0xCCCCCCCC, "Solo puedes dar como maximo 5000 DN$.");
+			return 1;
+		}
+
+		if(gettime() < PlayerTemp[playerid][pt_GIVECASHALL_TIME] + minutes(25))
+		{
+			new time = (minutes(25)-(gettime()-PlayerTemp[playerid][pt_GIVECASHALL_TIME]));
+			SendClientMessagef(playerid, 0xCCCCCCCC, "Tienes que esperar %s minutos para volver a dar dinero negro.", TimeConvert(time));
+			return 1;
+		}
+	}
+
+	LoopEx(i, MAX_PLAYERS, 0)
+	{
+		if(!IsPlayerConnected(i)) continue;
+		if(!PI[i][pCREW]) continue;
+
+		GivePlayerBlackCash(i, value, true, value < 0 ? true : false);
+	}
+
+	pTemp(playerid)[pt_GIVECASHALL_TIME] = gettime();
+
+	SendClientMessageToAllf(GOLD_COLOR2, "El %s %s ha regalado %s {"#GRAY_COLOR"}DN${"#GOLD_COLOR"} a todos los jugadores que pertenecen a una banda.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], number_format_thousand(value));
+	
+	SendCmdLogToAdmins(playerid, "givednall", params);
+	return 1;
+}
+
 CMD:asay(playerid, params[])
 {
 	if(isnull(params)) return ErrorCommandParams(playerid, "/asay <message>");
@@ -28938,10 +29270,7 @@ public UpdateTerritoryAttack(territory_index)
 		UpdateGangZoneColor(territory_index);
 		TERRITORIES[territory_index][territory_OCCUPIED] = true;
 		
-		new prize = minrand(5000, 7525);
-		new prize_message[64];
-		format(prize_message, sizeof prize_message, "{"#SILVER_COLOR"}Has ganado %d$ por conquistar este territorio.", prize);
-		
+		new amount = minrand(5000, 7525);
 		for(new i = 0; i != MAX_PLAYERS; i++)
 		{
 			if(IsPlayerConnected(i))
@@ -28953,8 +29282,8 @@ public UpdateTerritoryAttack(territory_index)
 					{
 						if(PI[i][pCREW] == TERRITORIES[territory_index][territory_CREW_ID])
 						{
-							GivePlayerCash(i, prize, true, false);
-							SendClientMessage(i, -1, prize_message);
+							GivePlayerBlackCash(i, amount, true, false);
+							SendClientMessagef(i, 0xd1d1d1d1, "{"#SILVER_COLOR"}Has ganado %d {"#GRAY_COLOR"}DN${"#SILVER_COLOR"} por conquistar este territorio.", amount);
 						}
 						SetPlayerNormalColor(i);
 						
@@ -29102,30 +29431,37 @@ stock LoadServerInfo()
 	
 	//autoescuela
 	new driving_school_info[3];
+	driving_school_info[1] = 0; // Nada
+	driving_school_info[2] = 0; // Nada
 
 	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para realizar el examen por {"#GREEN_COLOR"}1500$.", 0xFFFFFFFF, 1083.5474, -1765.8229, 13.9284, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
 	new DS_Pickup = CreateDynamicPickup(0, 1, 1083.5474, -1765.8229, 13.9284, -1, -1);
 
 	driving_school_info[0] = PICKUP_TYPE_DRIVING_EXAM;
-	driving_school_info[1] = 0; // Nada
-	driving_school_info[2] = 0; // Nada
 	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, DS_Pickup, E_STREAMER_EXTRA_ID, driving_school_info);
 
 	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para sacar un vehiculo de la auto escuela.", 0xFFFFFFFF, 1064.2238, -1736.8141, 13.4836, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
 	new DSV_Pickup = CreateDynamicPickup(19134, 1, 1064.2238, -1736.8141, 13.4836, -1, -1);
 
 	driving_school_info[0] = PICKUP_TYPE_DS_VEHICLE;
-	driving_school_info[1] = 0; // Nada
-	driving_school_info[2] = 0; // Nada
 	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, DSV_Pickup, E_STREAMER_EXTRA_ID, driving_school_info);
 
 	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para sobornar al instructor por {"#GREEN_COLOR"}3500$.", 0xFFFFFFFF, 1070.7325, -1757.9670, 13.9284, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
 	new DSB_Pickup = CreateDynamicPickup(0, 1, 1070.7325, -1757.9670, 13.9284, -1, -1);
 
 	driving_school_info[0] = PICKUP_TYPE_DS_BRIBE;
-	driving_school_info[1] = 0; // Nada
-	driving_school_info[2] = 0; // Nada
 	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, DSB_Pickup, E_STREAMER_EXTRA_ID, driving_school_info);
+
+	//Mercado Negro
+	new bm_info[3];
+	bm_info[1] = 0; // Nada
+	bm_info[2] = 0; // Nada
+
+	CreateDynamic3DTextLabel("{"#GOLD_COLOR"}Mercado Negro\n"COME_INTERACTION_MESSAGE"para comprar", 0xFFFFFFFF, -720.1512, 1460.2930, -90.5046, 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
+	new bm_pck = CreateDynamicPickup(0, 1, -720.1512, 1460.2930, -90.5046, -1, -1);
+
+	bm_info[0] = PICKUP_TYPE_BLACK_MARKET;
+	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, bm_pck, E_STREAMER_EXTRA_ID, bm_info);
 
 	//3d texts armarios
 	for(new i = 0; i < sizeof PROPERTY_CLOSET_POS; i++)
@@ -31227,6 +31563,7 @@ callbackp:OnPlayerLoginCheckPass(playerid, bool:success)
 					cache_get_value_name_int(0, "medical_kits", PI[playerid][pMEDICAL_KITS]);
 					cache_get_value_name_int(0, "global_channel", PI[playerid][pCONFIG_GLOBAL]);
 					cache_get_value_name_int(0, "global_mute", PI[playerid][pGLOBAL_MUTE]);
+					cache_get_value_name_int(0, "black_cash", PI[playerid][pBLACK_CASH]);
 					CallLocalFunction("OnPlayerLogin", "i", playerid);
 				}
 				else Kick(playerid);
@@ -31546,7 +31883,8 @@ SavePlayerData(playerid)
 					mechanic_kits = %d,\
 					medical_kits = %d,\
 					global_channel = %d,\
-					global_mute = %d \
+					global_mute = %d,\
+					black_cash = %d \
 				WHERE id = %d;\
 			",
 				PI[playerid][pNAME], PI[playerid][pIP], PI[playerid][pEMAIL], PI[playerid][pPASS], PI[playerid][pREG_DATE], PI[playerid][pLAST_CONNECTION],
@@ -31560,7 +31898,7 @@ SavePlayerData(playerid)
 				PI[playerid][pFUEL_DRUM], PI[playerid][pSEED_MEDICINE], PI[playerid][pSEED_CANNABIS], PI[playerid][pSEED_CRACK], PI[playerid][pMEDICINE],
 				PI[playerid][pCANNABIS], PI[playerid][pCRACK], PI[playerid][pCONFIG_SOUNDS], PI[playerid][pCONFIG_AUDIO],
 				PI[playerid][pCONFIG_ADMIN], PI[playerid][pMUTE], PI[playerid][pPLACA_PD], tmp_crew, PI[playerid][pCREW_RANK],
-				PI[playerid][pMECHANIC_KITS], PI[playerid][pMEDICAL_KITS], PI[playerid][pCONFIG_GLOBAL], PI[playerid][pGLOBAL_MUTE],
+				PI[playerid][pMECHANIC_KITS], PI[playerid][pMEDICAL_KITS], PI[playerid][pCONFIG_GLOBAL], PI[playerid][pGLOBAL_MUTE], PI[playerid][pBLACK_CASH],
 				PI[playerid][pID]
 		);
 		mysql_tquery(handle_db, QUERY_BUFFER);

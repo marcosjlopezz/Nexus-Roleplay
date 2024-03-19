@@ -45,8 +45,8 @@ stock DropHandWeapon(playerid)
             weaponInfo[dw_INTERIOR] = GetPlayerInterior(playerid);
             GetPlayerPos(playerid, weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z]);
 
-            weaponInfo[dw_X] += frandom(3.4, 1.2, 2);
-            weaponInfo[dw_Y] += frandom(2.8, 0.7, 2);
+            weaponInfo[dw_X] += frandom(1.6, 0.4, 2);
+            weaponInfo[dw_Y] += frandom(0.5, 0.1, 2);
 
             weaponInfo[dw_OBJECTID] = CreateDynamicObject(WEAPON_INFO[weaponid][weapon_info_MODEL], weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z] - 1.0, 90.0, 0.0, float(random(360)), weaponInfo[dw_WORLD], weaponInfo[dw_INTERIOR]);
 
@@ -75,8 +75,8 @@ stock DropWeapon(playerid, slot)
         weaponInfo[dw_INTERIOR] = GetPlayerInterior(playerid);
         GetPlayerPos(playerid, weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z]);
 
-        weaponInfo[dw_X] += frandom(3.4, 1.2, 2);
-        weaponInfo[dw_Y] += frandom(2.8, 0.7, 2);
+        weaponInfo[dw_X] += frandom(1.6, 0.4, 2);
+        weaponInfo[dw_Y] += frandom(0.5, 0.1, 2);
 
         weaponInfo[dw_OBJECTID] = CreateDynamicObject(WEAPON_INFO[weaponid][weapon_info_MODEL], weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z] - 1.0, 90.0, 0.0, float(random(360)), weaponInfo[dw_WORLD], weaponInfo[dw_INTERIOR]);
 
@@ -120,6 +120,9 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
                             {
                                 Auto_SendPlayerAction(playerid, "recoge un objeto del suelo y lo guarda en una bolsa.");
                                 Streamer_Update(playerid);
+
+                                GivePlayerCash(playerid, 5000);
+                                SendMessage(playerid, "Has ganado 5000$ por confiscar el arma.");
                             }
                             else
                             {

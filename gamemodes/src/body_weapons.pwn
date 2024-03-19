@@ -75,7 +75,7 @@ stock UpdateWeaponsInBody(playerid)
 			case 37: SetPlayerAttachedObject(playerid, 9, 361, 1, 0.4090, -0.1310, 0.1439, 175.2996, -11.2999, 170.3999, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);
 			case 38: SetPlayerAttachedObject(playerid, 9, 362, 1, 0.4090, -0.1990, -0.0820, -178.2003, -11.2999, 177.8999, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);
 			case 28: SetPlayerAttachedObject(playerid, 8, 352, 1, -0.1279, 0.1779, 0.0980, 175.3997, 74.1000, -166.0999, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);
-			case 39: SetPlayerAttachedObject(playerid, 8, 372, 1, -0.0469, 0.1529, -0.2149, -30.9001, 11.4001, 174.1999, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);
+			case 39: SetPlayerAttachedObject(playerid, 8, 363, 1, -0.0469, 0.1529, -0.2149, -30.9001, 11.4001, 174.1999, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);
 			case 2: SetPlayerAttachedObject(playerid, 7, 333, 1, 0.4310, -0.1440, 0.1000, 0.8998, -115.1998, 0.0000, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);
 			case 3: SetPlayerAttachedObject(playerid, 7, 334, 1, -0.1539, 0.0190, 0.2180, 97.2999, -50.9997, -167.0001, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);
 			case 4: SetPlayerAttachedObject(playerid, 7, 335, 1, -0.1539, 0.0190, 0.2180, 97.2999, -50.9997, -167.0001, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);

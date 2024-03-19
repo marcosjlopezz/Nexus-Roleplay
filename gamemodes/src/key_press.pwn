@@ -14,12 +14,9 @@ enum E_KeyPress_Keys {
     keypress_KEYNAME[64]
 };
 
-new KeyPress_Keys[][E_KeyPress_Keys] = {
-    {KEY_CROUCH, "~k~~PED_DUCK~"},
-    {KEY_SPRINT, "~k~~PED_SPRINT~"},
-    {KEY_SECONDARY_ATTACK, "~k~~VEHICLE_ENTER_EXIT~"},
-    //{KEY_YES, "~k~~CONVERSATION_YES~"},
-    {KEY_CTRL_BACK, "~k~~GROUP_CONTROL_BWD~"}
+new KeyPress_Keys[][E_KeyPress_Keys] = 
+{
+    {KEY_YES, "Y"}
 };
 
 forward OnPlayerKeyPressFinish(playerid);

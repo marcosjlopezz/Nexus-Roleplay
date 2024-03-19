@@ -1565,7 +1565,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 2:
 					{
 						DropWeapon(playerid, PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT]);
-						ApplyAnimation(playerid, "BOMBER", "BOM_Plant", 4.1, 0, 1, 1, 0, 0, 1);
+						ApplyAnimation(playerid, "GRENADE", "WEAPON_throwu", 4.1, 0, 1, 1, 0, 0, 1);
 						Streamer_Update(playerid);
 					}
 					case 3: 
