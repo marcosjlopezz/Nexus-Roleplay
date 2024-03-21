@@ -11,10 +11,10 @@ AntiAmx()
     #pragma unused a
 }
 
-#define MYSQL_HOST "23.167.232.40"
-#define MYSQL_USER "u12_zkQwIPJhlI"
-#define MYSQL_DB "s12_swrp_db"
-#define MYSQL_PASS "UI^m837VYjaPVk2^G15.gWyX"
+#define MYSQL_HOST "74.208.184.215"
+#define MYSQL_USER "u3_hnCWJKW9od"
+#define MYSQL_DB "s3_swrp_db"
+#define MYSQL_PASS "!10Hhi.N4iZWHhWT4@65N09c"
 
 /*#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
