@@ -121,8 +121,8 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
                                 Auto_SendPlayerAction(playerid, "recoge un objeto del suelo y lo guarda en una bolsa.");
                                 Streamer_Update(playerid);
 
-                                GivePlayerCash(playerid, 5000);
-                                SendMessage(playerid, "Has ganado 5000$ por confiscar el arma.");
+                                GivePlayerCash(playerid, 150);
+                                SendMessage(playerid, "Has ganado 150$ por confiscar el arma.");
                             }
                             else
                             {
