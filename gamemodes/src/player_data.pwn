@@ -172,7 +172,7 @@ stock ClearPlayerTempData(playerid)
     pTemp(playerid)[pt_DIALOG_CLOSET_PROPERTY_SLOT] = 0;
     pTemp(playerid)[pt_CLASSED] = false;
     pTemp(playerid)[pt_CREW_INDEX] = 0;
-    pTemp(playerid)[pt_CREW_HELP] = false;
+    pTemp(playerid)[pt_REQUEST_HELP] = false;
     pTemp(playerid)[pt_COMBAT] = false;
     pTemp(playerid)[pt_COMBAT_TIMER] = 0;
     pTemp(playerid)[pt_LAST_VEHICLE_DESTROY] = 0;

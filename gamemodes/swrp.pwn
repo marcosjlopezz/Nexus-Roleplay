@@ -101,6 +101,10 @@ AntiAmx()
 #define	POLICE_COLOR2			0x696effff
 #define PLAYER_POLICE_COLOR		0x696eff00
 
+#define	SWAT_COLOR				"232323"
+#define	SWAT_COLOR2				0x232323ff
+#define PLAYER_SWAT_COLOR		0x23232300
+
 #define COLOR_FADE1 			0xE6E6E6E6
 #define COLOR_FADE2 			0xC8C8C8C8
 #define COLOR_FADE3 			0xAAAAAAAA
@@ -533,7 +537,8 @@ enum
 	DIALOG_BLACK_MARKET_SELECT_WEA,
 	DIALOG_BLACK_MARKET_AMMO,
 	DIALOG_BLACK_MARKET_ARMOUR,
-	DIALOG_RENOUNCE
+	DIALOG_RENOUNCE,
+	DIALOG_SELECT_POLICE_DIVISION
 }
 
 enum
@@ -2842,7 +2847,7 @@ enum Temp_Enum
 	pt_DIALOG_CLOSET_PROPERTY_SLOT,
 	bool:pt_CLASSED,
 	pt_CREW_INDEX,
-	bool:pt_CREW_HELP,
+	bool:pt_REQUEST_HELP,
 	bool:pt_COMBAT,
 	pt_COMBAT_TIMER,
 	pt_LAST_VEHICLE_DESTROY,
@@ -2873,7 +2878,8 @@ enum Temp_Enum
 	pt_TASSED,
 	Float:pt_TASSED_TIME,
 	pt_TASER_ENERGY,
-	pt_TASER_TIMER
+	pt_TASER_TIMER,
+	pt_POLICE_SWAT
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -4102,7 +4108,7 @@ public OnPlayerConnect(playerid)
 	PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] = INVALID_VEHICLE_ID;
 	PlayerTemp[playerid][pt_LAST_VEHICLE_ID] = INVALID_VEHICLE_ID;
 	PlayerTemp[playerid][pt_PLAYER_LUMBERJACK_TREE] = -1;
-	PlayerTemp[playerid][pt_CREW_HELP] = false;
+	PlayerTemp[playerid][pt_REQUEST_HELP] = false;
 	PlayerTemp[playerid][pt_COMBAT_TIMER] = -1;
 	PlayerTemp[playerid][pt_COMBAT] = false;
 	PlayerTemp[playerid][pt_DIALOG_ID] = -1;
@@ -6016,7 +6022,29 @@ ptask UpdatePlayerInfo[1000](playerid)
 {
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
-		SetPlayerColorEx(playerid, PLAYER_POLICE_COLOR);
+		if(PlayerTemp[playerid][pt_REQUEST_HELP])
+		{
+			for(new i = 0; i != MAX_PLAYERS; i++)
+			{
+				if(IsPlayerConnected(i))
+				{
+					if(pTemp(i)[pt_GAME_STATE] == GAME_STATE_NORMAL)
+					{
+						if(i == playerid) continue;
+						if(!PLAYER_WORKS[i][WORK_POLICE][pwork_SET]) continue;
+						if(pTemp(i)[pt_WORKING_IN] != WORK_POLICE) continue;
+						
+						if(pTemp(playerid)[pt_POLICE_SWAT]) SetPlayerMarkerForPlayer(i, playerid, SWAT_COLOR2);
+						else SetPlayerMarkerForPlayer(i, playerid, POLICE_COLOR2);
+					}
+				}
+			}
+		}
+		else
+		{
+			if(pTemp(playerid)[pt_POLICE_SWAT]) SetPlayerColorEx(playerid, PLAYER_SWAT_COLOR);
+			else SetPlayerColorEx(playerid, PLAYER_POLICE_COLOR);
+		}
 		
 		if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) SendAlertToMedics(playerid);
 		if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
@@ -10409,6 +10437,7 @@ stock ShowDialog(playerid, dialogid)
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Renunciar - Mís Trabajos", dialog, "Continuar", "Cancelar");
 			return 1;
 		}
+		case DIALOG_SELECT_POLICE_DIVISION: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Policía - Trabajar", "Division Policial\nDivision S.W.A.T", "Continuar", "Cancelar");
 		default: return 0;
 	}
 	return 1;
@@ -16432,6 +16461,33 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PLAYER_WORKS[playerid][ PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] ][pwork_SET] = false;
 			}
 		}
+		case DIALOG_SELECT_POLICE_DIVISION:
+		{
+			if(response)
+			{
+				switch(listitem)
+				{
+					case 0:
+					{
+						ShowDialog(playerid, DIALOG_SELECT_POLICE_SKIN);
+						pTemp(playerid)[pt_POLICE_SWAT] = false;
+					}
+					case 1:
+					{
+						if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] < 2) return SendClientMessagef(playerid, -1, "Los cadetes no pueden ser SWAT.");
+
+						pTemp(playerid)[pt_POLICE_SWAT] = true;
+						PI[playerid][pPOLICE_DUTY] = 285;
+
+						mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pweapons WHERE id_player = %d;", PI[playerid][pID]);
+						mysql_tquery(handle_db, QUERY_BUFFER);
+						ResetPlayerWeaponsEx(playerid);
+
+						CallLocalFunction("StartPlayerJob", "iii", playerid, WORK_POLICE, INVALID_VEHICLE_ID);
+					}
+				}
+			}
+		}
 	}
 	return 0;
 }//OnDialogResponse
@@ -19212,7 +19268,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 					if(!PlayerTemp[playerid][pt_WORKING_IN])
 					{
 						PlayerTemp[playerid][pt_DIALOG_OPENED] = true;
-						ShowDialog(playerid, DIALOG_SELECT_POLICE_SKIN);
+						ShowDialog(playerid, DIALOG_SELECT_POLICE_DIVISION); //DIALOG_SELECT_POLICE_SKIN
 					}
 					else
 					{
@@ -25763,16 +25819,9 @@ CMD:requisar(playerid, params[])
 CMD:ref(playerid, params[])
 {
 	if(PI[playerid][pCREW]) return Crew_RequestHelp(playerid, PI[playerid][pCREW]);
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return Police_RequestHelp(playerid);
 
-	if(!PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "No eres policía.");
-	if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) return SendMessage(playerid, "No estás de servicio como policía.");
-	
-	new city[45], zone[45];
-	GetPlayerZones(playerid, city, zone);
-		
-	new message[145];
-	format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s %s necesita refuerzos en {"#POLICE_COLOR"}%s, %s.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME], city, zone);
-	SendPoliceRadioMessage(-1, -1, message);
+	SendMessage(playerid, "No estas en banda o faccion.");
 	return 1;
 }
 alias:ref("refuerzos");
@@ -26487,7 +26536,7 @@ Crew_RequestHelp(playerid, crew_id)
 
 	GetPlayerZones(playerid, city, zone);
 
-	if(!PlayerTemp[playerid][pt_CREW_HELP])
+	if(!PlayerTemp[playerid][pt_REQUEST_HELP])
 	{
 		for(new i = 0; i != MAX_PLAYERS; i++)
 		{
@@ -26505,7 +26554,7 @@ Crew_RequestHelp(playerid, crew_id)
 		format(crew_message, sizeof crew_message, "{%06x}[Banda] {FFFFFF}%s está pidiendo refuerzos en %s, %s.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], city, zone);
 		SendMessageToCrewMembers(crew_id, -1, crew_message);
 
-		PlayerTemp[playerid][pt_CREW_HELP] = true;
+		PlayerTemp[playerid][pt_REQUEST_HELP] = true;
 	}
 	else
 	{
@@ -26525,7 +26574,71 @@ Crew_RequestHelp(playerid, crew_id)
 		format(crew_message, sizeof crew_message, "{%06x}[Banda] {FFFFFF}%s ya no necesita refuerzos.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME]);
 		SendMessageToCrewMembers(crew_id, -1, crew_message);
 
-		PlayerTemp[playerid][pt_CREW_HELP] = false;
+		PlayerTemp[playerid][pt_REQUEST_HELP] = false;
+	}
+	return 1;
+}
+
+Police_RequestHelp(playerid)
+{
+	if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) return SendMessage(playerid, "No estás de servicio como policía.");
+
+	new
+		city[64],
+		zone[64],
+		message[445];
+
+	GetPlayerZones(playerid, city, zone);
+
+	if(!PlayerTemp[playerid][pt_REQUEST_HELP])
+	{
+		for(new i = 0; i != MAX_PLAYERS; i++)
+		{
+			if(IsPlayerConnected(i))
+			{
+				if(pTemp(i)[pt_GAME_STATE] == GAME_STATE_NORMAL)
+				{
+					if(i == playerid) continue;
+					if(!PLAYER_WORKS[i][WORK_POLICE][pwork_SET]) continue;
+					if(pTemp(i)[pt_WORKING_IN] != WORK_POLICE) continue;
+					
+					if(pTemp(playerid)[pt_POLICE_SWAT]) SetPlayerMarkerForPlayer(i, playerid, SWAT_COLOR2);
+					else SetPlayerMarkerForPlayer(i, playerid, POLICE_COLOR2);
+				}
+			}
+		}
+
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[Central S.W.A.T] {FFFFFF}%s está pidiendo refuerzos en {"#SWAT_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], city, zone);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}el %s %s está pidiendo refuerzos en {"#POLICE_COLOR"}%s, %s.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME], city, zone);
+
+		SendPoliceRadioMessage(-1, -1, message);
+
+		PlayerTemp[playerid][pt_REQUEST_HELP] = true;
+	}
+	else
+	{
+		for(new i = 0; i != MAX_PLAYERS; i++)
+		{
+			if(IsPlayerConnected(i))
+			{
+				if(pTemp(i)[pt_GAME_STATE] == GAME_STATE_NORMAL)
+				{
+					if(i == playerid) continue;
+					if(!PLAYER_WORKS[i][WORK_POLICE][pwork_SET]) continue;
+					if(pTemp(i)[pt_WORKING_IN] != WORK_POLICE) continue;
+					
+					if(pTemp(playerid)[pt_POLICE_SWAT]) SetPlayerMarkerForPlayer(i, playerid, PLAYER_SWAT_COLOR);
+					else SetPlayerMarkerForPlayer(i, playerid, PLAYER_POLICE_COLOR);
+				}
+			}
+		}
+
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[Central S.W.A.T] {FFFFFF}%s ya no necesita refuerzos.", PlayerTemp[playerid][pt_NAME]);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s ya no necesita refuerzos.", PlayerTemp[playerid][pt_NAME]);
+		
+		SendPoliceRadioMessage(-1, -1, message);
+
+		PlayerTemp[playerid][pt_REQUEST_HELP] = false;
 	}
 	return 1;
 }
@@ -28539,8 +28652,10 @@ public StartPlayerJob(playerid, work, vehicleid)
 		case WORK_POLICE:
 		{
 			new label_str[128];
-			format(label_str, sizeof label_str, "%s | Nº%d | %c. %s", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
-			
+			if(PI[playerid][pPOLICE_DUTY] == 285) pTemp(playerid)[pt_POLICE_SWAT] = true;
+			if(pTemp(playerid)[pt_POLICE_SWAT]) format(label_str, sizeof label_str, "{"#POLICE_COLOR"}S.W.A.T | Nº%d | %c. %s", PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
+			else format(label_str, sizeof label_str, "%s | Nº%d | %c. %s", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
+
 			if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]))
 			{
 				DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]);
