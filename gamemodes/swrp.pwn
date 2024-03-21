@@ -2974,7 +2974,12 @@ enum Temp_Enum
 	pt_ELEVATOR_INDEX,
 	pt_ELEVATOR_OPTION,
 	pt_GIVECASHALL_TIME,
-	pt_VEHICLE_SPAWNED
+	pt_VEHICLE_SPAWNED,
+	bool:pt_TASER_GUN,
+	pt_TASSED,
+	Float:pt_TASSED_TIME,
+	pt_TASER_ENERGY,
+	pt_TASER_TIMER
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -4210,6 +4215,9 @@ public OnPlayerConnect(playerid)
 	PlayerTemp[playerid][pt_LOGIN_KICK_TIMER] = -1;
 	PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 	PlayerTemp[playerid][pt_TIMERS][23] = -1;
+	pTemp(playerid)[pt_TASER_GUN] = false;
+	pTemp(playerid)[pt_TASSED] = -1;
+	pTemp(playerid)[pt_TASSED_TIME] = 0;
 	for(new i = 0; i != MAX_OBJECTS_PER_ROUTE; i ++) TRASH_PLAYER_OBJECTS[playerid][i] = INVALID_STREAMER_ID;
 	
 	GetPlayerName(playerid, PlayerTemp[playerid][pt_NAME], 24);
@@ -4517,7 +4525,7 @@ public OnPlayerSpawn(playerid)
 		PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
 		
 		TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
-		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "{d1d1d1}Bienvenido, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs\ny damos recompensa por encontrar bugs a los que son Interinos\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
+		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "{d1d1d1}Bienvenido, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs\ny damos recompensa por encontrar bugs a los que son Asistentes\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
 
 		if(PI[playerid][pPOLICE_DUTY] != 0)
 		{
@@ -24536,6 +24544,12 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 {	
 	if(WEAPON_INFO[weaponid][weapon_info_AMMO]) PLAYER_WEAPONS[playerid][ WEAPON_INFO[weaponid][weapon_info_SLOT] ][player_weapon_AMMO] --;
 	if(PLAYER_WEAPONS[playerid][ WEAPON_INFO[weaponid][weapon_info_SLOT] ][player_weapon_AMMO] <= 0) PLAYER_WEAPONS[playerid][ WEAPON_INFO[weaponid][weapon_info_SLOT] ][player_weapon_AMMO] = 0;
+	if(pTemp(playerid)[pt_TASER_GUN])
+	{
+		SetPlayerArmedWeapon(playerid, 0);
+		SendMessage(playerid, "Guarda el taser primero.");
+	}
+
 	if(ac_Info[CHEAT_UNDETECTED_WEAPON][ac_Enabled])
 	{
 		if(GetPlayerWeapon(playerid) != weaponid)
@@ -24617,7 +24631,8 @@ public OnPlayerGiveDamage(playerid, damagedid, Float: amount, weaponid, bodypart
 {
 	if(damagedid != INVALID_PLAYER_ID)
 	{
-		if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE && PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL) {
+		if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE && PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL) 
+		{
 			if(PlayerTemp[playerid][pt_COMBAT])
 			{
 				KillTimer(PlayerTemp[playerid][pt_COMBAT_TIMER]);
@@ -24634,7 +24649,59 @@ public OnPlayerGiveDamage(playerid, damagedid, Float: amount, weaponid, bodypart
 			}
 		}
 
-		if(PlayerTemp[damagedid][pt_WORKING_IN] != WORK_POLICE && PI[damagedid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[damagedid][pSTATE] != ROLEPLAY_STATE_JAIL) {
+		if(pTemp(playerid)[pt_TASER_GUN])
+		{
+			if(weaponid <= 0)
+			{
+				if(pTemp(damagedid)[pt_TASSED_TIME] <= 0)
+				{
+					if(pTemp(playerid)[pt_TASER_ENERGY] >= 4)
+					{
+						if(gettime() < PlayerTemp[playerid][pt_TASER_TIMER] + 60)
+						{
+							new time = (60-(gettime()-PlayerTemp[playerid][pt_TASER_TIMER]));
+							SendClientMessagef(playerid, 0xCCCCCCCC, "Tienes que esperar %s minutos para que la energia del taser vuelva.", TimeConvert(time));
+							Auto_SendPlayerAction(playerid, "intenta usar el taser pero este no tiene energia.");
+						}
+						else
+						{
+							pTemp(playerid)[pt_TASER_ENERGY] = 0;
+							PlayerTemp[playerid][pt_TASER_TIMER] = gettime();
+							pTemp(damagedid)[pt_TASSED_TIME] = 0.1;
+
+							SendMessagef(playerid, "Has inmobilizado a %s.", pTemp(damagedid)[pt_NAME]);
+
+							new action[445]; format(action, 445, "ha inmobilizado a %s.", pTemp(damagedid)[pt_NAME]); Auto_SendPlayerAction(playerid, action);
+							ApplyAnimation(damagedid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
+
+							KillTimer(pTemp(damagedid)[pt_TASSED]);
+							pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", seconds(1), false, "i", damagedid);
+						}
+					}
+					else
+					{
+						pTemp(playerid)[pt_TASER_ENERGY] ++;
+						PlayerTemp[playerid][pt_TASER_TIMER] = gettime();
+						pTemp(damagedid)[pt_TASSED_TIME] = 0.1;
+
+						SendMessagef(playerid, "Has inmobilizado a %s.", pTemp(damagedid)[pt_NAME]);
+
+						new action[445]; format(action, 445, "ha inmobilizado a %s.", pTemp(damagedid)[pt_NAME]); Auto_SendPlayerAction(playerid, action);
+						ApplyAnimation(damagedid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
+
+						KillTimer(pTemp(damagedid)[pt_TASSED]);
+						pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", seconds(1), false, "i", damagedid);
+					}
+				}
+				else
+				{
+					SendMessage(playerid, "Este usuario ya esta inmobilizado.");
+				}
+			}
+		}
+
+		if(PlayerTemp[damagedid][pt_WORKING_IN] != WORK_POLICE && PI[damagedid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[damagedid][pSTATE] != ROLEPLAY_STATE_JAIL) 
+		{
 			if(PlayerTemp[damagedid][pt_COMBAT])
 			{
 				KillTimer(PlayerTemp[damagedid][pt_COMBAT_TIMER]);
@@ -24674,6 +24741,29 @@ public OnPlayerGiveDamage(playerid, damagedid, Float: amount, weaponid, bodypart
 		}
 	}
     return 1;
+}
+
+callbackp:TasePlayer(damagedid)
+{
+	if(pTemp(damagedid)[pt_TASSED_TIME] >= 100.0)
+	{
+		SendMessage(damagedid, "Te has recuperado.");
+		ClearAnimations(damagedid);
+
+		KillTimer(pTemp(damagedid)[pt_TASSED]);
+		pTemp(damagedid)[pt_TASSED] = -1;
+
+		pTemp(damagedid)[pt_TASSED_TIME] = 0;
+		return 1;
+	}
+	new anim_index = GetPlayerAnimationIndex(damagedid);
+	if(anim_index != 386) ApplyAnimation(damagedid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
+
+	pTemp(damagedid)[pt_TASSED_TIME] += 15.0;
+
+	KillTimer(pTemp(damagedid)[pt_TASSED]);
+	pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", seconds(1), false, "i", damagedid);
+	return 1;
 }
 
 public OnPlayerTakeDamage(playerid, issuerid, Float: amount, weaponid, bodypart)
@@ -25640,7 +25730,11 @@ CMD:esposar(playerid, params[])
 	{
 		if(oldstate == ROLEPLAY_STATE_CRACK) 
 		{
+			ClearAnimations(playerid);
 			CuffPlayer(params[0]);
+			KillTimer(pTemp(params[0])[pt_TASSED]);
+			pTemp(params[0])[pt_TASSED] = -1;
+			pTemp(params[0])[pt_TASSED_TIME] = 0;
 		}
 		else 
 		{
@@ -25654,6 +25748,11 @@ CMD:esposar(playerid, params[])
 			
 			pTemp(params[0])[pt_CUFFED] = false;
 			pTemp(params[0])[pt_CUFFING] = true;
+
+			KillTimer(pTemp(params[0])[pt_TASSED]);
+			pTemp(params[0])[pt_TASSED] = -1;
+			pTemp(params[0])[pt_TASSED_TIME] = 0;
+
 			KillTimer(pTemp(params[0])[pt_TIMERS][14]);
 			TogglePlayerControllableEx(params[0], false);
 			SetPlayerSpecialAction(params[0], SPECIAL_ACTION_HANDSUP);
@@ -25828,6 +25927,27 @@ CMD:control(playerid, params[])
 	EditDynamicObject(playerid, POLICE_OBJECTS[index][police_object_OBJECT_ID]);
 	
 	SendClientMessagef(playerid, -1, "Coloca el objeto, posteriormente puedes usar /econtrol para moverlo o eliminarlo.");
+	return 1;
+}
+
+CMD:taser(playerid, params[])
+{
+	if(!PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "No eres policía.");
+	if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) return SendMessage(playerid, "No estás de servicio como policía.");
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] < 2) return SendClientMessagef(playerid, -1, "Debes ser al menos rango %s para usar el taser.", POLICE_RANKS[2]);
+	
+	if(pTemp(playerid)[pt_TASER_GUN])
+	{
+		pTemp(playerid)[pt_TASER_GUN] = false;
+		Auto_SendPlayerAction(playerid, "guarda su taser.");
+		UpdateWeaponsInBody(playerid);
+	}
+	else
+	{
+		pTemp(playerid)[pt_TASER_GUN] = true;
+		Auto_SendPlayerAction(playerid, "saca su taser de su cinturon reglamentario.");
+		UpdateWeaponsInBody(playerid);
+	}
 	return 1;
 }
 
