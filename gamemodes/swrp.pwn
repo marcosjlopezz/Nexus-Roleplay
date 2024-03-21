@@ -40,7 +40,7 @@ AntiAmx()
 #include <PawnPlus>
 #include <YSF>
 //#include <progress2>
-#include <samp_bcrypt>
+//#include <samp_bcrypt>
 #include <mobile>
 #include <eSelection>
 #include <discord-connector>
@@ -10514,7 +10514,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(strlen(inputtext) < MIN_PASS_LENGTH || strlen(inputtext) > MAX_PASS_LENGTH) return ShowDialog(playerid, dialogid);
 				format(PlayerTemp[playerid][pt_PASSWD], 24, "%s", inputtext);
 				
-				bcrypt_hash(playerid, "OnPlayerRegisterPassword", PlayerTemp[playerid][pt_PASSWD], BCRYPT_COST);
+				//bcrypt_hash(playerid, "OnPlayerRegisterPassword", PlayerTemp[playerid][pt_PASSWD], BCRYPT_COST);
+				SHA256_PassHash(PlayerTemp[playerid][pt_PASSWD], "TempHash", PI[playerid][pPASS], 64 + 1);
+				OnPlayerRegisterPassword(playerid);
 			}
 			else Kick(playerid);
 			return 1;
@@ -10559,7 +10561,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(!response) return Kick(playerid);
 			if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 			
-			bcrypt_verify(playerid, "OnPlayerLoginCheckPass", inputtext, PI[playerid][pPASS]);
+			//bcrypt_verify(playerid, "OnPlayerLoginCheckPass", inputtext, PI[playerid][pPASS]);
+
+			new password[64 + 1];
+			SHA256_PassHash(inputtext, "TempHash", password, sizeof password);
+
+			if(!strcmp(password, PI[playerid][pPASS], false))
+			{
+				OnPlayerLoginCheckPass(playerid, true);
+			}
+			else OnPlayerLoginCheckPass(playerid, false);
 			return 1;
 		}
 		case DIALOG_CLOTHES:
@@ -14394,7 +14405,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 				
-				bcrypt_verify(playerid, "OnChangePasswordCheck", inputtext, PI[playerid][pPASS]);
+				//bcrypt_verify(playerid, "OnChangePasswordCheck", inputtext, PI[playerid][pPASS]);
 			}
 			return 1;
 		}
@@ -14404,7 +14415,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(strlen(inputtext) < MIN_PASS_LENGTH || strlen(inputtext) > MAX_PASS_LENGTH) return ShowDialog(playerid, dialogid);
 				
-				bcrypt_hash(playerid, "OnChangePasswordHash", inputtext, BCRYPT_COST);
+				//bcrypt_hash(playerid, "OnChangePasswordHash", inputtext, BCRYPT_COST);
 			}
 			return 1;
 		}
@@ -15983,7 +15994,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 		
-				bcrypt_verify(playerid, "OnChangeNamePassCheck", inputtext, PI[playerid][pPASS]);
+				//bcrypt_verify(playerid, "OnChangeNamePassCheck", inputtext, PI[playerid][pPASS]);
 			}
 			return 1;
 		}
@@ -28137,7 +28148,7 @@ CMD:setpass(playerid, params[])
 					if(connected) SendClientMessagef(playerid, -1, "JUGADOR '%s' DB-ID '%d' conectado, player_id: %d, no es necario cambiar la clave.", name, id, pid);
 					else
 					{
-						bcrypt_hash(playerid, "OnSetPassChange", new_pass, BCRYPT_COST, "iss", id, name, new_pass);
+						//bcrypt_hash(playerid, "OnSetPassChange", new_pass, BCRYPT_COST, "iss", id, name, new_pass);
 					}
 				}
 				else SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
@@ -31521,14 +31532,14 @@ callbackp:OnChangePasswordCheck(playerid, bool:success)
 
 callbackp:OnChangePasswordHash(playerid)
 {
-	bcrypt_get_hash(PI[playerid][pPASS]);
+	//bcrypt_get_hash(PI[playerid][pPASS]);
 	SendMessage(playerid, "Tu clave se ha cambiado correctamente.");
 	return 1;
 }
 
 callbackp:OnPlayerRegisterPassword(playerid)
 {
-	bcrypt_get_hash(PI[playerid][pPASS]);
+	//bcrypt_get_hash(PI[playerid][pPASS]);
 	ShowDialog(playerid, DIALOG_EMAIL);
 	return 1;
 }
@@ -31712,7 +31723,7 @@ callbackp:OnChangeNamePassCheck(playerid, bool:success)
 callbackp:OnSetPassChange(playerid, id, name[], new_pass[])
 {
 	new pass[64 + 1];
-	bcrypt_get_hash(pass);
+	//bcrypt_get_hash(pass);
 
 	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET pass = '%e' WHERE id = %d;", pass, id);
 	mysql_tquery(handle_db, QUERY_BUFFER);
