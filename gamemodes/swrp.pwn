@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-#define MYSQL_HOST "74.208.184.215"
+/*#define MYSQL_HOST "74.208.184.215"
 #define MYSQL_USER "u3_hnCWJKW9od"
 #define MYSQL_DB "s3_swrp_db"
-#define MYSQL_PASS "!10Hhi.N4iZWHhWT4@65N09c"
+#define MYSQL_PASS "!10Hhi.N4iZWHhWT4@65N09c"*/
 
-/*#define MYSQL_HOST "localhost"
+#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""*/
+#define MYSQL_PASS ""
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -533,6 +533,7 @@ enum
 	DIALOG_BLACK_MARKET_SELECT_WEA,
 	DIALOG_BLACK_MARKET_AMMO,
 	DIALOG_BLACK_MARKET_ARMOUR,
+	DIALOG_RENOUNCE
 }
 
 enum
@@ -2218,7 +2219,8 @@ new SAFE_ZONES[][enum_SAFE_ZONES] =
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -91.585,	1655.05,	421.234,	2123.01, 0, 0},
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -613.953796, -209.777252, -381.961181, -6.355076, 0, 0},
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -115.255050, -1211.812377, -54.539089, -1179.635253, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1205.5, -1704.5, 1293.5, -1614.5, 0, 0} //Spawn Inicial
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1205.5, -1704.5, 1293.5, -1614.5, 0, 0}, //Spawn Inicial
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1582.5, -2176.5, 1653.5, -2139.5, 0, 0}
 };
 
 /* Rangos Policias */
@@ -8090,7 +8092,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_GPS_SITE_1: //Tiendas de ropa
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 
 			new dialog[90 * (MAX_LISTITEMS + 1)];
 			format(dialog, sizeof dialog, "Lugar\tDistancia\n");
@@ -8113,7 +8115,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_GPS_SITE_2: //Tiendas 24 horas
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 
 			new dialog[90 * (MAX_LISTITEMS + 1)];
 			format(dialog, sizeof dialog, "Lugar\tDistancia\n");
@@ -8136,7 +8138,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_GPS_SITE_3: //Comida rapida
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 
 			new dialog[90 * (MAX_LISTITEMS + 1)];
 			format(dialog, sizeof dialog, "Lugar\tDistancia\n");
@@ -8159,7 +8161,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_GPS_SITE_4: //Bancos
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 
 			new dialog[90 * (MAX_LISTITEMS + 1)];
 			format(dialog, sizeof dialog, "Lugar\tDistancia\n");
@@ -8223,7 +8225,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_GPS_SITE_8: //Policias
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 
 			new dialog[90 * (MAX_LISTITEMS + 1)];
 			format(dialog, sizeof dialog, "Lugar\tDistancia\n");
@@ -8246,7 +8248,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_GPS_SITE_9: //Farmacias
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 
 			new dialog[90 * (MAX_LISTITEMS + 1)];
 			format(dialog, sizeof dialog, "Lugar\tDistancia\n");
@@ -8303,7 +8305,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_GPS_VEHICLES:
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 
 			new dialog[115 * (MAX_VIP_VEHICLES + 2)], total_vehicles;
 			format(dialog, sizeof dialog, "Vehículo\tMatrícula\tDistancia\n");
@@ -8540,7 +8542,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_NOTARY_SELECT_VEHICLE:
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 			
 			new dialog[95 * (MAX_VIP_VEHICLES + 2)], total_vehicles;
 			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Vehículo\t{"#BLUE_COLOR"}Matrícula\n");
@@ -8973,7 +8975,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_PLAYER_WEAPONS:
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pt_PLAYER_LISTITEM][i] = -1;
 			
 			new dialog[95 * 15], line_str[95], listitem;
 			new caption[445]; format(caption, 445, "Armas de %s.", pTemp( pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] )[pt_NAME]);
@@ -9254,7 +9256,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_POLICE_SELECT_WEAPON:
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 			
 			new dialog[95 * 15], line_str[95], listitem;
 			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Arma\t{"#BLUE_COLOR"}Municion\t{"#SILVER_COLOR"}Slot\n");
@@ -9672,7 +9674,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_CRANE_SELECT_VEHICLE:
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
 			
 			new dialog[95 * (MAX_VIP_VEHICLES + 2)], total_vehicles;
 			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Vehículo\t{"#BLUE_COLOR"}Matrícula\t{"#SILVER_COLOR"}Precio\n");
@@ -10451,7 +10453,7 @@ stock ShowDialog(playerid, dialogid)
 		}
 		case DIALOG_BLACK_MARKET_SELECT_WEA:
 		{
-			for(new i = 0; i != MAX_LISTITEMS; i ++) PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			LoopEx(i, MAX_LISTITEMS, 0) PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][i] = -1;
 			
 			new dialog[95 * 15], line_str[95], listitem;
 			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Arma\t{"#BLUE_COLOR"}Munición\t{"#SILVER_COLOR"}Slot\n");
@@ -10482,7 +10484,28 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_BLACK_MARKET_ARMOUR:
 		{
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Comprar Chaleco", "{d1d1d1}¿Estas seguro que quieres pagar 5000 {"#GRAY_COLOR"}DN${d1d1d1} por un chaleco anti balas?", "Comprar", "Cancelar");
-		}		
+		}
+		case DIALOG_RENOUNCE:
+		{
+			LoopEx(i, MAX_LISTITEMS, 0) PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][i] = -1;
+
+			new dialog[32 * sizeof(work_info)], line_str[145], listitem;
+
+			LoopEx(i, sizeof(work_info), 0)
+			{
+				if(PLAYER_WORKS[playerid][i][pwork_SET])
+				{
+					format(line_str, sizeof line_str, "%s (%d)\n", work_info[i][work_info_NAME], i);
+					strcat(dialog, line_str);
+					
+					PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] = i; 
+					listitem ++;
+				}
+			}
+
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Renunciar - Mís Trabajos", dialog, "Continuar", "Cancelar");
+			return 1;
+		}
 		default: return 0;
 	}
 	return 1;
@@ -16480,6 +16503,31 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				ShowDialog(playerid, DIALOG_BLACK_MARKET);
 			}
 			else ShowDialog(playerid, DIALOG_BLACK_MARKET);
+		}
+		case DIALOG_RENOUNCE:
+		{
+			if(response)
+			{
+				if(PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] < 1 || PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] >= sizeof work_info) return SendClientMessagef(playerid, -1, "El trabajo no es válido.");
+				
+				if(!PLAYER_WORKS[playerid][ PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] ][pwork_SET]) return SendMessagef(playerid, "No eres %s.", work_info[ PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] ][work_info_NAME]);
+				if(PlayerTemp[playerid][pt_WORKING_IN] == PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem]) return SendClientMessagef(playerid, -1, "Ahora mismo estás de servicio en ese trabajo, deja de trabajar para abandonar el trabajo.");
+				
+				if(PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] == WORK_POLICE)
+				{
+					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pworks SET `set` = 0, level = 0 WHERE id_player = %d AND id_work = %d;", PI[playerid][pID], PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem]);
+					mysql_tquery(handle_db, QUERY_BUFFER);
+					PLAYER_WORKS[playerid][ PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] ][pwork_LEVEL] = 0;
+				}
+				else
+				{
+					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pworks SET `set` = 0 WHERE id_player = %d AND id_work = %d;", PI[playerid][pID], PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem]);
+					mysql_tquery(handle_db, QUERY_BUFFER);
+				}
+
+				SendClientMessagef(playerid, -1, "Has abandonado tu trabajo de %s.", work_info[ PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] ][work_info_NAME]);
+				PLAYER_WORKS[playerid][ PLAYER_TEMP[playerid][pt_PLAYER_LISTITEM][listitem] ][pwork_SET] = false;
+			}
 		}
 	}
 	return 0;
@@ -22557,46 +22605,7 @@ CMD:dimitir(playerid, params[])
 	if(!player_jobs) return SendClientMessagef(playerid, -1, "No tienes ningun trabajo.");
 	
 	if(GetPlayerState(playerid) != PLAYER_STATE_ONFOOT) return SendClientMessagef(playerid, -1, "No estás depie.");
-	
-	new work;
-	if(sscanf(params, "d", work))
-	{
-		new works[32 * sizeof(work_info)], line_str[32], count;
-		for(new i = 1; i != sizeof(work_info); i ++)
-		{
-			if(PLAYER_WORKS[playerid][i][pwork_SET])
-			{
-				if(count > 0) strcat(works, ", ");
-				
-				format(line_str, sizeof line_str, "%s (%d)", work_info[i][work_info_NAME], i);
-				strcat(works, line_str);
-				
-				count ++;
-			}
-		}
-		SendClientMessagef(playerid, -1, "Tus trabajos: %s", works);
-		SendClientMessagef(playerid, -1, "Utiliza /renunciar <id del trabajo> para renunciar a un trabajo.");
-		return 1;
-	}
-	
-	if(work < 1 || work >= sizeof work_info) return SendClientMessagef(playerid, -1, "El trabajo no es válido.");
-	
-	if(!PLAYER_WORKS[playerid][work][pwork_SET]) return SendMessagef(playerid, "No eres %s.", work_info[work][work_info_NAME]);
-	if(PlayerTemp[playerid][pt_WORKING_IN] == work) return SendClientMessagef(playerid, -1, "Ahora mismo estás de servicio en ese trabajo, deja de trabajar para abandonar el trabajo.");
-	
-	if(work == WORK_POLICE)
-	{
-		mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pworks SET `set` = 0, level = 0 WHERE id_player = %d AND id_work = %d;", PI[playerid][pID], work);
-		mysql_tquery(handle_db, QUERY_BUFFER);
-		PLAYER_WORKS[playerid][work][pwork_LEVEL] = 0;
-	}
-	else
-	{
-		mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pworks SET `set` = 0 WHERE id_player = %d AND id_work = %d;", PI[playerid][pID], work);
-		mysql_tquery(handle_db, QUERY_BUFFER);
-	}
-	SendClientMessagef(playerid, -1, "Has abandonado tu trabajo de %s.", work_info[work][work_info_NAME]);
-	PLAYER_WORKS[playerid][work][pwork_SET] = false;
+	ShowDialog(playerid, DIALOG_RENOUNCE);
 	return 1;
 }
 alias:dimitir("renunciar");
@@ -29930,7 +29939,7 @@ stock LoadServerInfo()
 	}
 
 	//Mecánico
-	Mechanic_Areas[0] = CreateDynamicRectangle(1808.799194, -1450.352661, 1837.703979, -1414.697753, 0, 0);
+	Mechanic_Areas[0] = CreateDynamicRectangle(1582.5, -2176.5, 1653.5, -2139.5, 0, 0);
 	Streamer_SetArrayData(STREAMER_TYPE_AREA, Mechanic_Areas[0], E_STREAMER_EXTRA_ID, { AREA_TYPE_MECHANIC });
 
 	for(new i; i != sizeof MechanicStartWorkingCoords; i++)
