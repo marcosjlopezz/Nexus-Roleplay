@@ -10434,10 +10434,10 @@ stock ShowDialog(playerid, dialogid)
 				}
 			}
 
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Renunciar - Mís Trabajos", dialog, "Continuar", "Cancelar");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST, "Renunciar - Mís Trabajos", dialog, "Continuar", "Cancelar");
 			return 1;
 		}
-		case DIALOG_SELECT_POLICE_DIVISION: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Policía - Trabajar", "Division Policial\nDivision S.W.A.T", "Continuar", "Cancelar");
+		case DIALOG_SELECT_POLICE_DIVISION: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST, "Policía - Trabajar", "Division Policial\nDivision S.W.A.T", "Continuar", "Cancelar");
 		default: return 0;
 	}
 	return 1;
