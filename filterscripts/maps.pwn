@@ -15,11 +15,72 @@ public OnFilterScriptInit()
 	new AT_bank_int[299];
 
 	//policia ls
-	CreateDynamicObject(19126, 1544.69641, -1622.43372, 13.05470, 0.00000, 0.00000, 0.00000);
-	CreateDynamicObject(19126, 1544.69641, -1620.53772, 13.05470, 0.00000, 0.00000, 0.00000);
-	CreateDynamicObject(19126, 1544.69641, -1618.64172, 13.05470, 0.00000, 0.00000, 0.00000);
-	CreateDynamicObject(19126, 1544.69641, -1634.28369, 13.05470, 0.00000, 0.00000, 0.00000);
-	CreateDynamicObject(19126, 1544.69641, -1636.17969, 13.45328, 0.00000, 0.00000, 0.00000);
+	tmpobjid = CreateDynamicObject(3976, 1571.599975, -1675.750000, 35.679698, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 1, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 2, 19418, "police_things", "badge01", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 3, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 4, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 5, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 6, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 7, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 9, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 12, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1558.527099, -1675.545776, 29.102813, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1558.527099, -1675.545776, 32.582828, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1558.527099, -1675.545776, 36.052837, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1558.527099, -1675.545776, 39.522842, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1558.527099, -1675.545776, 42.992851, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1558.527099, -1675.545776, 46.452880, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1558.527099, -1675.545776, 49.682876, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1571.359619, -1675.545776, 29.102813, 0.000000, 0.000007, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1571.359619, -1675.545776, 32.582828, 0.000000, 0.000007, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1571.359619, -1675.545776, 36.052837, 0.000000, 0.000007, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1571.359619, -1675.545776, 39.522842, 0.000000, 0.000007, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1571.359619, -1675.545776, 42.992851, 0.000000, 0.000007, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1571.359619, -1675.545776, 46.452880, 0.000000, 0.000007, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19458, 1571.359619, -1675.545776, 49.682876, 0.000000, 0.000007, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(19356, 1555.137451, -1675.545898, 22.093400, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 19162, "newpolicehats", "policehatmap1", 0x00000000);
+	tmpobjid = CreateDynamicObject(4192, 1591.699951, -1674.849975, 20.492200, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14407, "carter_block", "mp_carter_windows", 0x00000000);
+	tmpobjid = CreateDynamicObject(3975, 1578.469970, -1676.420043, 13.070300, 0.000000, 0.000000, 0.000000); 
+	SetDynamicObjectMaterial(tmpobjid, 0, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 1, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 2, 19162, "newpolicehats", "policehatmap1", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 3, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 4, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 7, 9514, "711_sfw", "mono1_sfe", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 8, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 11, 14534, "ab_wooziea", "dt_office_roof", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 14, 9514, "711_sfw", "mono1_sfe", 0x00000000);
+	SetDynamicObjectMaterial(tmpobjid, 15, 9514, "711_sfw", "mono1_sfe", 0x00000000);
+	tmpobjid = CreateDynamicObject(647, 1546.670532, -1661.531250, 14.058887, 0.000000, 0.000000, -25.399997); 
+	tmpobjid = CreateDynamicObject(647, 1546.878295, -1690.212158, 14.058887, 0.000000, 0.000000, -25.399997); 
+	tmpobjid = CreateDynamicObject(18850, 1564.764526, -1647.263671, 18.090534, 0.000000, 0.000000, 0.000000); 
+	tmpobjid = CreateDynamicObject(19860, 1564.433715, -1683.760498, 28.548551, 0.000000, 0.000000, 0.000000); 
+	tmpobjid = CreateDynamicObject(8615, 1572.681884, -1664.454711, 28.364618, 0.000000, 0.000000, 0.000000); 
+	tmpobjid = CreateDynamicObject(970, 1544.705444, -1621.752319, 12.839758, 0.000000, 0.000000, 89.800018); 
+	tmpobjid = CreateDynamicObject(970, 1544.712524, -1619.662963, 12.839758, 0.000000, 0.000000, 89.800018); 
+	tmpobjid = CreateDynamicObject(970, 1544.659667, -1634.792968, 12.839758, 0.000000, 0.000000, 89.800018); 
+	tmpobjid = CreateDynamicObject(970, 1544.652587, -1636.853149, 12.839758, 0.000000, 0.000000, 89.800018); 
+	tmpobjid = CreateDynamicObject(970, 1544.649414, -1637.762695, 13.609766, 0.000000, 0.000000, 89.800018); 
+	tmpobjid = CreateDynamicObject(970, 1544.659667, -1634.791259, 13.609766, 0.000000, 0.000000, 89.800018); 
+	tmpobjid = CreateDynamicObject(970, 1544.705200, -1621.751342, 13.609766, 0.000000, 0.000000, 89.800018); 
+	tmpobjid = CreateDynamicObject(970, 1544.712280, -1619.660522, 13.609766, 0.000000, 0.000000, 89.800018); 
 
 	//Policia sf
 	CreateDynamicObject(973, -1701.18640, 694.82916, 24.62465, 0.00000, 0.00000, 90.00000);
@@ -504,14 +565,6 @@ public OnFilterScriptInit()
 	CreateDynamicObject(979, -479.82788, -585.00262, 18.60600, -2.22000, -12.84000, 106.08016);
 	CreateDynamicObject(979, -481.58658, -576.18317, 21.07309, -7.56000, -17.88000, 93.36014);
 	CreateDynamicObject(979, -481.54712, -567.38995, 23.89002, -7.56000, -17.88000, 81.66020);
-	
-	//Escaleras Heli SAPD
-	CreateDynamicObject(12987, 1552.19458, -1636.50024, 16.15147, 0.00000, 0.00000, 90.00000);
-	CreateDynamicObject(12987, 1559.75610, -1636.58533, 22.39621, 0.00000, 0.00000, 90.00000);
-	CreateDynamicObject(8614, 1565.75281, -1636.95044, 26.50508, 0.00000, 0.00000, 180.00000);
-	CreateDynamicObject(1473, 1570.05505, -1636.52759, 24.11175, 0.00000, 0.00000, 0.00000);
-	CreateDynamicObject(1473, 1567.12939, -1636.98779, 23.88100, 0.00000, 0.00000, 0.00000);
-	CreateDynamicObject(18850, 1564.60950, -1654.02820, 15.77882, 0.00000, 0.00000, 0.00000);
 	
 	//Camioneros Parasol
 	CreateDynamicObject(4853, -557.00470, -502.01758, 27.38450, 0.00000, 0.00000, 0.00000);
@@ -5891,5 +5944,17 @@ public OnPlayerConnect(playerid)
 	RemoveBuildingForPlayer(playerid, 1438, -63.6719, -1125.6953, 0.0469, 0.25);
 	RemoveBuildingForPlayer(playerid, 1438, -63.4141, -1115.4141, 0.0469, 0.25);
 	RemoveBuildingForPlayer(playerid, 1415, -63.8125, -1106.4219, 0.2188, 0.25);
+
+	//lspd
+	RemoveBuildingForPlayer(playerid, 620, 1547.569, -1661.030, 13.046, 0.250);
+	RemoveBuildingForPlayer(playerid, 646, 1553.869, -1677.729, 16.437, 0.250);
+	RemoveBuildingForPlayer(playerid, 646, 1553.869, -1673.459, 16.437, 0.250);
+	RemoveBuildingForPlayer(playerid, 3976, 1571.599, -1675.750, 35.679, 0.250);
+	RemoveBuildingForPlayer(playerid, 4064, 1571.599, -1675.750, 35.679, 0.250);
+	RemoveBuildingForPlayer(playerid, 620, 1547.569, -1689.979, 13.046, 0.250);
+	RemoveBuildingForPlayer(playerid, 1525, 1549.890, -1714.520, 15.101, 0.250);
+	RemoveBuildingForPlayer(playerid, 4192, 1591.699, -1674.849, 20.492, 0.250);
+	RemoveBuildingForPlayer(playerid, 3975, 1578.469, -1676.420, 13.070, 0.250);
+	RemoveBuildingForPlayer(playerid, 4063, 1578.469, -1676.420, 13.070, 0.250);
 	return 1;
 }
