@@ -310,6 +310,25 @@ new ELEVATOR_INFO[][e_ELEVATOR_INFO] =
 	{909.4767, -1458.2749, 2754.3218, 180.0,	909.5597, -1458.1979, 2761.0164, 180.0,	1}	//Gobierno
 };
 
+new Float:POLICE_VEHICLES_SPAWN[][] =
+{
+	{1530.0613, -1677.4598, 5.8906, 89.6164}, // ls
+	{-1606.6038, 677.0859, -5.2422, 179.2077}, // sf
+	{2243.2258, 2434.3228, 3.2734, 126.7643} // lv
+};
+
+new POLICE_VEHICLES_INFO[][] =
+{
+	{596, 2},
+	{597, 2},
+	{598, 3},
+	{599, 3},
+	{601, 2},
+	{523, 1},
+	{522, 3},
+	{468, 1}
+};
+
 enum e_PLAYER_AC_INFO
 {
 	p_ac_info_DETECTIONS,
@@ -539,6 +558,11 @@ enum
 	DIALOG_BLACK_MARKET_ARMOUR,
 	DIALOG_RENOUNCE,
 	DIALOG_SELECT_POLICE_DIVISION
+}
+
+enum
+{
+	MENU_SELECT_POLICE_VEHICLE
 }
 
 enum
@@ -3757,7 +3781,9 @@ enum
 	PICKUP_TYPE_DRIVING_EXAM,
 	PICKUP_TYPE_DS_VEHICLE,
 	PICKUP_TYPE_DS_BRIBE,
-	PICKUP_TYPE_BLACK_MARKET
+	PICKUP_TYPE_BLACK_MARKET,
+	PICKUP_TYPE_POLICE_VEHICLES,
+	PICKUP_TYPE_POLICE_AIR_VEHICLE
 };
 
 enum Fuel_Stations_Info
@@ -5750,7 +5776,11 @@ hook OnPlayerText(playerid, text[])
 		if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 		{
 			if(text[1] == '!') format(str_text, sizeof str_text, "** [Radio] (( %s: %s ))", PlayerTemp[playerid][pt_NAME], text[2]);
-			else format(str_text, sizeof str_text, "{8D8DFF}** [Radio]{FF8C00} %s %s: {FFFFFF}%s", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME], text[1]);
+			else
+			{
+				if(pTemp(playerid)[pt_POLICE_SWAT]) format(str_text, sizeof str_text, "{"#SWAT_COLOR"}** [Radio]{FF8C00} S.W.A.T %s: {FFFFFF}%s", PlayerTemp[playerid][pt_NAME], text[1]);
+				else format(str_text, sizeof str_text, "{"#POLICE_COLOR"}** [Radio]{FF8C00} %s %s: {FFFFFF}%s", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME], text[1]);
+			}
 			
 			SendPoliceRadioMessage(PlayerTemp[playerid][pt_POLICE_RADIO], 0xCCCCCCCC, str_text);
 			return 0;
@@ -7339,6 +7369,29 @@ Auto_SendPlayerAction(playerid, const action[])
 	new str_text[145];
 	format(str_text, 145, "* %s %s", PlayerTemp[playerid][pt_NAME], action);
 	ProxDetector(playerid, 15.0, str_text, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF);
+	return 1;
+}
+
+stock ShowMenu(playerid, extra)
+{
+	switch(extra)
+	{
+		case MENU_SELECT_POLICE_VEHICLE:
+		{	
+			for(new i = 0; i != MAX_LISTITEMS; i++ ) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+			new List:Vehicles = list_new(), listitem;
+
+			Loop(i, sizeof(POLICE_VEHICLES_INFO), 0)
+			{
+				AddModelMenuItem(Vehicles, POLICE_VEHICLES_INFO[i][0], .usingrotation = true, .rotx = -10.000000, .roty = 0.0, .rotz = -40.000000, .vehiclecolor1 = 0, .vehiclecolor2 = 1);
+
+				PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] = i;
+				listitem ++;
+			}
+
+			ShowModelSelectionMenu(playerid, "Vehiculos - Policia", extra, Vehicles);
+		}
+	}
 	return 1;
 }
 
@@ -16492,6 +16545,71 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	return 0;
 }//OnDialogResponse
 
+public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
+{
+	switch(extraid)
+	{
+		case MENU_SELECT_POLICE_VEHICLE:
+		{
+			if(response == MODEL_RESPONSE_SELECT)
+			{
+				if(pTemp(playerid)[pt_VEHICLE_SPAWNED] != INVALID_VEHICLE_ID)
+				{
+					ClearVehicleGlobalInfo(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+					DestroyVehicleEx(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+					pTemp(playerid)[pt_VEHICLE_SPAWNED] = INVALID_VEHICLE_ID;
+				}
+
+				if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] < POLICE_VEHICLES_INFO[ PlayerTemp[playerid][pt_PLAYER_LISTITEM][index] ][1]) return SendClientMessagef(playerid, -1, "No tienes el rango adecuado para este vehiculo.");
+
+				new Float:pos[3];
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+
+				new vehicle_id = INVALID_VEHICLE_ID;
+				vehicle_id = CreateVehicle(POLICE_VEHICLES_INFO[ PlayerTemp[playerid][pt_PLAYER_LISTITEM][index] ][0], pos[0], pos[1], pos[2], 270.0, 0, 1, -1, false);
+				if(vehicle_id == INVALID_VEHICLE_ID) return SendMessage(playerid, "No se pueden crear mas vehiculos, Intenta de nuevo mas tarde...");
+				
+				pTemp(playerid)[pt_VEHICLE_SPAWNED] = vehicle_id;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VALID] = true;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] = VEHICLE_TYPE_WORK;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] = POLICE_VEHICLES_INFO[ PlayerTemp[playerid][pt_PLAYER_LISTITEM][index] ][0];
+				format(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_NUMBER_PLATE], 32, "P-%04d", getRandomLetter(), getRandomLetter(), getRandomLetter(), random(9999));
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X] = pos[0];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y] = pos[1];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z] = pos[2];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_ANGLE] = 270.0;
+				
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][0] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][1] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][2] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z];
+				
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_HEALTH] = 1000.0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_PANELS] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_DOORS] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_LIGHTS] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_DAMAGE_TIRES] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_1] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_COLOR_2] = 1;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_PAINTJOB] = 3; // No paintjob
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS] = VEHICLE_INFO[ GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] - 400][vehicle_info_MAX_GAS];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_GAS] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MAX_GAS];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_STATE] = VEHICLE_STATE_NORMAL;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VIP] = 0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_WORLD] = 0;
+
+				WORK_VEHICLES[vehicle_id][work_vehicle_VALID] = true;
+				WORK_VEHICLES[vehicle_id][work_vehicle_WORK] = WORK_POLICE;
+				WORK_VEHICLES[vehicle_id][work_vehicle_EXP] = POLICE_VEHICLES_INFO[ PlayerTemp[playerid][pt_PLAYER_LISTITEM][index] ][1];
+				WORK_VEHICLES[vehicle_id][work_vehicle_NEED_DUTY] = true;
+				
+				SetVehicleToRespawnEx(vehicle_id);
+				PutPlayerInVehicleEx(playerid, vehicle_id, 0);
+			}
+		}
+	}
+	return 1;
+} //OnModelSelectionResponse
+
 GetDatabasePages(count, limit)
 {
 	return floatround(floatdiv(count, limit), floatround_ceil);
@@ -19438,6 +19556,18 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 		case PICKUP_TYPE_BLACK_MARKET:
 		{
 			ShowDialog(playerid, DIALOG_BLACK_MARKET);
+		}
+		case PICKUP_TYPE_POLICE_VEHICLES:
+		{
+			if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET])
+			{
+				if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) SendMessage(playerid, "No estas de servicio como policia.");
+				else
+				{
+					ShowMenu(playerid, MENU_SELECT_POLICE_VEHICLE);
+				}
+			}
+			else SendMessage(playerid, "No eres policía.");
 		}
 	}
 
@@ -25618,7 +25748,9 @@ CMD:nivel(playerid, params[])
 	{
 		format(action, sizeof action, "le quita el nivel de busqueda a %s.", pTemp(params[0])[pt_NAME]);
 
-		format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s {FFFFFF}ya no es sospechoso.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME]);
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s {FFFFFF}ya no es sospechoso.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME]);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s {FFFFFF}ya no es sospechoso.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME]);
+		
 		SendClientMessagef(playerid, -1, "Le has removido el nivel de busqueda a %s.", pTemp(params[0])[pt_NAME]);
 	}
 	else
@@ -25632,7 +25764,8 @@ CMD:nivel(playerid, params[])
 		format(action, sizeof action, "le pone nivel de busqueda a %s.", pTemp(params[0])[pt_NAME]);
 		
 		SendClientMessagef(playerid, -1, "Has asignado nivel de busqueda %d a %s.", params[1], pTemp(params[0])[pt_NAME]);
-		format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}visto por ultima vez en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}visto por ultima vez en {"#SWAT_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}visto por ultima vez en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
 	}
 
 	Auto_SendPlayerAction(playerid, action);
@@ -26608,7 +26741,7 @@ Police_RequestHelp(playerid)
 			}
 		}
 
-		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[Central S.W.A.T] {FFFFFF}%s está pidiendo refuerzos en {"#SWAT_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], city, zone);
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s está pidiendo refuerzos en {"#SWAT_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], city, zone);
 		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}el %s %s está pidiendo refuerzos en {"#POLICE_COLOR"}%s, %s.", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PlayerTemp[playerid][pt_NAME], city, zone);
 
 		SendPoliceRadioMessage(-1, -1, message);
@@ -26633,7 +26766,7 @@ Police_RequestHelp(playerid)
 			}
 		}
 
-		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[Central S.W.A.T] {FFFFFF}%s ya no necesita refuerzos.", PlayerTemp[playerid][pt_NAME]);
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s ya no necesita refuerzos.", PlayerTemp[playerid][pt_NAME]);
 		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s ya no necesita refuerzos.", PlayerTemp[playerid][pt_NAME]);
 		
 		SendPoliceRadioMessage(-1, -1, message);
@@ -29688,6 +29821,18 @@ stock LoadServerInfo()
 
 	bm_info[0] = PICKUP_TYPE_BLACK_MARKET;
 	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, bm_pck, E_STREAMER_EXTRA_ID, bm_info);
+
+	for(new i = 0; i < sizeof POLICE_VEHICLES_SPAWN; i++)
+	{
+		new police_v_info[3]; //PICKUP_TYPE_POLICE_VEHICLES //PICKUP_TYPE_POLICE_AIR_VEHICLE
+
+		CreateDynamic3DTextLabel("{"#POLICE_COLOR"}Policia\n"COME_INTERACTION_MESSAGE"para sacar vehiculos", 0xFFFFFFFF, POLICE_VEHICLES_SPAWN[i][0], POLICE_VEHICLES_SPAWN[i][1], POLICE_VEHICLES_SPAWN[i][2], 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
+		new police_pck = CreateDynamicPickup(0, 1, POLICE_VEHICLES_SPAWN[i][0], POLICE_VEHICLES_SPAWN[i][1], POLICE_VEHICLES_SPAWN[i][2], -1, -1);
+
+		police_v_info[0] = PICKUP_TYPE_POLICE_VEHICLES;
+		police_v_info[1] = i;
+		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, police_pck, E_STREAMER_EXTRA_ID, police_v_info);
+	}
 
 	//3d texts armarios
 	for(new i = 0; i < sizeof PROPERTY_CLOSET_POS; i++)
