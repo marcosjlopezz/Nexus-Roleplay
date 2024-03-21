@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"1.9 Alpha"
+#define SERVER_VERSION			"2.0 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -2973,7 +2973,8 @@ enum Temp_Enum
 	pt_INJURED_TIMER_POS,
 	pt_ELEVATOR_INDEX,
 	pt_ELEVATOR_OPTION,
-	pt_GIVECASHALL_TIME
+	pt_GIVECASHALL_TIME,
+	pt_VEHICLE_SPAWNED
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -19415,12 +19416,20 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 		}
 		case PICKUP_TYPE_DS_VEHICLE:
 		{
+			if(pTemp(playerid)[pt_VEHICLE_SPAWNED] != INVALID_VEHICLE_ID)
+			{
+				ClearVehicleGlobalInfo(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+				DestroyVehicleEx(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+				pTemp(playerid)[pt_VEHICLE_SPAWNED] = INVALID_VEHICLE_ID;
+			}
+
 			if(PlayerTemp[playerid][pt_DL_EXAM])
 			{
 				new vehicle_id = INVALID_VEHICLE_ID;
 				vehicle_id = CreateVehicle(551, 1064.2238, -1736.8141, 13.4836, 270.0, 3, 3, -1, false);
 				if(vehicle_id == INVALID_VEHICLE_ID) return SendMessage(playerid, "No se pueden crear mas vehiculos, Intenta de nuevo mas tarde...");
 				
+				pTemp(playerid)[pt_VEHICLE_SPAWNED] = vehicle_id;
 				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_VALID] = true;
 				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] = VEHICLE_TYPE_DRIVING_SCHOOL;
 				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] = 551;
@@ -22295,6 +22304,14 @@ SavePlayerVehicles(playerid, destroy = false)
 	return 1;
 }
 
+stock ClearVehicleGlobalInfo(vehicleid)
+{
+	ResetVehicleTaxiMeter(vehicleid);
+	ResetTruckInfo(vehicleid);
+	ResetTrashInfo(vehicleid);
+	ResetPizzaInfo(vehicleid);
+}
+
 public OnVehicleSpawn(vehicleid)
 {
 	GLOBAL_VEHICLES[vehicleid][gb_vehicle_TP_IMMUNITY] = gettime() + 5;
@@ -22577,7 +22594,7 @@ public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_
 			}
 			case VEHICLE_TYPE_DRIVING_SCHOOL:
 			{
-				if(spawn_distance > 10.0) DestroyVehicleEx(vehicleid);
+				if(spawn_distance > 5.0) DestroyVehicleEx(vehicleid);
 			}
 		}
 	}
@@ -23718,7 +23735,14 @@ public OnPlayerEnterDynamicRaceCP(playerid, checkpointid)
 
 					PlayerTemp[playerid][pt_DL_EXAM] = false;
 					PlayerTemp[playerid][pt_DL_EXAM_PROCCESS] = 0;
-					DestroyVehicleEx(PlayerTemp[playerid][pt_LAST_VEHICLE_ID]);
+
+					if(pTemp(playerid)[pt_VEHICLE_SPAWNED] != INVALID_VEHICLE_ID)
+					{
+						ClearVehicleGlobalInfo(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+						DestroyVehicleEx(PlayerTemp[playerid][pt_LAST_VEHICLE_ID]);
+						DestroyVehicleEx(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+						pTemp(playerid)[pt_VEHICLE_SPAWNED] = INVALID_VEHICLE_ID;
+					}
 					return 1;
 				}
 
@@ -25533,7 +25557,9 @@ CMD:nivel(playerid, params[])
 {
 	if(!PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "No eres policía.");
 	if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) return SendMessage(playerid, "No estás de servicio como policía.");
-	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] < 2) return SendClientMessagef(playerid, -1, "Los cadetes y soldados rasos no pueden colocar cargos.");
+
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] < 2) return SendClientMessagef(playerid, -1, "Los cadetes no pueden colocar cargos.");
+
 	if(sscanf(params, "ud", params[0], params[1])) return ErrorCommandParams(playerid, "/nivel [PlayerID/Nombre] [nivel de busqueda 0-6]");
 	if(params[1] < 0 || params[1] > 6) return ErrorCommandParams(playerid, "/nivel [PlayerID/Nombre] [nivel de busqueda 0-6]");
 	
