@@ -823,7 +823,7 @@ new Float:obtain_work_coords[][obtain_work_coords_info] =
 	{false, false, 0.0, 0.0, 0.0, 0,	false, 0, 0.0, 0.0, 0.0},
 	{true, true, 1490.285766, 1305.699340, 1093.296386, 3,	true, 61, 1752.603881, -1894.155883, 13.557376}, //taxista ls
 	{true, true, 1297.107543, -65.027748, 1002.498046, 18, true, 61, -510.699890, -539.409118, 25.523437}, //caminero
-	{true, true, 1622.9031, -2166.5078, 13.6650, 0, true, 27, 1622.9031, -2166.5078, 13.6650}, //mecanico
+	{true, true, 1947.8142, -1819.7198, 13.5563, 0, true, 27, 1947.8142, -1819.7198, 13.5563}, //mecanico
 	{true, true, -372.126922, -1435.706298, 25.726562, 0,	true, 61, -372.126922, -1435.706298, 25.726562}, //Cosechador
 	{true, true, -1884.997314, -1636.733642, 21.750000, 0, true, 61, -1884.997314, -1636.733642, 21.750000}, //Basurero
 	{true, true, -532.029846, -97.514228, 63.296875, 0, true, 61, -532.029846, -97.514228, 63.296875}, //talador
@@ -1188,6 +1188,8 @@ new San_Andreas_Barriers[][San_Andreas_Barriers_Info] = // usar VEHICLE_TYPE_NON
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, 2238.19897, 2450.41797, 9.80680, -90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0}, // barrera POLICIA LV
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, -1572.20313, 658.83588, 6.07810, -90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0}, // barrera POLICIA SF 1
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, -1701.42969, 687.59381, 23.88280, 90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0} // barrera POLICIA SF 2
+
+	//{VEHICLE_TYPE_NONE, WORK_NONE, WORK_NONE, }
 };
 
 #define MAX_BOOT_SLOTS	20
@@ -2143,7 +2145,7 @@ new SAFE_ZONES[][enum_SAFE_ZONES] =
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -613.953796, -209.777252, -381.961181, -6.355076, 0, 0},
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -115.255050, -1211.812377, -54.539089, -1179.635253, 0, 0},
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1205.5, -1704.5, 1293.5, -1614.5, 0, 0}, //Spawn Inicial
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1582.5, -2176.5, 1653.5, -2139.5, 0, 0}
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1582.5, 1905.5, -1826.5, 1952.5, -1796.5, 0, 0}
 };
 
 /* Rangos Policias */
@@ -2595,17 +2597,17 @@ new Truck_Contents[][Truck_Content_Info] =
 /* Mecánico */
 new Float:MechanicStartWorkingCoords[1][3] =
 {
-	{1617.2277, -2161.6401, 13.6650}
+	{1929.8110, -1814.7921, 13.6063}
 };
 
 new Float:MechanicBuyPiecesCoords[1][3] =
 {
-	{1595.8967, -2161.2646, 13.6709}
+	{1923.0374, -1820.3766, 13.6063}
 };
 
 new Float:MechanicBuyKitsCoords[][3] = 
 {
-	{1627.8218, -2161.5723, 13.6650}
+	{1930.3470, -1820.8022, 13.6063}
 };
 
 /* talador */
@@ -30239,7 +30241,7 @@ stock LoadServerInfo()
 	}
 
 	//Mecánico
-	Mechanic_Areas[0] = CreateDynamicRectangle(1582.5, -2176.5, 1653.5, -2139.5, 0, 0);
+	Mechanic_Areas[0] = CreateDynamicRectangle(1905.5, -1826.5, 1952.5, -1796.5, 0, 0);
 	Streamer_SetArrayData(STREAMER_TYPE_AREA, Mechanic_Areas[0], E_STREAMER_EXTRA_ID, { AREA_TYPE_MECHANIC });
 
 	for(new i; i != sizeof MechanicStartWorkingCoords; i++)
