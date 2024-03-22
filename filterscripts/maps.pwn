@@ -5558,6 +5558,7 @@ public OnFilterScriptInit()
 	for(new i = 0; i < sizeof(g_Blocker); i++) g_Blocker[i] = 0;
 	for(new i = 0; i < sizeof(g_Object); i++) g_Object[i] = 0;
 	for(new i = 0; i < sizeof(AT_bank_int); i++) AT_bank_int[i] = 0;
+	tmpobjid = 0;
 	return 1;
 }
 
