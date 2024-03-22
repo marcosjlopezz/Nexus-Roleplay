@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.0 Alpha"
+#define SERVER_VERSION			"2.0.1 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -25748,7 +25748,7 @@ CMD:nivel(playerid, params[])
 
 	new 
 		action[64],
-		message[512];
+		message[1024];
 
 	if(params[1] == 0)
 	{
@@ -25770,8 +25770,8 @@ CMD:nivel(playerid, params[])
 		format(action, sizeof action, "le pone nivel de busqueda a %s.", pTemp(params[0])[pt_NAME]);
 		
 		SendClientMessagef(playerid, -1, "Has asignado nivel de busqueda %d a %s.", params[1], pTemp(params[0])[pt_NAME]);
-		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}visto por ultima vez en {"#SWAT_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
-		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}visto por ultima vez en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}Ubicación: {"#SWAT_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}Ubicación: {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
 	}
 
 	Auto_SendPlayerAction(playerid, action);
@@ -29832,7 +29832,7 @@ stock LoadServerInfo()
 	{
 		new police_v_info[3]; //PICKUP_TYPE_POLICE_VEHICLES //PICKUP_TYPE_POLICE_AIR_VEHICLE
 
-		CreateDynamic3DTextLabel("{"#POLICE_COLOR"}Policia\n"COME_INTERACTION_MESSAGE"para sacar vehiculos", 0xFFFFFFFF, POLICE_VEHICLES_SPAWN[i][0], POLICE_VEHICLES_SPAWN[i][1], POLICE_VEHICLES_SPAWN[i][2], 5.0, .testlos = true, .worldid = -1, .interiorid = -1);
+		CreateDynamic3DTextLabel("{"#POLICE_COLOR"}Policia\n"COME_INTERACTION_MESSAGE"para sacar vehiculos", 0xFFFFFFFF, POLICE_VEHICLES_SPAWN[i][0], POLICE_VEHICLES_SPAWN[i][1], POLICE_VEHICLES_SPAWN[i][2], 25.0, .testlos = true, .worldid = -1, .interiorid = -1);
 		new police_pck = CreateDynamicPickup(0, 1, POLICE_VEHICLES_SPAWN[i][0], POLICE_VEHICLES_SPAWN[i][1], POLICE_VEHICLES_SPAWN[i][2], -1, -1);
 
 		police_v_info[0] = PICKUP_TYPE_POLICE_VEHICLES;
