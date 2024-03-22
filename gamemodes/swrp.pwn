@@ -22778,7 +22778,7 @@ CMD:cepo(playerid, params[]) {
 	return 1;
 }
 
-CMD:abrir(playerid, params[])
+CMD:seguro(playerid, params[])
 {
 	new vehicleid = INVALID_VEHICLE_ID;
 	if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER || GetPlayerState(playerid) == PLAYER_STATE_PASSENGER) vehicleid = GetPlayerVehicleID(playerid);
@@ -22788,40 +22788,31 @@ CMD:abrir(playerid, params[])
 	if(!PLAYER_VEHICLES[vehicleid][player_vehicle_VALID]) return SendClientMessagef(playerid, -1, "Este no es tu vehículo.");
 	if(PLAYER_VEHICLES[vehicleid][player_vehicle_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Este no es tu vehículo.");
 	
-	if(!PI[playerid][pVIP] && !PLAYER_VEHICLES[vehicleid][player_vehicle_ACCESSIBLE])
+	if(GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_DOORS])
 	{
-		SendClientMessagef(playerid, -1, "Este vehículo está bloqueado, desbloquealo con VIP.");
-		SendClientMessagef(playerid, -1, "¡Los jugadores VIP pueden tener hasta %d vehículos! Usa /ayuda si quieres ser VIP.", MAX_VIP_VEHICLES);
-		return 1;
+		if(!PI[playerid][pVIP] && !PLAYER_VEHICLES[vehicleid][player_vehicle_ACCESSIBLE])
+		{
+			SendClientMessagef(playerid, -1, "Este vehículo está bloqueado, desbloquealo con VIP.");
+			SendClientMessagef(playerid, -1, "¡Los jugadores VIP pueden tener hasta %d vehículos! Usa /ayuda si quieres ser VIP.", MAX_VIP_VEHICLES);
+			return 1;
+		}
+
+		GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_DOORS] = 0;
+		UpdateVehicleParams(vehicleid);
+
+		SendClientMessagef(playerid, -1, "Has abierto las puertas de tu vehículo.");
+		Auto_SendPlayerAction(playerid, "ha abierto las puertas de su vehículo.");
 	}
-	
-	if(!GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_DOORS]) return SendClientMessagef(playerid, -1, "Las puertas de tu vehículo ya están abiertas.");
-	
-	GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_DOORS] = 0;
-	UpdateVehicleParams(vehicleid);
+	else
+	{
+		GLOBAL_VEHICLES[vehicleid][gb_vehicle_LAST_CLOSED_TIME] = gettime();
+		GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_DOORS] = 1;
+		UpdateVehicleParams(vehicleid);
 
-	SendClientMessagef(playerid, -1, "Has abierto las puertas de tu vehículo.");
-	Auto_SendPlayerAction(playerid, "ha abierto las puertas de su vehículo.");
-	return 1;
-}
+		SendClientMessagef(playerid, -1, "Has cerrado las puertas de tu vehículo.");
+		Auto_SendPlayerAction(playerid, "ha cerrado las puertas de su vehículo.");
+	}
 
-CMD:cerrar(playerid, params[])
-{
-	new vehicleid = INVALID_VEHICLE_ID;
-	if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER || GetPlayerState(playerid) == PLAYER_STATE_PASSENGER) vehicleid = GetPlayerVehicleID(playerid);
-	else if(GetPlayerState(playerid) == PLAYER_STATE_ONFOOT) vehicleid = GetNearVehicle(playerid);
-		
-	if(vehicleid == INVALID_VEHICLE_ID) return SendClientMessagef(playerid, -1, "No estás en tu vehículo o cerca de él para abrirlo.");
-	if(!PLAYER_VEHICLES[vehicleid][player_vehicle_VALID]) return SendClientMessagef(playerid, -1, "Este no es tu vehículo.");
-	if(PLAYER_VEHICLES[vehicleid][player_vehicle_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Este no es tu vehículo.");
-	if(GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_DOORS]) return SendClientMessagef(playerid, -1, "Las puertas de tu vehículo ya están cerradas.");
-	
-	GLOBAL_VEHICLES[vehicleid][gb_vehicle_LAST_CLOSED_TIME] = gettime();
-	GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_DOORS] = 1;
-	UpdateVehicleParams(vehicleid);
-
-	SendClientMessagef(playerid, -1, "Has cerrado las puertas de tu vehículo.");
-	Auto_SendPlayerAction(playerid, "ha cerrado las puertas de su vehículo.");
 	return 1;
 }
 
