@@ -46,7 +46,7 @@ AntiAmx()
 #include <discord-connector>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.0.1 Alpha"
+#define SERVER_VERSION			"2.0.2 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -4251,9 +4251,17 @@ public OnPlayerDisconnect(playerid, reason)
 			GLOBAL_VEHICLES[ vehicleid ][gb_vehicle_OCCUPIED] = false;
 		}
 	}
+
 	if(PlayerTemp[playerid][pt_LAST_VEHICLE_ID] != INVALID_VEHICLE_ID)
 	{
 		if(GLOBAL_VEHICLES[ PlayerTemp[playerid][pt_LAST_VEHICLE_ID] ][gb_vehicle_LAST_DRIVER] == playerid) GLOBAL_VEHICLES[ PlayerTemp[playerid][pt_LAST_VEHICLE_ID] ][gb_vehicle_LAST_DRIVER] = INVALID_PLAYER_ID;
+	}
+
+	if(pTemp(playerid)[pt_VEHICLE_SPAWNED] != INVALID_VEHICLE_ID)
+	{
+		ClearVehicleGlobalInfo(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+		DestroyVehicleEx(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+		pTemp(playerid)[pt_VEHICLE_SPAWNED] = INVALID_VEHICLE_ID;
 	}
 
 	PlayerTemp[playerid][pt_TIME_PASSED_LAST_REP] = gettime() * 1000 - PlayerTemp[playerid][pt_TIME_PASSED_LAST_REP];
@@ -28968,6 +28976,13 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 		}
 	}
 	
+	if(pTemp(playerid)[pt_VEHICLE_SPAWNED] != INVALID_VEHICLE_ID)
+	{
+		ClearVehicleGlobalInfo(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+		DestroyVehicleEx(pTemp(playerid)[pt_VEHICLE_SPAWNED]);
+		pTemp(playerid)[pt_VEHICLE_SPAWNED] = INVALID_VEHICLE_ID;
+	}
+
 	EnablePlayerArmedWeapons(playerid);
 	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pworks SET level = %d WHERE id_player = %d AND id_work = %d;", PLAYER_WORKS[playerid][ PlayerTemp[playerid][pt_WORKING_IN] ][pwork_LEVEL], PI[playerid][pID], PlayerTemp[playerid][pt_WORKING_IN]);
 	mysql_tquery(handle_db, QUERY_BUFFER);
