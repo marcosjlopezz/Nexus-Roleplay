@@ -25769,8 +25769,8 @@ CMD:nivel(playerid, params[])
 		format(action, sizeof action, "le pone nivel de busqueda a %s.", pTemp(params[0])[pt_NAME]);
 		
 		SendClientMessagef(playerid, -1, "Has asignado nivel de busqueda %d a %s.", params[1], pTemp(params[0])[pt_NAME]);
-		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}Ubicación: {"#SWAT_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
-		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}Ubicación: {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}ubicación: {"#SWAT_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}ubicación: {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], params[1], city, zone);
 	}
 
 	Auto_SendPlayerAction(playerid, action);
