@@ -5682,5 +5682,25 @@ public OnPlayerConnect(playerid)
 	RemoveBuildingForPlayer(playerid, 4192, 1591.699, -1674.849, 20.492, 0.250);
 	RemoveBuildingForPlayer(playerid, 3975, 1578.469, -1676.420, 13.070, 0.250);
 	RemoveBuildingForPlayer(playerid, 4063, 1578.469, -1676.420, 13.070, 0.250);
+
+	//Mecanico
+	RemoveBuildingForPlayer(playerid, 3336, 1648.530, 304.132, 29.523, 0.250);
+	RemoveBuildingForPlayer(playerid, 1290, 1662.050, 299.625, 35.515, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1943.689, -1797.420, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1948.979, -1797.420, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1951.609, -1800.060, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1308, 1952.030, -1801.020, 11.718, 0.250);
+	RemoveBuildingForPlayer(playerid, 1308, 1971.160, -1826.699, 12.695, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1951.609, -1805.329, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1951.609, -1810.589, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1951.609, -1815.859, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1951.609, -1821.130, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1938.390, -1797.420, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1933.130, -1797.420, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1927.849, -1797.420, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1922.589, -1797.420, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1917.319, -1797.420, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1912.050, -1797.420, 13.812, 0.250);
+	RemoveBuildingForPlayer(playerid, 1412, 1906.770, -1797.420, 13.812, 0.250);
 	return 1;
 }
