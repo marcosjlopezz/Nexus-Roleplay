@@ -10,7 +10,7 @@ hook OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY, 
 
                     if(now > ENTER_EXIT[enterExitIndex][ee_LAST_ROBBERY] + 1800) { // 30 min
                         new attackers_in_shop = CountCrewPlayersInShop(crewIndex, enterExitIndex);
-                        if(attackers_in_shop >= 2) {
+                        if(attackers_in_shop >= 1) {
                             //COMENZAR ATRACO
                             StartShopAttack(crewIndex, enterExitIndex);
                             return Y_HOOKS_CONTINUE_RETURN_1;
@@ -153,9 +153,9 @@ public UpdateShopAttack(crew_index, enter_exit_index) {
             GetDynamicActorPos(ENTER_EXIT[enter_exit_index][ee_MAIN_ACTOR], x, y, z);
         }
 
-        new prize = minrand(2500, 3000);
+        new prize = minrand(5000, 7000);
         new prize_message[64];
-		format(prize_message, sizeof prize_message, "{"#SILVER_COLOR"}Has ganado %d$ por robar esta tienda.", prize);
+		format(prize_message, sizeof prize_message, "{"#SILVER_COLOR"}Has ganado %d DN$ por robar esta tienda.", prize);
 
         new message_police[145], city[45], zone[45];
         GetPointZone(ENTER_EXIT[enter_exit_index][ee_EXT_X], ENTER_EXIT[enter_exit_index][ee_EXT_Y], city, zone);
@@ -169,7 +169,7 @@ public UpdateShopAttack(crew_index, enter_exit_index) {
                 {
                     PlayerPlaySoundEx(i, 3401, x, y, z);
                     if(PI[i][pCREW] && PLAYER_TEMP[i][pt_CREW_INDEX] == crew_index) {
-                        GivePlayerCash(i, prize, true, false);
+                        GivePlayerBlackCash(i, prize, true, false);
 						SendClientMessage(i, -1, prize_message);
 
                         if(PI[i][pWANTED_LEVEL] < 3)

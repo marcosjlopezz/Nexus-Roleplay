@@ -101,13 +101,14 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 
                 if(GetPlayerInterior(playerid) == weaponInfo[dw_INTERIOR] && GetPlayerVirtualWorld(playerid) == weaponInfo[dw_WORLD] && IsPlayerInRangeOfPoint(playerid, 1.0, weaponInfo[dw_X], weaponInfo[dw_Y], weaponInfo[dw_Z])) 
                 {
-                    if(PI[playerid][pLEVEL] < 3) SendClientMessagef(playerid, -1, "Deber ser nivel 3 o superior para poder recoger armas del suelo.");
+                    if(PI[playerid][pLEVEL] < 3) SendClientMessagef(playerid, 0xCCCCCC, "Deber ser nivel 3 o superior para poder recoger armas del suelo.");
                     else 
                     {
                         new weapon_slot = WEAPON_INFO[ weaponInfo[dw_WEAPONID] ][weapon_info_SLOT];
-                        if(PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] != 0) 
+
+                        if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE && PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] != 0) 
                         {
-                            SendClientMessagef(playerid, -1, "Para recoger esta arma debes deshacerte de tu \"%s (%d)\"~w~ para tener espacio.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] ][weapon_info_NAME], weapon_slot);						
+                            SendClientMessagef(playerid, -1, "Para recoger esta arma debes deshacerte de tu {"#GOLD_COLOR"}%s (%d){ffffff} para tener espacio.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][weapon_slot][player_weapon_ID] ][weapon_info_NAME], weapon_slot);						
                         }
                         else 
                         {
@@ -121,8 +122,8 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
                                 Auto_SendPlayerAction(playerid, "recoge un objeto del suelo y lo guarda en una bolsa.");
                                 Streamer_Update(playerid);
 
-                                GivePlayerCash(playerid, 150);
-                                SendMessage(playerid, "Has ganado 150$ por confiscar el arma.");
+                                GivePlayerCash(playerid, 50);
+                                SendMessage(playerid, "Has ganado 50$ por confiscar el arma.");
                             }
                             else
                             {

@@ -16,11 +16,13 @@ hook OnPlayerSpawn(playerid)
         SendAlertToMedics(playerid);
         TogglePlayerControllableEx(playerid, false);
         KillTimer(PLAYER_TEMP[playerid][pt_TIMERS][3]);
-        PLAYER_TEMP[playerid][pt_TIMERS][3] = SetTimerEx("TogglePlayerControl", 2000, false, "ib", playerid, true);
+        PLAYER_TEMP[playerid][pt_TIMERS][3] = SetTimerEx("TogglePlayerControl", seconds(5), false, "ib", playerid, true);
         
-        ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
         if(PI[playerid][pWANTED_LEVEL] > 0) SendClientMessagef(playerid, -1, "Estás herido y en búsqueda, espera a que la policía venga a por ti.");
         else SendClientMessagef(playerid, -1, "Estás herido, espera a que venga un medico.");
+
+        SetPlayerPosEx(playerid, PLAYER_TEMP[playerid][pt_INJURED_POS][0], PLAYER_TEMP[playerid][pt_INJURED_POS][1], PLAYER_TEMP[playerid][pt_INJURED_POS][2], PLAYER_TEMP[playerid][pt_INJURED_POS][3], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid), 0, 1);
+        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
     }
 }
 

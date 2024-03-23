@@ -44,9 +44,10 @@ AntiAmx()
 #include <mobile>
 #include <eSelection>
 #include <discord-connector>
+#include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.0.2 Alpha"
+#define SERVER_VERSION			"2.1 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -172,6 +173,8 @@ new Welcome_Messages[][] =
 
 #define PRESSED(%0) (((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 #define RELEASED(%0) (((newkeys & (%0)) != (%0)) && ((oldkeys & (%0)) == (%0)))
+
+#define	seconds(%0)	%0 * 1000
 
 main() {}
 
@@ -4116,7 +4119,7 @@ new ADMIN_LEVELS[][] =
 
 public OnPlayerConnect(playerid)
 {
-	if(IsPlayerNPC(playerid)) Kick(playerid);
+	//if(IsPlayerNPC(playerid)) Kick(playerid);
 	ClearPlayerTempData(playerid);
 
 	PlayerTemp[playerid][pt_GAME_STATE] = GAME_STATE_CONNECTED;
@@ -4463,6 +4466,7 @@ public OnPlayerSpawn(playerid)
 		ApplyAnimation(playerid,"POLICE","null",0.0,0,0,0,0,0);
 
 		PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
+		pTemp(playerid)[pt_TASER_GUN] = false;
 		
 		TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
 		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "{d1d1d1}Bienvenido, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs\ny damos recompensa por encontrar bugs a los que son Asistentes\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
@@ -4734,6 +4738,7 @@ hook OnPlayerDeath(playerid, killerid, reason)
 	PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_NOFUEL][p_ac_info_IMMUNITY] = gettime() + 15;
 	if(!PI[playerid][pVIP]) SetPlayerArmourEx(playerid, 0.0);
+	pTemp(playerid)[pt_TASER_GUN] = false;
 
 	for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
 	{
@@ -25820,6 +25825,12 @@ CMD:esposar(playerid, params[])
 		{
 			ClearAnimations(playerid);
 			CuffPlayer(params[0]);
+
+			new str_text[445];
+			SendPlayerAction(playerid, "saca sus esposas y rapidamente se las coloca al sujeto.");
+			format(str_text, sizeof(str_text), "* %s (( ¿Pondra resistencia? Si esta abatido entonces NO! ))", PlayerTemp[playerid][pt_NAME]);
+			ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+
 			KillTimer(pTemp(params[0])[pt_TASSED]);
 			pTemp(params[0])[pt_TASSED] = -1;
 			pTemp(params[0])[pt_TASSED_TIME] = 0;
@@ -25831,7 +25842,7 @@ CMD:esposar(playerid, params[])
 
 			new str_text[445];
 			SendPlayerAction(playerid, "saca sus esposas y rapidamente se las coloca al sujeto.");
-			format(str_text, sizeof(str_text), "* %s (( ¿Pondra resistencia? Si esta abatido entonces no ))", PlayerTemp[playerid][pt_NAME]);
+			format(str_text, sizeof(str_text), "* %s (( ¿Pondra resistencia? Si esta abatido entonces NO! ))", PlayerTemp[playerid][pt_NAME]);
 			ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
 			
 			pTemp(params[0])[pt_CUFFED] = false;
@@ -26338,18 +26349,33 @@ CMD:entregar(playerid, params[])
 	
 	if(IsPlayerInRangeOfPoint(playerid, 20.0, 1564.971923, -1694.916381, 5.617697) || IsPlayerInRangeOfPoint(playerid, 20.0, 6808.6948, 5335.9800 ,14.9625))
 	{
+		new message[1024];
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}estado: {"#SWAT_COLOR"}Entregado.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], PI[params[0]][pADMIN_LEVEL]);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}Estado: {"#POLICE_COLOR"}Entregado.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], PI[params[0]][pADMIN_LEVEL]);
+		SendPoliceRadioMessage(-1, -1, message);
+		
 		SendClientMessagef(playerid, -1, "La persona ahora está en la cárcel.");
 		PI[params[0]][pPOLICE_JAIL_ID] = 0;
 		JailPlayer(params[0]);
 	}
 	else if(IsPlayerInRangeOfPoint(playerid, 20.0, -1589.333496, 716.759521, -5.515106) || IsPlayerInRangeOfPoint(playerid, 20.0, 6005.6670, 4917.3179, 23.0543))
 	{
+		new message[1024];
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}estado: {"#SWAT_COLOR"}Entregado.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], PI[params[0]][pADMIN_LEVEL]);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}Estado: {"#POLICE_COLOR"}Entregado.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], PI[params[0]][pADMIN_LEVEL]);
+		SendPoliceRadioMessage(-1, -1, message);
+		
 		SendClientMessagef(playerid, -1, "La persona ahora está en la cárcel.");
 		PI[params[0]][pPOLICE_JAIL_ID] = 1;
 		JailPlayer(params[0]);
 	}
 	else if(IsPlayerInRangeOfPoint(playerid, 20.0, 2282.200439, 2431.598632, 3.000518) || IsPlayerInRangeOfPoint(playerid, 20.0, 4405.0625, 5969.0493, 59.0018))
 	{
+		new message[1024];
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}estado: {"#SWAT_COLOR"}Entregado.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], PI[params[0]][pADMIN_LEVEL]);
+		else format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s reporta: {"#POLICE_COLOR"}%s (%d*) {FFFFFF}Estado: {"#POLICE_COLOR"}Entregado.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], PI[params[0]][pADMIN_LEVEL]);
+		SendPoliceRadioMessage(-1, -1, message);
+		
 		SendClientMessagef(playerid, -1, "La persona ahora está en la cárcel.");
 		PI[params[0]][pPOLICE_JAIL_ID] = 2;
 		JailPlayer(params[0]);
@@ -26597,11 +26623,13 @@ JailPlayer(playerid, time = 0)
 	PI[playerid][pSTATE] = ROLEPLAY_STATE_JAIL;
 
 	if(time)
+	{
 		PI[playerid][pPOLICE_JAIL_TIME] = time;
+	}
 	else
 	{	
-		if(PI[playerid][pVIP]) PI[playerid][pPOLICE_JAIL_TIME] = 150 * PI[playerid][pWANTED_LEVEL];
-		else PI[playerid][pPOLICE_JAIL_TIME] = 300 * PI[playerid][pWANTED_LEVEL];
+		if(PI[playerid][pVIP]) PI[playerid][pPOLICE_JAIL_TIME] = 60/*180 * PI[playerid][pWANTED_LEVEL]*/;
+		else PI[playerid][pPOLICE_JAIL_TIME] = 60/*900 * PI[playerid][pWANTED_LEVEL]*/;
 	}
 
 	SetPlayerWantedLevelEx(playerid, 0);
@@ -26617,6 +26645,7 @@ JailPlayer(playerid, time = 0)
 	DisablePlayerPoliceMark(playerid);
 	DeleteIlegalInv(playerid);
 	HidePlayerDialog(playerid);
+	pTemp(playerid)[pt_TASER_GUN] = false;
 	return 1;
 }
 
@@ -28918,6 +28947,8 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 		case WORK_POLICE:
 		{
 			PlayerTemp[playerid][pt_POLICE_RADIO] = 0;
+			pTemp(playerid)[pt_TASER_GUN] = false;
+			PlayerTemp[playerid][pt_REQUEST_HELP] = false;
 			
 			if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]))
 			{
@@ -28933,6 +28964,7 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 			}
 
 			SetNormalPlayerMarkers(playerid);
+			SetPlayerNormalColor(playerid);
 		}
 		case WORK_MECHANIC:
 		{
@@ -30326,6 +30358,15 @@ stock LoadServerInfo()
 	
 	//Cosechador
 	Harvest_Area = CreateDynamicRectangle(-428.336059, -1667.658569, -116.565414, -1220.122070, 0, 0);
+
+	FO_SetMode(FO_RELATIVE);
+	SetTimer("UpdateFOPlayers", seconds(30), true);
+	return 1;
+}
+
+callbackp:UpdateFOPlayers()
+{
+	FO_SetValue(3 + minrand(5, 7));
 	return 1;
 }
 	
