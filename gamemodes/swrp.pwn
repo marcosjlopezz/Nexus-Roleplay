@@ -6067,7 +6067,7 @@ ptask AutoSavePlayerData[30000](playerid)
 	}
 }
 
-ptask UpdatePlayerInfo[1000](playerid)
+ptask UpdatePlayerInfo[250](playerid)
 {
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
@@ -30360,13 +30360,14 @@ stock LoadServerInfo()
 	Harvest_Area = CreateDynamicRectangle(-428.336059, -1667.658569, -116.565414, -1220.122070, 0, 0);
 
 	FO_SetMode(FO_RELATIVE);
-	SetTimer("UpdateFOPlayers", seconds(30), true);
+	FO_SetValue((3 + random(9)));
+	SetTimer("UpdateFOPlayers", 60000, true);
 	return 1;
 }
 
 callbackp:UpdateFOPlayers()
 {
-	FO_SetValue(3 + minrand(5, 7));
+	FO_SetValue((8 + random(9)));
 	return 1;
 }
 	
