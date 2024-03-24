@@ -47,7 +47,7 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.1 Alpha"
+#define SERVER_VERSION			"2.2 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -19619,6 +19619,14 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	{
 		if(PI[playerid][pLEVEL] == 1 && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_NONE) ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
 	}
+	else if(newkeys & KEY_JUMP)
+	{
+		if(PlayerTemp[playerid][pt_CUFFED] && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_NONE)
+		{
+			FreezePlayer(playerid, 500);
+			ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
+		}
+	}
 	else if(newkeys & KEY_CROUCH)
 	{
 		if(PlayerTemp[playerid][pt_GAME_STATE] == GAME_STATE_NORMAL)
@@ -21200,16 +21208,6 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 			}
 		}
 
-		if(pTemp(playerid)[pt_CUFFED])
-		{
-			new Float:sx, Float:sy, Float:sz;
-			GetPlayerPos(playerid, sx, sy, sz);
-	
-			RemovePlayerFromVehicle(playerid);
-			SetPlayerPos(playerid, sx, sy, sz);
-			ResyncPlayer(playerid);
-		}
-
 		SetPlayerArmedWeapon(playerid, 0);
 		PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_HEALTH][p_ac_info_IMMUNITY] = gettime() + 3;
 		PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
@@ -21981,6 +21979,13 @@ hook OnPlayerEnterVehicle(playerid, vehicleid, ispassenger)
 			SetPlayerPos(playerid, sx, sy, sz);
 			return 1;
 		}
+	}
+
+	if(PlayerTemp[playerid][pt_CUFFED])
+	{
+		RemovePlayerFromVehicle(playerid);
+		SetPlayerPos(playerid, sx, sy, sz);
+		return 1;
 	}
 	
 	if(!ispassenger)
