@@ -28123,6 +28123,8 @@ CMD:givecashall(playerid, params[])
 
 	if(PI[playerid][pADMIN_LEVEL] <= CMD_ADMINISTRATOR)
 	{
+		if(PI[playerid][pCASH] < value) return SendMessage(playerid, "No tienes esa cantidad de dinero en mano.");
+
 		if(value > 5000)
 		{
 			SendClientMessagef(playerid, 0xCCCCCCCC, "Solo puedes dar como maximo 5000$.");
@@ -28135,6 +28137,8 @@ CMD:givecashall(playerid, params[])
 			SendClientMessagef(playerid, 0xCCCCCCCC, "Tienes que esperar %s minutos para volver a dar dinero.", TimeConvert(time));
 			return 1;
 		}
+
+		GivePlayerCash(playerid, -value, true, true);
 	}
 
 	LoopEx(i, MAX_PLAYERS, 0)
@@ -28258,6 +28262,19 @@ CMD:rep(playerid, params[])
 	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
 
 	AddPlayerReputation(to_playerid);
+	SendMessage(to_playerid, "Un administrador te ha regalado Experiencia.");
+	return 1;
+}
+
+CMD:repall(playerid, params[])
+{
+	LoopEx(i, MAX_PLAYERS, 0)
+	{
+		if(!IsPlayerConnected(i)) continue;
+		
+		AddPlayerReputation(i);
+		SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha regalado +1 de Experiencia a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME]);
+	}
 	return 1;
 }
 
@@ -28297,11 +28314,9 @@ CMD:dv(playerid, params[])
 	return 1;
 }
 
-CMD:restart(playerid, params[])
+CMD:close(playerid, params[])
 {
 	mysql_tquery(handle_db, "UPDATE player SET connected = 0, playerid = 0;");
-	LoopEx(i, MAX_PLAYERS, 0) Kick(i);
-	wait_ms(500);
 	SendRconCommand("exit");
 	return 1;
 }
@@ -31177,7 +31192,7 @@ GetFreePoliceObjectSlot()
 	return -1;
 }
 
-CMD:borrarop(playerid, params[])
+CMD:removec(playerid, params[])
 {
 	new affected_objects;
 	for(new i = 0; i != MAX_POLICE_OBJECTS; i ++)
@@ -31192,7 +31207,7 @@ CMD:borrarop(playerid, params[])
 	}
 	
 	SendClientMessagef(playerid, -1, "Se han eliminado todos los objetos policiales, %d objetos afectados.", affected_objects);
-	SendCmdLogToAdmins(playerid, "borrarop", params);
+	SendCmdLogToAdmins(playerid, "removec", params);
 	return 1;
 }
 
@@ -31740,7 +31755,7 @@ flags:rac2(CMD_GLOBAL_MODERATOR);
 flags:rv(CMD_GLOBAL_MODERATOR);
 flags:repairveh(CMD_GLOBAL_MODERATOR);
 flags:revivir(CMD_GLOBAL_MODERATOR);
-flags:borrarop(CMD_GLOBAL_MODERATOR);
+flags:removec(CMD_GLOBAL_MODERATOR);
 flags:historial(CMD_GLOBAL_MODERATOR);
 flags:getversion(CMD_GLOBAL_MODERATOR);
 flags:ban(CMD_GLOBAL_MODERATOR);
@@ -31777,7 +31792,7 @@ flags:setworkexp(CMD_OWNER);
 flags:setcash(CMD_OWNER);
 flags:givecash(CMD_OWNER);
 flags:spos(CMD_OWNER);
-flags:restart(CMD_OWNER);
+flags:close(CMD_OWNER);
 flags:setname(CMD_OWNER);
 flags:exproperty(CMD_OWNER);
 flags:gotoproperty(CMD_OWNER);
@@ -31803,6 +31818,7 @@ flags:anim(CMD_OWNER);
 flags:anmindex(CMD_OWNER);
 flags:cobject(CMD_OWNER);
 flags:rep(CMD_OWNER);
+flags:repall(CMD_OWNER);
 flags:setfdrum(CMD_OWNER);
 
 getPhoneNumber(dbid)
