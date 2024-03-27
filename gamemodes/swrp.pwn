@@ -141,6 +141,8 @@ AntiAmx()
 
 #define COME_INTERACTION_MESSAGE	"{"#PRIMARY_COLOR"}Acercate{ffffff} "
 
+#define SKIN_ASSETS					"https://assets.open.mp/assets/images/skins/%d.png"
+
 #define PlayerTemp					PLAYER_TEMP
 #define pInfo(%0)[%1]				PI[%0][%1]
 #define pTemp(%0)[%1]				PLAYER_TEMP[%0][%1]
@@ -5939,6 +5941,7 @@ CMD:tg(playerid, params[])
 
 	new message[445]; format(message, 445, "[Telegram] • {ffffff}#{2AABEE}%s {ffffff}(%d): %s", pTemp(playerid)[pt_NAME], playerid, params[0]);
 	SendMessageToGlobalChannel(playerid, message);
+	SendGlobalMessageToDiscord(playerid, params[0], false);
 	return 1;
 }
 alias:tg("telegram");
@@ -5966,6 +5969,7 @@ CMD:atg(playerid, params[])
 
 	new message[445]; format(message, 445, "[Telegram] • {666666}[#:%d]: {ffffff}%s", PI[playerid][pID], params[0]);
 	SendMessageToGlobalChannel(playerid, message);
+	SendGlobalMessageToDiscord(playerid, params[0], true);
 	return 1;
 }
 alias:atg("atelegram");
