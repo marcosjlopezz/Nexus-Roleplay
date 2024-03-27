@@ -5880,6 +5880,35 @@ CMD:duda(playerid, params[])
 	return 1;
 }
 
+CMD:dresponder(playerid, params[])
+{
+	if(!PI[playerid][pDOUBT_CHANNEL]) return SendMessagef(playerid, "Para enviar una duda primero debes activar el canal de dudas con /panel");
+	
+	new to_playerid, message[256];
+	if(sscanf(params, "us[256]", to_playerid, message)) return ErrorCommandParams(playerid, "/dresponder [playerid] [mensaje]");
+
+	if(PI[playerid][pMUTE] > gettime())
+	{
+		new seconds = PI[playerid][pMUTE] - gettime();
+		SendClientMessagef(playerid, 0xCCCCCCCC, "Estás silenciado en el canal de dudas por %s minutos.", TimeConvert(seconds));
+		return 1;
+	}
+
+	if(!PI[playerid][pADMIN_LEVEL])
+	{
+		if(gettime() < PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] + MIN_TIME_BETWEEN_DOUBT)
+		{
+			new time = (MIN_TIME_BETWEEN_DOUBT-(gettime()-PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME]));
+			SendClientMessagef(playerid, 0xCCCCCCCC, "Tienes que esperar %s minutos para responder a este jugador.", TimeConvert(time));
+			return 1;
+		}
+	}
+
+	format(message, sizeof(message), "@%d | %s", to_playerid, message);
+ 	SendMessageToDoubtChannel(playerid, message, true);
+	return 1;
+}
+
 CMD:tg(playerid, params[])
 {
 	if(PI[playerid][pLEVEL] < 3) return SendMessage(playerid, "Debes ser nivel 3 o superior para usar el canal global.");
@@ -31063,11 +31092,19 @@ public OnPlayerCommandPerformed(playerid, cmd[], params[], result, flags)
     return 1; 
 }
 
-SendMessageToDoubtChannel(playerid, message[])
+SendMessageToDoubtChannel(playerid, message[], bool:resp = false)
 {
 	new str[445];
-	if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "[Canal /duda | %s] {"#BLUE_COLOR"}%s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PlayerTemp[playerid][pt_NAME], playerid, message);
-	else format(str, 445, "[Canal /duda | Nivel: %d] {"#BLUE_COLOR"}%s (%d): %s", PI[playerid][pLEVEL], PlayerTemp[playerid][pt_NAME], playerid, message);
+	if(!resp)
+	{
+		if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "[OOC | Dudas] %s - %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PlayerTemp[playerid][pt_NAME], playerid, message);
+		else format(str, 445, "[OOC | Dudas] Nivel: %s - %s (%d): %s", PI[playerid][pLEVEL], PlayerTemp[playerid][pt_NAME], playerid, message);
+	}
+	else
+	{
+		if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "[OOC | Respuesta] %s - %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PlayerTemp[playerid][pt_NAME], playerid, message);
+		else format(str, 445, "[OOC | Respuesta] Nivel: %s - %s (%d): %s", PI[playerid][pLEVEL], PlayerTemp[playerid][pt_NAME], playerid, message);
+	}
 
 	PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();
 	for(new i = 0; i != MAX_PLAYERS; i++)
@@ -31076,7 +31113,7 @@ SendMessageToDoubtChannel(playerid, message[])
 		{
 			if((pTemp(i)[pt_GAME_STATE] == GAME_STATE_NORMAL || pTemp(i)[pt_GAME_STATE] == GAME_STATE_DEAD) && PI[i][pDOUBT_CHANNEL])
 			{
-				SendClientMessage(i, PRIMARY_COLOR2, str);
+				SendClientMessage(i, BLUE_COLOR2, str);
 			}
 		}
 	}
