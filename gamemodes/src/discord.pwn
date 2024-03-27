@@ -15,7 +15,7 @@ SendGlobalMessageToDiscord(playerid, const message[], bool:anonym)
     else format(title, 2000, "Telegram || #%s (%d)", PLAYER_TEMP[playerid][pt_NAME], playerid);
     format(content, 2000, "```yaml\n%s```", message);
 
-    format(skin_url, sizeof skin_url, SKIN_ASSETS, PI[playerid][pSKIN]);
+    format(skin_url, sizeof skin_url, SKIN_ASSETS, GetPlayerSkin(playerid));
 
     new DCC_Embed:GlobalMessage;
     GlobalMessage = DCC_CreateEmbed
