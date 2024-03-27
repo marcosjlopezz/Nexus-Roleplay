@@ -1,6 +1,26 @@
 //Includes
 #include <YSI-Includes\YSI\y_hooks>
 
+//Header
+new DCC_Channel:Discord_Channels[1];
+/* 
+    0 = Global Channel
+*/
+
+new DCC_Guild:Discord_Servers[2];
+/* 
+    0 = Comunity
+    1 = Administration
+*/
+
+/* 
+    SERVER INFO
+
+    Comunity: 1176691877249032243
+    Administration: 1179858986892267520
+
+*/
+
 //Impl
 SendGlobalMessageToDiscord(playerid, const message[], bool:anonym)
 {

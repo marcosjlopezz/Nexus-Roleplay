@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-/*#define MYSQL_HOST "74.208.184.215"
-#define MYSQL_USER "u3_hnCWJKW9od"
-#define MYSQL_DB "s3_swrp_db"
-#define MYSQL_PASS "!10Hhi.N4iZWHhWT4@65N09c"*/
+#define MYSQL_HOST "74.208.14.232"
+#define MYSQL_USER "u4_hSQSuqM3kA"
+#define MYSQL_DB "s4_swrp_db"
+#define MYSQL_PASS "@1U50AVE^4ktFaJqmlcLqUuT"
 
-#define MYSQL_HOST "localhost"
+/*#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""
+#define MYSQL_PASS ""*/
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -172,20 +172,6 @@ new Welcome_Messages[][] =
 	"ha aparecido de la nada!",
 	"se ha integrado en nuestra ciudad."
 };
-
-new DCC_Guild:Discord_Servers[2];
-/* 
-    0 = Comunity
-    1 = Administration
-*/
-
-/* 
-    SERVER INFO
-
-    Comunity: 1176691877249032243
-    Administration: 1179858986892267520
-
-*/
 
 #define PRESSED(%0) (((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 #define RELEASED(%0) (((newkeys & (%0)) != (%0)) && ((oldkeys & (%0)) == (%0)))
