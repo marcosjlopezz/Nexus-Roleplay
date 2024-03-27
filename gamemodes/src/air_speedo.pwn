@@ -18,8 +18,7 @@ new Airports_Areas[][E_Airports_Areas] =
 };
 
 new
-    Text:airSpeedoTd[6],
-    PlayerText:pAirSpeedoTd[MAX_PLAYERS][3] = {{PlayerText:INVALID_TEXT_DRAW, ...}, ...},
+    PlayerText:pAirSpeedoTd[MAX_PLAYERS][2] = {{PlayerText:INVALID_TEXT_DRAW, ...}, ...},
     bool:pAirSpeedo[MAX_PLAYERS],
     bool:pInAirport[MAX_PLAYERS],
     pAirSpeedoTimer[MAX_PLAYERS] = {-1, ...};
@@ -32,90 +31,6 @@ hook OnScriptInit()
         Airports_Areas[i][airport_area_AREAID] = CreateDynamicRectangle(Airports_Areas[i][airport_area_MIN_X], Airports_Areas[i][airport_area_MIN_Y], Airports_Areas[i][airport_area_MAX_X], Airports_Areas[i][airport_area_MAX_Y], 0, 0);
         Streamer_SetArrayData(STREAMER_TYPE_AREA, Airports_Areas[i][airport_area_AREAID], E_STREAMER_EXTRA_ID, { AREA_TYPE_AIRPORT });
     }
-
-    airSpeedoTd[0] = TextDrawCreate(310.000000, 330.000000, "Fondo_Velocidad");
-    TextDrawFont(airSpeedoTd[0], 1);
-    TextDrawLetterSize(airSpeedoTd[0], 0.000000, 2.000000);
-    TextDrawTextSize(airSpeedoTd[0], 0.000000, 126.000000);
-    TextDrawSetOutline(airSpeedoTd[0], 1);
-    TextDrawSetShadow(airSpeedoTd[0], 0);
-    TextDrawAlignment(airSpeedoTd[0], 2);
-    TextDrawColor(airSpeedoTd[0], -1);
-    TextDrawBackgroundColor(airSpeedoTd[0], 255);
-    TextDrawBoxColor(airSpeedoTd[0], 13055);
-    TextDrawUseBox(airSpeedoTd[0], 1);
-    TextDrawSetProportional(airSpeedoTd[0], 1);
-    TextDrawSetSelectable(airSpeedoTd[0], 0);
-
-    airSpeedoTd[1] = TextDrawCreate(310.000000, 372.000000, "Fondo_Gasolina");
-    TextDrawFont(airSpeedoTd[1], 1);
-    TextDrawLetterSize(airSpeedoTd[1], 0.000000, 2.000000);
-    TextDrawTextSize(airSpeedoTd[1], 0.000000, 126.000000);
-    TextDrawSetOutline(airSpeedoTd[1], 1);
-    TextDrawSetShadow(airSpeedoTd[1], 0);
-    TextDrawAlignment(airSpeedoTd[1], 2);
-    TextDrawColor(airSpeedoTd[1], -1);
-    TextDrawBackgroundColor(airSpeedoTd[1], 255);
-    TextDrawBoxColor(airSpeedoTd[1], 13055);
-    TextDrawUseBox(airSpeedoTd[1], 1);
-    TextDrawSetProportional(airSpeedoTd[1], 1);
-    TextDrawSetSelectable(airSpeedoTd[1], 0);
-
-    airSpeedoTd[2] = TextDrawCreate(340.000000, 325.000000, "ld_pool:ball");
-    TextDrawFont(airSpeedoTd[2], 4);
-    TextDrawLetterSize(airSpeedoTd[2], 0.600000, 2.000000);
-    TextDrawTextSize(airSpeedoTd[2], 60.000000, 70.000000);
-    TextDrawSetOutline(airSpeedoTd[2], 1);
-    TextDrawSetShadow(airSpeedoTd[2], 0);
-    TextDrawAlignment(airSpeedoTd[2], 1);
-    TextDrawColor(airSpeedoTd[2], 4095);
-    TextDrawBackgroundColor(airSpeedoTd[2], 255);
-    TextDrawBoxColor(airSpeedoTd[2], 50);
-    TextDrawUseBox(airSpeedoTd[2], 1);
-    TextDrawSetProportional(airSpeedoTd[2], 1);
-    TextDrawSetSelectable(airSpeedoTd[2], 0);
-
-    airSpeedoTd[3] = TextDrawCreate(323.000000, 335.000000, "KTS");
-    TextDrawFont(airSpeedoTd[3], 2);
-    TextDrawLetterSize(airSpeedoTd[3], 0.204166, 1.450000);
-    TextDrawTextSize(airSpeedoTd[3], 400.000000, 17.000000);
-    TextDrawSetOutline(airSpeedoTd[3], 0);
-    TextDrawSetShadow(airSpeedoTd[3], 0);
-    TextDrawAlignment(airSpeedoTd[3], 1);
-    TextDrawColor(airSpeedoTd[3], -1);
-    TextDrawBackgroundColor(airSpeedoTd[3], 255);
-    TextDrawBoxColor(airSpeedoTd[3], 50);
-    TextDrawUseBox(airSpeedoTd[3], 0);
-    TextDrawSetProportional(airSpeedoTd[3], 1);
-    TextDrawSetSelectable(airSpeedoTd[3], 0);
-
-    airSpeedoTd[4] = TextDrawCreate(314.000000, 376.000000, "Litros");
-    TextDrawFont(airSpeedoTd[4], 2);
-    TextDrawLetterSize(airSpeedoTd[4], 0.204166, 1.450000);
-    TextDrawTextSize(airSpeedoTd[4], 400.000000, 17.000000);
-    TextDrawSetOutline(airSpeedoTd[4], 0);
-    TextDrawSetShadow(airSpeedoTd[4], 0);
-    TextDrawAlignment(airSpeedoTd[4], 1);
-    TextDrawColor(airSpeedoTd[4], -1);
-    TextDrawBackgroundColor(airSpeedoTd[4], 255);
-    TextDrawBoxColor(airSpeedoTd[4], 50);
-    TextDrawUseBox(airSpeedoTd[4], 0);
-    TextDrawSetProportional(airSpeedoTd[4], 1);
-    TextDrawSetSelectable(airSpeedoTd[4], 0);
-
-    airSpeedoTd[5] = TextDrawCreate(349.000000, 336.000000, "_");
-    TextDrawFont(airSpeedoTd[5], 4);
-    TextDrawLetterSize(airSpeedoTd[5], 0.204166, 1.450000);
-    TextDrawTextSize(airSpeedoTd[5], 45.000000, 42.000000);
-    TextDrawSetOutline(airSpeedoTd[5], 0);
-    TextDrawSetShadow(airSpeedoTd[5], 0);
-    TextDrawAlignment(airSpeedoTd[5], 1);
-    TextDrawColor(airSpeedoTd[5], -1);
-    TextDrawBackgroundColor(airSpeedoTd[5], 255);
-    TextDrawBoxColor(airSpeedoTd[5], 50);
-    TextDrawUseBox(airSpeedoTd[5], 0);
-    TextDrawSetProportional(airSpeedoTd[5], 1);
-    TextDrawSetSelectable(airSpeedoTd[5], 0);
 }
 
 hook OnPlayerConnect(playerid) 
@@ -208,23 +123,11 @@ hook OnPlayerLeaveDynArea(playerid, areaid)
 
 public OnAirSpeedoRequestUpdate(playerid, vehicleid) 
 {
-    new string[128], Float:pos[3], Float:angle;
-
-    GetVehiclePos(vehicleid, pos[0], pos[1], pos[2]);
-    GetVehicleZAngle(vehicleid, angle);
+    new string[128];
 
     new Float:vel = GetVehicleAirSpeed(vehicleid);
-    format(string, sizeof string, "%.0f", vel);
+    format(string, sizeof string, "%03d", floatround(vel));
     PlayerTextDrawSetString(playerid, pAirSpeedoTd[playerid][0], string);
-
-    /*if(GLOBAL_VEHICLES[vehicleid][gb_vehicle_HEALTH] <= 500.0)
-    {
-        TextDrawSetStringForPlayer(airSpeedoTd[5], playerid, ICON_REPAIR);
-    }
-    else
-    {
-        TextDrawSetStringForPlayer(airSpeedoTd[5], playerid, "_");
-    }*/
 
     if(GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_ENGINE]) 
     {
@@ -236,11 +139,11 @@ public OnAirSpeedoRequestUpdate(playerid, vehicleid)
             GLOBAL_VEHICLES[vehicleid][gb_vehicle_PARAMS_ENGINE] = 0;
             UpdateVehicleParams(vehicleid);
             
-            SendClientMessage(playerid, SILVER_COLOR2, "El vehículo se ha quedado sin gasolina...");
+            SendClientMessage(playerid, SILVER_COLOR2, "El vehiculo se ha quedado sin gasolina...");
         }
     }
 
-    format(string, sizeof string, "%s", number_format_thousand(floatround(GLOBAL_VEHICLES[vehicleid][gb_vehicle_GAS])));
+    format(string, sizeof string, "GAS_%sL", number_format_thousand(floatround(GLOBAL_VEHICLES[vehicleid][gb_vehicle_GAS])));
     PlayerTextDrawSetString(playerid, pAirSpeedoTd[playerid][1], string);
 }
 
@@ -248,13 +151,13 @@ CreatePlayerAirSpeedo(playerid, vehicleid)
 {
     DestroyPlayerAirSpeedo(playerid);
 
-    pAirSpeedoTd[playerid][0] = CreatePlayerTextDraw(playerid, 248.000000, 324.000000, "000");
+    pAirSpeedoTd[playerid][0] = CreatePlayerTextDraw(playerid, 318.000000, 369.000000, "000");
     PlayerTextDrawFont(playerid, pAirSpeedoTd[playerid][0], 2);
-    PlayerTextDrawLetterSize(playerid, pAirSpeedoTd[playerid][0], 0.425000, 2.850000);
+    PlayerTextDrawLetterSize(playerid, pAirSpeedoTd[playerid][0], 0.337499, 1.749999);
     PlayerTextDrawTextSize(playerid, pAirSpeedoTd[playerid][0], 400.000000, 17.000000);
-    PlayerTextDrawSetOutline(playerid, pAirSpeedoTd[playerid][0], 0);
+    PlayerTextDrawSetOutline(playerid, pAirSpeedoTd[playerid][0], 1);
     PlayerTextDrawSetShadow(playerid, pAirSpeedoTd[playerid][0], 0);
-    PlayerTextDrawAlignment(playerid, pAirSpeedoTd[playerid][0], 1);
+    PlayerTextDrawAlignment(playerid, pAirSpeedoTd[playerid][0], 2);
     PlayerTextDrawColor(playerid, pAirSpeedoTd[playerid][0], -1);
     PlayerTextDrawBackgroundColor(playerid, pAirSpeedoTd[playerid][0], 255);
     PlayerTextDrawBoxColor(playerid, pAirSpeedoTd[playerid][0], 50);
@@ -262,24 +165,19 @@ CreatePlayerAirSpeedo(playerid, vehicleid)
     PlayerTextDrawSetProportional(playerid, pAirSpeedoTd[playerid][0], 1);
     PlayerTextDrawSetSelectable(playerid, pAirSpeedoTd[playerid][0], 0);
 
-    pAirSpeedoTd[playerid][1] = CreatePlayerTextDraw(playerid, 248.000000, 366.000000, "000.0");
+    pAirSpeedoTd[playerid][1] = CreatePlayerTextDraw(playerid, 318.000000, 383.000000, "GAS_0.0L");
     PlayerTextDrawFont(playerid, pAirSpeedoTd[playerid][1], 2);
-    PlayerTextDrawLetterSize(playerid, pAirSpeedoTd[playerid][1], 0.425000, 2.850000);
+    PlayerTextDrawLetterSize(playerid, pAirSpeedoTd[playerid][1], 0.174999, 1.250000);
     PlayerTextDrawTextSize(playerid, pAirSpeedoTd[playerid][1], 400.000000, 17.000000);
-    PlayerTextDrawSetOutline(playerid, pAirSpeedoTd[playerid][1], 0);
+    PlayerTextDrawSetOutline(playerid, pAirSpeedoTd[playerid][1], 1);
     PlayerTextDrawSetShadow(playerid, pAirSpeedoTd[playerid][1], 0);
-    PlayerTextDrawAlignment(playerid, pAirSpeedoTd[playerid][1], 1);
+    PlayerTextDrawAlignment(playerid, pAirSpeedoTd[playerid][1], 2);
     PlayerTextDrawColor(playerid, pAirSpeedoTd[playerid][1], -1);
     PlayerTextDrawBackgroundColor(playerid, pAirSpeedoTd[playerid][1], 255);
     PlayerTextDrawBoxColor(playerid, pAirSpeedoTd[playerid][1], 50);
     PlayerTextDrawUseBox(playerid, pAirSpeedoTd[playerid][1], 0);
     PlayerTextDrawSetProportional(playerid, pAirSpeedoTd[playerid][1], 1);
     PlayerTextDrawSetSelectable(playerid, pAirSpeedoTd[playerid][1], 0);
-
-    for(new i = 0; i < sizeof airSpeedoTd; i ++) 
-    {
-        TextDrawShowForPlayer(playerid, airSpeedoTd[i]);
-    }
 
     for(new i = 0; i < sizeof pAirSpeedoTd[]; i ++) 
     {
@@ -292,11 +190,6 @@ CreatePlayerAirSpeedo(playerid, vehicleid)
 
 DestroyPlayerAirSpeedo(playerid) 
 {
-    for(new i = 0; i < sizeof airSpeedoTd; i ++) 
-    {
-        TextDrawHideForPlayer(playerid, airSpeedoTd[i]);
-    }
-
     for(new i = 0; i < sizeof pAirSpeedoTd[]; i ++) 
     {
         PlayerTextDrawDestroy(playerid, pAirSpeedoTd[playerid][i]);
