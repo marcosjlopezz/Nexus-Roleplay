@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-#define MYSQL_HOST "74.208.184.215"
+/*#define MYSQL_HOST "74.208.184.215"
 #define MYSQL_USER "u3_hnCWJKW9od"
 #define MYSQL_DB "s3_swrp_db"
-#define MYSQL_PASS "!10Hhi.N4iZWHhWT4@65N09c"
+#define MYSQL_PASS "!10Hhi.N4iZWHhWT4@65N09c"*/
 
-/*#define MYSQL_HOST "localhost"
+#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""*/
+#define MYSQL_PASS ""
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -21525,7 +21525,7 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
     }
 	else if(newstate == PLAYER_STATE_PASSENGER)
 	{
-		SetPlayerArmedWeapon(playerid, 0);
+		if(IsValidDriveByWeapon(playerid) != -1 && IsValidDriveByWeapon(playerid) == 0) SetPlayerArmedWeapon(playerid, 0);
 		PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
 		
 		new vehicleid = GetPlayerVehicleID(playerid);
@@ -24664,10 +24664,25 @@ SetPlayerWeapon(playerid, slot)
 	if(PLAYER_WEAPONS[playerid][slot][player_weapon_AMMO] > 0) GivePlayerWeapon(playerid, PLAYER_WEAPONS[playerid][slot][player_weapon_ID], PLAYER_WEAPONS[playerid][slot][player_weapon_AMMO]);
 }
 
+stock IsValidDriveByWeapon(playerid)
+{
+	new weaponid = GetPlayerWeapon(playerid), valid = 0;
+	switch(weaponid)
+	{
+		case 0: valid = -1;
+		case 29: valid = 1;
+		case 31: valid = 1;
+		case 30: valid = 1;
+		default: valid = 0;
+	}
+	return valid;
+}
+
 public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY, Float:fZ)
 {	
 	if(WEAPON_INFO[weaponid][weapon_info_AMMO]) PLAYER_WEAPONS[playerid][ WEAPON_INFO[weaponid][weapon_info_SLOT] ][player_weapon_AMMO] --;
 	if(PLAYER_WEAPONS[playerid][ WEAPON_INFO[weaponid][weapon_info_SLOT] ][player_weapon_AMMO] <= 0) PLAYER_WEAPONS[playerid][ WEAPON_INFO[weaponid][weapon_info_SLOT] ][player_weapon_AMMO] = 0;
+	
 	if(pTemp(playerid)[pt_TASER_GUN])
 	{
 		SetPlayerArmedWeapon(playerid, 0);
@@ -24692,25 +24707,38 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 			}
 		}
 	}
-	if(ac_Info[CHEAT_DRIVE_BY][ac_Enabled])
+	
+	if(IsValidDriveByWeapon(playerid) != -1 || IsValidDriveByWeapon(playerid) == 0)
 	{
-		new player_state = GetPlayerState(playerid);
-		if(player_state == PLAYER_STATE_DRIVER || player_state == PLAYER_STATE_PASSENGER)
+		if(ac_Info[CHEAT_DRIVE_BY][ac_Enabled])
 		{
-			if(gettime() > PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_IMMUNITY])
+			new player_state = GetPlayerState(playerid);
+			if(player_state == PLAYER_STATE_DRIVER/* || player_state == PLAYER_STATE_PASSENGER*/)
 			{
-				if(!ac_Info[CHEAT_DRIVE_BY][ac_Interval]) OnPlayerCheatDetected(playerid, CHEAT_DRIVE_BY);
-				else
+				if(gettime() > PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_IMMUNITY])
 				{
-					if(gettime() - PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_LAST_DETECTION] > ac_Info[CHEAT_DRIVE_BY][ac_Interval]) PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_DETECTIONS] = 0;
-					else PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_DETECTIONS] ++;
-					
-					PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_LAST_DETECTION] = gettime();
-					if(PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_DETECTIONS] >= ac_Info[CHEAT_DRIVE_BY][ac_Detections]) OnPlayerCheatDetected(playerid, CHEAT_DRIVE_BY);
+					if(!ac_Info[CHEAT_DRIVE_BY][ac_Interval])
+					{
+						OnPlayerCheatDetected(playerid, CHEAT_DRIVE_BY);
+						SetPlayerArmedWeapon(playerid, 0);
+					}
+					else
+					{
+						if(gettime() - PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_LAST_DETECTION] > ac_Info[CHEAT_DRIVE_BY][ac_Interval]) PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_DETECTIONS] = 0;
+						else PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_DETECTIONS] ++;
+						
+						PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_LAST_DETECTION] = gettime();
+						if(PLAYER_AC_INFO[playerid][CHEAT_DRIVE_BY][p_ac_info_DETECTIONS] >= ac_Info[CHEAT_DRIVE_BY][ac_Detections])
+						{
+							OnPlayerCheatDetected(playerid, CHEAT_DRIVE_BY);
+							SetPlayerArmedWeapon(playerid, 0);
+						}
+					}
 				}
 			}
 		}
 	}
+
 	if(PI[playerid][pCREW])
 	{
 		if(gettime() > CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_LAST_ATTACK] + 300)

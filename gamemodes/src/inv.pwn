@@ -1564,12 +1564,16 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}
 					case 2:
 					{
+						if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "Los policias no pueden hacer esto.");
+
 						DropWeapon(playerid, PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT]);
 						ApplyAnimation(playerid, "GRENADE", "WEAPON_throwu", 4.1, 0, 1, 1, 0, 0, 1);
 						Streamer_Update(playerid);
 					}
 					case 3: 
 					{
+						if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "Los policias no pueden hacer esto.");
+						
 						//guardar
 						new command[128];
 						format(command, sizeof command, "/guardar arma %d", PLAYER_TEMP[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT]);
