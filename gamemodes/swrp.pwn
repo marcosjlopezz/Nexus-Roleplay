@@ -49,8 +49,8 @@ AntiAmx()
 /* NOMBRES */
 #define SERVER_VERSION			"2.2 Alpha"
 
-#define SERVER_NAME				"SampWorld Roleplay"
-#define SERVER_SHORT_NAME		"SampWorld"
+#define SERVER_NAME				"MegaWorld Roleplay"
+#define SERVER_SHORT_NAME		"MegaWorld"
 
 #define	SERVER_NAME1			"Samp"
 #define	SERVER_NAME2			"World"
