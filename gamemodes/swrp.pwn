@@ -173,6 +173,20 @@ new Welcome_Messages[][] =
 	"se ha integrado en nuestra ciudad."
 };
 
+new DCC_Guild:Discord_Servers[2];
+/* 
+    0 = Comunity
+    1 = Administration
+*/
+
+/* 
+    SERVER INFO
+
+    Comunity: 1176691877249032243
+    Administration: 1179858986892267520
+
+*/
+
 #define PRESSED(%0) (((newkeys & (%0)) == (%0)) && ((oldkeys & (%0)) != (%0)))
 #define RELEASED(%0) (((newkeys & (%0)) != (%0)) && ((oldkeys & (%0)) == (%0)))
 
@@ -25007,7 +25021,7 @@ OnPlayerCheatDetected(playerid, cheat, Float:extra = 0.0)
 		
 		if(extra != 0.0) format(ac_message, sizeof ac_message, "{"#RED_COLOR"}[AC-KICK] {FFFFFF}%s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d, extra: %.1f)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval], extra);
 		else format(ac_message, sizeof ac_message, "{"#RED_COLOR"}[AC-KICK] {FFFFFF}%s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval]);
-		
+
 		KickEx(playerid);
 		
 		if(cheat == CHEAT_PLAYER_HEALTH) PI[playerid][pHEALTH] = 20.0;
@@ -25020,8 +25034,8 @@ OnPlayerCheatDetected(playerid, cheat, Float:extra = 0.0)
 	}
 	
 	SendMessageToAdminsAC(-1, ac_message);
-	PlayerTemp[playerid][pt_LAST_CHEAT_DETECTED_TIME] = gettime();
 
+	PlayerTemp[playerid][pt_LAST_CHEAT_DETECTED_TIME] = gettime();
 	return 1;
 }
 
@@ -27223,7 +27237,6 @@ CMD:kick(playerid, params[])
 	KickEx(to_playerid, 500);
 	
 	SendClientMessagef(playerid, -1, "Jugador (nick: '%s' dbid: '%d', pid: '%d') expulsado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid);
-	
 	
 	new str[445]; format(str, 445, "el %s %s (%d) expulso a %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
 	SendAdminAd(0xFF0000FF, str);
