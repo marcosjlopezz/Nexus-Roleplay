@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-#define MYSQL_HOST "74.208.14.232"
-#define MYSQL_USER "u4_hSQSuqM3kA"
-#define MYSQL_DB "s4_swrp_db"
-#define MYSQL_PASS "@1U50AVE^4ktFaJqmlcLqUuT"
+/*#define MYSQL_HOST "23.167.232.40"
+#define MYSQL_USER "u12_zkQwIPJhlI"
+#define MYSQL_DB "s12_swrp_db"
+#define MYSQL_PASS "UI^m837VYjaPVk2^G15.gWyX"*/
 
-/*#define MYSQL_HOST "localhost"
+#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""*/
+#define MYSQL_PASS ""
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -52,7 +52,7 @@ AntiAmx()
 #define SERVER_NAME				"MegaWorld Roleplay"
 #define SERVER_SHORT_NAME		"MegaWorld"
 
-#define	SERVER_NAME1			"Samp"
+#define	SERVER_NAME1			"Mega"
 #define	SERVER_NAME2			"World"
 
 #define SERVER_GAMEMODE			"Roleplay r"SERVER_VERSION""
@@ -5720,9 +5720,12 @@ CMD:a(playerid, params[])
 	if(PI[playerid][pADMIN_LEVEL] < CMD_MODERATOR) return -1; //hacemos chequeo aqui para hacer que este comando no necesite duty
 	if(isnull(params)) return ErrorCommandParams(playerid, "/a <texto>");
 
-  	new string[145];
+  	new string[445];
     format(string, sizeof(string), "[Admin Chat | %s] {"#YELLOW_COLOR"}/%s (%d): {"#SILVER_COLOR"}%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, params);
 	SendChatMessageToAdmins(GOLD_COLOR2, string);
+
+	new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (rank: %s nick: %s pid: '%d' Message: %s)", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, params);
+	SendAdminChatLogMessage(playerid, dc_string);
 	return 1;
 }
 
@@ -5742,6 +5745,9 @@ hook OnPlayerText(playerid, text[])
       	new string[145];
 		format(string, sizeof(string), "[Admin Chat | %s] {"#YELLOW_COLOR"}#%s (%d): {"#SILVER_COLOR"}%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, text[1]);
 		SendChatMessageToAdmins(GOLD_COLOR2, string);
+
+		new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (rank: %s nick: %s pid: '%d' Message: %s)", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, text[1]);
+		SendAdminChatLogMessage(playerid, dc_string);
 		return 0;
 	}
 
@@ -13680,6 +13686,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		}
 		case DIALOG_TRICKS_COINS:
 		{
+			new dc_message[445];
 			if(response)
 			{
 				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return SendClientMessagef(playerid, -1, "Has tardardo mucho en aceptarlo.");
@@ -13689,17 +13696,26 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				new Float:pos[3]; GetPlayerPos(PlayerTemp[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
 				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El vendedor está demasiado lejos.");
 				if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "El vendedor no está disponible.");
-
 				
+				format(dc_message, 445, "Realizando Compra/Venta (Seller Coins: '%d' Buyer Coins: '%d')", PI[playerid][pCOINS], PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS]);
+				SendCoinsLogMessage(playerid, dc_message);
+
 				PI[playerid][pCOINS] += PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
 				PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS] -= PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
 
-				if(GivePlayerCash(playerid, -PlayerTemp[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PlayerTemp[playerid][pt_TRICK_SELLER_PID], PlayerTemp[playerid][pt_TRICK_PRICE], true, false)) {
+				if(GivePlayerCash(playerid, -PlayerTemp[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PlayerTemp[playerid][pt_TRICK_SELLER_PID], PlayerTemp[playerid][pt_TRICK_PRICE], true, false)) 
+				{
 					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET coins = %d WHERE id = %d;", PI[playerid][pCOINS], PI[playerid][pID]);
 					mysql_tquery(handle_db, QUERY_BUFFER);
 
+					format(dc_message, 445, QUERY_BUFFER);
+					SendCoinsLogMessage(playerid, dc_message);
+
 					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET coins = %d WHERE id = %d;", PI[PlayerTemp[playerid][pt_TRICK_SELLER_PID]][pCOINS], PI[PlayerTemp[playerid][pt_TRICK_SELLER_PID]][pID]);
 					mysql_tquery(handle_db, QUERY_BUFFER);
+
+					format(dc_message, 445, QUERY_BUFFER);
+					SendCoinsLogMessage(playerid, dc_message);
 
 					SendClientMessagef(playerid, -1, "Has gastado %s$ con esta compra.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
 					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
@@ -13707,6 +13723,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					new action[64];
 					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
 					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
+
+					format(dc_message, 445, "Compra/Venta procesada (nick: '%s' pid: '%d' to seller: '%s' spid: '%d') Monto Total: (Seller: %d, Buyer: %d)", PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pNAME], PlayerTemp[playerid][pt_TRICK_SELLER_PID], PI[playerid][pNAME], playerid, PI[playerid][pCOINS], PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS]);
+					SendCoinsLogMessage(playerid, dc_message);
 				}
 			}
 			else
@@ -13716,6 +13735,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return 1;
 
 				SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "El comprador no ha aceptado tu trato.");
+
+				format(dc_message, 445, "Compra/Venta rechazada (nick: '%s' pid: '%d' to seller: '%s' spid: '%d')", PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pNAME], PlayerTemp[playerid][pt_TRICK_SELLER_PID], PI[playerid][pNAME], playerid);
+				SendCoinsLogMessage(playerid, dc_message);
 			}
 			return 1;
 		}
@@ -24997,7 +25019,7 @@ OnPlayerCheatDetected(playerid, cheat, Float:extra = 0.0)
 
 	if(gettime() < PlayerTemp[playerid][pt_LAST_CHEAT_DETECTED_TIME] + 5) return 1;
 
-	new ac_message[145], player_state = GetPlayerState(playerid);
+	new ac_message[145], ac_dc[445], player_state = GetPlayerState(playerid);
 	
 	if(ac_Info[cheat][ac_Kick])
 	{	
@@ -25008,6 +25030,9 @@ OnPlayerCheatDetected(playerid, cheat, Float:extra = 0.0)
 		if(extra != 0.0) format(ac_message, sizeof ac_message, "{"#RED_COLOR"}[AC-KICK] {FFFFFF}%s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d, extra: %.1f)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval], extra);
 		else format(ac_message, sizeof ac_message, "{"#RED_COLOR"}[AC-KICK] {FFFFFF}%s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval]);
 
+		if(extra != 0.0) format(ac_dc, sizeof ac_dc, "[KICK]: %s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d, extra: %.1f)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval], extra);
+		else format(ac_dc, sizeof ac_dc, "[KICK]: %s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval]);
+
 		KickEx(playerid);
 		
 		if(cheat == CHEAT_PLAYER_HEALTH) PI[playerid][pHEALTH] = 20.0;
@@ -25017,9 +25042,13 @@ OnPlayerCheatDetected(playerid, cheat, Float:extra = 0.0)
 	{
 		if(extra != 0.0) format(ac_message, sizeof ac_message, "{"#RED_COLOR"}[AC-AVISO] {FFFFFF}%s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d, extra: %.1f)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval], extra);
 		else format(ac_message, sizeof ac_message, "{"#RED_COLOR"}[AC-AVISO] {FFFFFF}%s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval]);
+	
+		if(extra != 0.0) format(ac_dc, sizeof ac_dc, "[ADV]: %s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d, extra: %.1f)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval], extra);
+		else format(ac_dc, sizeof ac_dc, "[ADV]: %s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval]);
 	}
 	
 	SendMessageToAdminsAC(-1, ac_message);
+	SendAntiCheatLogMessage(playerid, ac_dc);
 
 	PlayerTemp[playerid][pt_LAST_CHEAT_DETECTED_TIME] = gettime();
 	return 1;
@@ -27197,6 +27226,8 @@ CMD:adv(playerid, params[])
 	
 	SendClientMessagef(playerid, -1, "Jugador (nick: '%s' dbid: '%d', pid: '%d') advertido.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid);
 	
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', pid: '%d', reason: '%s') advertido.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason);
+	SendAdvLogMessage(playerid, dc_str);
 
 	new str[445]; format(str, 445, "el %s %s (%d) advirtio a %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
 	SendAdminAd(0xFF0000FF, str);
@@ -27224,6 +27255,9 @@ CMD:kick(playerid, params[])
 	
 	SendClientMessagef(playerid, -1, "Jugador (nick: '%s' dbid: '%d', pid: '%d') expulsado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid);
 	
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', pid: '%d', reason: '%s') expulsado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason);
+	SendKickLogMessage(playerid, dc_str);
+
 	new str[445]; format(str, 445, "el %s %s (%d) expulso a %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
 	SendAdminAd(0xFF0000FF, str);
 	return 1;
@@ -27528,6 +27562,9 @@ CMD:unban(playerid, params[])
 				new str[445]; format(str, 445, "el %s %s (%d) ha desbaneado a '%s'.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, name);
 				SendMessageToAdmins(0xFF0000FF, str);
 
+				new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s') des-baneado.", name);
+				SendUnBanLogMessage(playerid, dc_str);
+
 				inline OnCountQueryLoad()
 				{
 					new crows;
@@ -27581,6 +27618,9 @@ CMD:jail(playerid, params[])
     SendClientMessagef(to_playerid, -1, "{"#SILVER_COLOR"}Te quedan %s minutos de sancion, razon: %s.", TimeConvert(time * 60), reason);
     SetPlayerSpecialAction(to_playerid, SPECIAL_ACTION_NONE);
 
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' reason: %s, time: %d minutes) sancionado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason, time);
+	SendJailLogMessage(playerid, dc_str);
+
     new str[445]; format(str, 445, "el %s %s (%d) sanciono a %s (%d): %s.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
     SendAdminAd(0xFF0000FF, str);
     return 1;
@@ -27626,6 +27666,9 @@ CMD:ban(playerid, params[])
 	
 	SendClientMessagef(playerid, -1, "Jugador (nick: '%s' dbid: '%d', id: '%d') baneado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid);
 	
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' reason: '%s', permanent) baneado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason);
+	SendBanLogMessage(playerid, dc_str);
+
 	new str[445]; format(str, 445, "el %s %s (%d) baneo a %s (%d): %s.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
 	SendAdminAd(0xFF0000FF, str);
 	return 1;
@@ -27659,6 +27702,9 @@ CMD:tban(playerid, params[])
 	
 	SendClientMessagef(playerid, -1, "Jugador (nick: '%s' dbid: '%d', pid: '%d') baneado por %d días.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, days);
 	
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' reason: '%s', days: '%d') baneado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason, days);
+	SendBanLogMessage(playerid, dc_str);
+
 	new str[445]; format(str, 445, "el %s %s (%d) baneo %d días a %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, days, PI[to_playerid][pNAME], to_playerid, reason);
 	SendAdminAd(0xFF0000FF, str);
 	return 1;
@@ -27735,6 +27781,9 @@ CMD:dban(playerid, params[])
 									AddPlayerBan(id, name, ip, PI[playerid][pID], TYPE_BAN, reason);
 									SendClientMessagef(playerid, -1, "Jugador (nick: '%s' db_id: '%d') baneado.", name, id);
 									
+									new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', reason: '%s', permanent, OFF) baneado.", name, id, reason);
+									SendBanLogMessage(playerid, dc_str);
+
 									new str[445]; format(str, 445, "el %s %s (%d) baneo a %s (offline, db_id: %d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, name, id, reason);
 									SendMessageToAdmins(0xFF0000FF, str);
 								}
@@ -27797,7 +27846,10 @@ CMD:dtban(playerid, params[])
 								{
 									AddPlayerBan(id, name, ip, PI[playerid][pID], TYPE_BAN, reason, days);
 									SendClientMessagef(playerid, -1, "Jugador (nick: '%s' dbid: '%d') baneado por %d días.", name, id, days);
-					
+
+									new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', reason: '%s', days: '%d', OFF) baneado.", name, id, reason, days);
+									SendBanLogMessage(playerid, dc_str);
+
 									new str[455]; format(str, 445, "el %s %s (%d) baneo %d días a %s (offline, db_id: %d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, days, name, id, reason);
 									SendMessageToAdmins(0xFF0000FF, str);
 								}
@@ -30589,6 +30641,9 @@ CMD:setcoins(playerid, params[])
 	
 	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET coins = %d WHERE id = %d;", PI[to_playerid][pCOINS], PI[to_playerid][pID]);
 	mysql_tquery(handle_db, QUERY_BUFFER);
+
+	new dc_message[445]; format(dc_message, 445, "ha establecido %d coins a %s (%d).", sd, PI[to_playerid][pNAME], to_playerid);
+	SendCoinsLogMessage(playerid, dc_message);
 	
 	SendCmdLogToAdmins(playerid, "setcoins", params);
 	return 1;
@@ -30606,6 +30661,9 @@ CMD:givecoins(playerid, params[])
 	
 	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET coins = %d WHERE id = %d;", PI[to_playerid][pCOINS], PI[to_playerid][pID]);
 	mysql_tquery(handle_db, QUERY_BUFFER);
+
+	new dc_message[445]; format(dc_message, 445, "recarga de %d coins a %s (%d).", sd, PI[to_playerid][pNAME], to_playerid);
+	SendCoinsLogMessage(playerid, dc_message);
 	
 	SendCmdLogToAdmins(playerid, "givecoins", params);
 	return 1;
@@ -31192,6 +31250,9 @@ CMD:muteard(playerid, params[])
 	new str[445]; format(str, 445, "el %s %s (%d) silencio a %s (%d) del canal de dudas: %s.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
     SendAdminAd(0xFF0000FF, str);
 
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' reason: '%s', time: '%d' minutes, channel: 'doubts') muteado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason, time);
+	SendMuteLogMessage(playerid, dc_str);
+
 	SendCmdLogToAdmins(playerid, "muteard", params);
 	return 1;
 }
@@ -31214,6 +31275,9 @@ CMD:mutearg(playerid, params[])
 	new str[445]; format(str, 445, "el %s %s (%d) silencio a %s (%d) del canal global: %s.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
     SendAdminAd(0xFF0000FF, str);
 
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' reason: '%s', time: '%d' minutes, channel: 'global channel') muteado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason, time);
+	SendMuteLogMessage(playerid, dc_str);
+
 	SendCmdLogToAdmins(playerid, "mutearg", params);
 	return 1;
 }
@@ -31234,6 +31298,9 @@ CMD:desmuteard(playerid, params[])
 	
 	SendClientMessagef(playerid, 0xCCCCCCCC, "Jugador %s (%d) ha sido des-silenciado.", PI[to_playerid][pNAME], to_playerid);
 
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' channel: 'doubts') des-muteado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid);
+	SendMuteLogMessage(playerid, dc_str);
+
 	SendCmdLogToAdmins(playerid, "desmuteard", params);
 	return 1;
 }
@@ -31253,6 +31320,9 @@ CMD:desmutearg(playerid, params[])
 	SendClientMessage(to_playerid, 0xCCCCCCCC, "Ya puedes volver a enviar mensajes en /tg o /atg.");
 	
 	SendClientMessagef(playerid, 0xCCCCCCCC, "Jugador %s (%d) ha sido des-silenciado.", PI[to_playerid][pNAME], to_playerid);
+
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' channel: 'global channel') des-muteado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid);
+	SendMuteLogMessage(playerid, dc_str);
 
 	SendCmdLogToAdmins(playerid, "desmutearg", params);
 	return 1;
