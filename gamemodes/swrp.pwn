@@ -5722,7 +5722,7 @@ CMD:a(playerid, params[])
     format(string, sizeof(string), "[Admin Chat | %s] {"#YELLOW_COLOR"}/%s (%d): {"#SILVER_COLOR"}%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, params);
 	SendChatMessageToAdmins(GOLD_COLOR2, string);
 
-	new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (rank: '%s' nick: '%s' Message: '%s')", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], params);
+	new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (nick: '%s' Message: '%s')", PI[playerid][pNAME], params);
 	SendAdminChatLogMessage(playerid, dc_string);
 	return 1;
 }
@@ -5744,7 +5744,7 @@ hook OnPlayerText(playerid, text[])
 		format(string, sizeof(string), "[Admin Chat | %s] {"#YELLOW_COLOR"}#%s (%d): {"#SILVER_COLOR"}%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, text[1]);
 		SendChatMessageToAdmins(GOLD_COLOR2, string);
 
-		new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (rank: '%s' nick: '%s' Message: '%s')", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], text[1]);
+		new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (nick: '%s' Message: '%s')", PI[playerid][pNAME], text[1]);
 		SendAdminChatLogMessage(playerid, dc_string);
 		return 0;
 	}
@@ -28662,7 +28662,7 @@ CMD:setpass(playerid, params[])
 						new pass_ex[65];
 						SHA256_PassHash(new_pass, "SampWorld", pass_ex, 64);
 						
-						mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player pass = '%e' WHERE id = %d;", pass_ex, id);
+						mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET pass = '%e' WHERE id = %d;", pass_ex, id);
 						mysql_tquery(handle_db, QUERY_BUFFER);
 						
 						SendMessagef(playerid, "La contraseña de '%s' ahora es: %s", name, new_pass);					
