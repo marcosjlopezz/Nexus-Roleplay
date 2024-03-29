@@ -5125,10 +5125,6 @@ public OnGameModeInit()
 
 	print("BASE DE DATOS CARGADA CORRECTAMENTE");
 
-	new default_pass_hash[65];
-	SHA256_PassHash("s4mpW0rl3", "SampWorld", default_pass_hash, 64 + 1);
-	printf("'s4mpW0rl3' Hash: '%s'", default_pass_hash);
-
 	mysql_tquery(handle_db, "SELECT * FROM `properties` ORDER BY `id` ASC", "LoadProperties");
 	mysql_tquery(handle_db, "SELECT * FROM `crews` ORDER BY `id` ASC", "LoadCrews");
 	mysql_tquery(handle_db, "SELECT * FROM `territories` ORDER BY `id` ASC", "LoadGangZones");
@@ -10592,7 +10588,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				format(PlayerTemp[playerid][pt_PASSWD], 24, "%s", inputtext);
 				
 				//bcrypt_hash(playerid, "OnPlayerRegisterPassword", PlayerTemp[playerid][pt_PASSWD], BCRYPT_COST);
-				SHA256_PassHash(inputtext, "SampWorld", PI[playerid][pPASS], 64 + 1);
+				SHA256_PassHash(inputtext, "SampWorld", PI[playerid][pPASS], 64);
 				ShowDialog(playerid, DIALOG_EMAIL);			
 			}
 			else Kick(playerid);
@@ -10640,8 +10636,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			
 			//bcrypt_verify(playerid, "OnPlayerLoginCheckPass", inputtext, PI[playerid][pPASS]);
 
-			new password[64 + 1];
-			SHA256_PassHash(inputtext, "SampWorld", password, sizeof password);
+			new password[65];
+			SHA256_PassHash(inputtext, "SampWorld", password, 64);
+
 			if(!strcmp(password, PI[playerid][pPASS], false))
 			{
 				OnPlayerLoginCheckPass(playerid, true);
@@ -14500,7 +14497,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				//bcrypt_verify(playerid, "OnChangePasswordCheck", inputtext, PI[playerid][pPASS]);
 
 				new password[64 + 1];
-				SHA256_PassHash(inputtext, "SampWorld", password, sizeof password);
+				SHA256_PassHash(inputtext, "SampWorld", password, 64);
 			
 				if(!strcmp(password, PI[playerid][pPASS], false))
 				{
@@ -14523,7 +14520,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(strlen(inputtext) < MIN_PASS_LENGTH || strlen(inputtext) > MAX_PASS_LENGTH) return ShowDialog(playerid, dialogid);
 				
 				//bcrypt_hash(playerid, "OnChangePasswordHash", inputtext, BCRYPT_COST);
-				SHA256_PassHash(inputtext, "SampWorld", PI[playerid][pPASS], 64 + 1);
+				SHA256_PassHash(inputtext, "SampWorld", PI[playerid][pPASS], 64);
 	
 				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET pass = '%e' WHERE id = %d;", PI[playerid][pPASS], PI[playerid][pID]);
 				mysql_tquery(handle_db, QUERY_BUFFER);
@@ -28662,8 +28659,8 @@ CMD:setpass(playerid, params[])
 					{
 						//bcrypt_hash(playerid, "OnSetPassChange", new_pass, BCRYPT_COST, "iss", id, name, new_pass);
 						
-						new pass_ex[64 + 1];
-						SHA256_PassHash(new_pass, "SampWorld", pass_ex, 64 + 1);
+						new pass_ex[65];
+						SHA256_PassHash(new_pass, "SampWorld", pass_ex, 64);
 						
 						mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player pass = '%e' WHERE id = %d;", pass_ex, id);
 						mysql_tquery(handle_db, QUERY_BUFFER);
