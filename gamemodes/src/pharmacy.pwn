@@ -106,12 +106,14 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                     SendMessage(playerid, "Debes escribir una cantidad valida.");
                     return 1;
                 }
+
                 if(MedicineBuyCount[playerid] <= 0)
                 {
                     ShowPharmacyDialog(playerid, DIALOG_PHARMACY_BUY_MEDICINE);
                     SendMessage(playerid, "Escribe un valor positivo.");
                     return 1;
                 }
+
                 if(MedicineBuyCount[playerid] > 25) MedicineBuyCount[playerid] = 25;
 
                 ShowPharmacyDialog(playerid, DIALOG_PHARMACY_MEDICINE_BUY);
@@ -125,7 +127,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 new price = (MedicineBuyCount[playerid] * PHARMACY_MEDICINE_PRICE);
                 if(price <= 0) return 0;
 
-                if(GivePlayerCash(playerid, price, true, true))
+                if(GivePlayerCash(playerid, -price, true, true))
                 {
                     SendInfoMessagef(playerid, "~r~Farmacia~w~~n~~n~Has comprado %d medicamentos~n~~n~Precio: ~g~%s$~w~.", MedicineBuyCount[playerid], number_format_thousand(price));
                     PI[playerid][pMEDICINE] += MedicineBuyCount[playerid];

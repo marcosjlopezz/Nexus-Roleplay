@@ -47,7 +47,7 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.2 Alpha"
+#define SERVER_VERSION			"2.3 Alpha"
 
 #define SERVER_NAME				"MegaWorld Roleplay"
 #define SERVER_SHORT_NAME		"MegaWorld"
@@ -2367,8 +2367,6 @@ enum Property_Info_Enum
 	Text3D:property_INT_LABEL_ID,
 	property_EXT_PICKUP_ID,
 	property_INT_PICKUP_ID,
-
-	bool:property_DIS_DEFAULT_INTERIOR,
 
 	bool:property_POLICE_FORCING,
 	bool:property_POLICE_FORCED,
@@ -4890,7 +4888,7 @@ hook OnPlayerDeath(playerid, killerid, reason)
 					PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
 
 					new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
-					if(PROPERTY_INFO[index][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+					z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 					PI[playerid][pPOS_Z] = z_pos;
 
 					PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];
@@ -5879,6 +5877,8 @@ CMD:duda(playerid, params[])
 {
 	if(!PI[playerid][pDOUBT_CHANNEL]) return SendMessagef(playerid, "Para enviar una duda primero debes activar el canal de dudas con /panel");
 	if(isnull(params)) return ErrorCommandParams(playerid, "/duda [mensaje]");
+	if(PI[playerid][pADMIN_LEVEL]) return ErrorCommandParams(playerid, "/dresponder [ID] [Texto]");
+
 	if(PI[playerid][pMUTE] > gettime())
 	{
 		new seconds = PI[playerid][pMUTE] - gettime();
@@ -7139,7 +7139,7 @@ CMD:puerta(playerid, params[])
 			pTemp(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID])[pt_PROPERTY_INDEX] = info[1];
 
 			new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Z];
-			if(PROPERTY_INFO[info[1]][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+			z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 			SetPlayerPosEx(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Y], z_pos, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_ANGLE], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_INTERIOR], PROPERTY_INFO[info[1]][property_ID], false /*PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_FREEZE]*/, true);
 			FreezePlayer(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID]);
 		}
@@ -7182,7 +7182,7 @@ CMD:armario(playerid, params[])
 		if(PROPERTY_INFO[index][property_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Esta no es tu casa");
 
 		new Float:z_pos = PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Z];
-		if(PROPERTY_INFO[index][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+		z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 		if(IsPlayerInRangeOfPoint(playerid, 1.0, PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_X], PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Y], z_pos))
 		{
 			PlayerTemp[playerid][pt_DIALOG_CLOSET_PROPERTY] = index;
@@ -7836,7 +7836,7 @@ stock ShowDialog(playerid, dialogid)
 
 				if(index != -1) {
 					new Float:z_pos = PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Z];
-					if(PROPERTY_INFO[index][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+					z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 					if(PROPERTY_INFO[index][property_OWNER_ID] == PI[playerid][pID] && IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_X], PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Y], z_pos)) {
 						strcat(dialog_body, "- Guardar en el armario");
 					}
@@ -19128,7 +19128,7 @@ CreatePropertyInfo(i, pid, const pname[])
 	PROPERTY_INFO[i][property_EXT_LABEL_ID] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, PROPERTY_INFO[i][property_EXT_X], PROPERTY_INFO[i][property_EXT_Y], PROPERTY_INFO[i][property_EXT_Z] + 0.25, 5.0, .testlos = true, .worldid = 0, .interiorid = PROPERTY_INFO[i][property_EXT_INTERIOR]);
 
 	new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[i][property_ID_INTERIOR] ][property_INT_Z];
-	if(PROPERTY_INFO[i][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+	z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 	PROPERTY_INFO[i][property_INT_LABEL_ID] = CreateDynamic3DTextLabel("Presiona {"#PRIMARY_COLOR"}Y {FFFFFF}para salir\n\nEscribe {"#PRIMARY_COLOR"}/casa {FFFFFF}para más opciones", 0xFFFFFFFF, PROPERTY_INTERIORS[ PROPERTY_INFO[i][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[i][property_ID_INTERIOR] ][property_INT_Y], z_pos + 0.25, 3.0, .testlos = true, .worldid = PROPERTY_INFO[i][property_ID], .interiorid = PROPERTY_INTERIORS[ PROPERTY_INFO[i][property_ID_INTERIOR] ][property_INT_INTERIOR]);
 
 	PROPERTY_INFO[i][property_EXT_PICKUP_ID] = CreateDynamicPickup(pickup_modelid, 1, PROPERTY_INFO[i][property_EXT_X], PROPERTY_INFO[i][property_EXT_Y], PROPERTY_INFO[i][property_EXT_Z], 0, PROPERTY_INFO[i][property_EXT_INTERIOR]);
@@ -19180,12 +19180,26 @@ callbackp:LoadProperties()
 			cache_get_value_name_int(i, "level", PROPERTY_INFO[i][property_LEVEL]);
 			cache_get_value_name_int(i, "extra", PROPERTY_INFO[i][property_EXTRA]);
 			cache_get_value_name_int(i, "vip_level", PROPERTY_INFO[i][property_VIP_LEVEL]);
-			cache_get_value_name_int(i, "dis_default_interior", PROPERTY_INFO[i][property_DIS_DEFAULT_INTERIOR]);
 
 			if(PROPERTY_INFO[i][property_EXTRA]) PROPERTY_INFO[i][property_PRICE] = 0;
 			if(PROPERTY_INFO[i][property_VIP_LEVEL]) PROPERTY_INFO[i][property_LEVEL] = 1;
 
-			CreatePropertyInfo(i, 0, "");
+			new id_player, pname[24], bool:isnull_id_player, bool:isnull_pname;
+			cache_is_value_name_null(i, "id_player", isnull_id_player);
+			if(!isnull_id_player)
+			{
+				cache_get_value_name_int(i, "id_player", id_player);
+
+				inline OnPlayerNameGet()
+				{
+					cache_is_value_name_null(i, "name", isnull_pname);
+					if(!isnull_pname) cache_get_value_name(0, "name", pname);
+				}
+				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT name FROM player WHERE id = %d;", id_player);
+				mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPlayerNameGet);
+			}
+			if(id_player) CreatePropertyInfo(i, id_player, pname);
+			else CreatePropertyInfo(i, 0, "");
 
 			inline OnPropertyClosetLoad()
 			{
@@ -19715,10 +19729,16 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
 	else if(newkeys & KEY_FIRE)
 	{
 		if(PI[playerid][pLEVEL] == 1 && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_NONE) ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
+	
+		if(PlayerTemp[playerid][pt_CUFFED] && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_CUFFED)
+		{
+			FreezePlayer(playerid, 500);
+			ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
+		}	
 	}
 	else if(newkeys & KEY_JUMP)
 	{
-		if(PlayerTemp[playerid][pt_CUFFED] && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_NONE)
+		if(PlayerTemp[playerid][pt_CUFFED] && GetPlayerState(playerid) == PLAYER_STATE_ONFOOT && GetPlayerSpecialAction(playerid) == SPECIAL_ACTION_CUFFED)
 		{
 			FreezePlayer(playerid, 500);
 			ApplyAnimation(playerid, "PED", "IDLE_tired", 4.1, false, false, false, false, 0);
@@ -20029,7 +20049,7 @@ callbackp:EnterExit(playerid)
 				if(PROPERTY_INFO[info[1]][property_POLICE_FORCED] && (PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)) 
 				{
 					new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Z];
-					if(PROPERTY_INFO[info[1]][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+					z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 					SetPlayerPosEx(playerid, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Y], z_pos, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_ANGLE], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_INTERIOR], PROPERTY_INFO[info[1]][property_ID], false /*PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_FREEZE]*/, true);
 					FreezePlayer(playerid);
 
@@ -20046,7 +20066,7 @@ callbackp:EnterExit(playerid)
 					PlayerTemp[playerid][pt_PROPERTY_INDEX] = info[1];
 
 					new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Z];
-					if(PROPERTY_INFO[info[1]][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+					z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 					SetPlayerPosEx(playerid, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Y], z_pos, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_ANGLE], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_INTERIOR], PROPERTY_INFO[info[1]][property_ID], false /*PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_FREEZE]*/, true);
 					FreezePlayer(playerid);
 
@@ -25736,7 +25756,7 @@ CMD:guardar(playerid, params[])
 		if(PROPERTY_INFO[index][property_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Esta no es tu casa");
 
 		new Float:z_pos = PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Z];
-		if(PROPERTY_INFO[index][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+		z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 		if(IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_X], PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Y], z_pos))
 		{
 			new closet_slot = GetPropertyAvaibleClosetSlot(index);
@@ -31237,12 +31257,12 @@ SendMessageToDoubtChannel(playerid, message[], bool:resp = false)
 	if(!resp)
 	{
 		if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "[OOC | Dudas] %s - %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PlayerTemp[playerid][pt_NAME], playerid, message);
-		else format(str, 445, "[OOC | Dudas] Nivel: %s - %s (%d): %s", PI[playerid][pLEVEL], PlayerTemp[playerid][pt_NAME], playerid, message);
+		else format(str, 445, "[OOC | Dudas] Nivel: %d - %s (%d): %s", PI[playerid][pLEVEL], PlayerTemp[playerid][pt_NAME], playerid, message);
 	}
 	else
 	{
 		if(PI[playerid][pADMIN_LEVEL]) format(str, 445, "[OOC | Respuesta] %s - %s (%d): %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PlayerTemp[playerid][pt_NAME], playerid, message);
-		else format(str, 445, "[OOC | Respuesta] Nivel: %s - %s (%d): %s", PI[playerid][pLEVEL], PlayerTemp[playerid][pt_NAME], playerid, message);
+		else format(str, 445, "[OOC | Respuesta] Nivel: %d - %s (%d): %s", PI[playerid][pLEVEL], PlayerTemp[playerid][pt_NAME], playerid, message);
 	}
 
 	PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();
@@ -32376,7 +32396,7 @@ UpdatePlayerWorldInfo(playerid)
 						PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
 
 						new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
-						if(PROPERTY_INFO[index][property_DIS_DEFAULT_INTERIOR]) z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+						z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
 						PI[playerid][pPOS_Z] = z_pos;
 
 						PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];
