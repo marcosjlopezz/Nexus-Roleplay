@@ -195,16 +195,15 @@ SendAdminChatLogMessage(playerid, const message[])
     DCC_SendChannelEmbedMessage(Discord_Channels[7], Log_Embed, "");
 }
 
-SendAntiCheatLogMessage(playerid, const message[])
+SendAntiCheatLogMessage(const message[])
 {
-    new title[2000], content[2000];
-    format(title, 2000, ":key: %s (%d) - [DB-ID: %d]", PI[playerid][pNAME], playerid, PI[playerid][pID]);
+    new content[2000];
     format(content, 2000, "```yaml\n%s```", message);
 
     new DCC_Embed:Log_Embed;
     Log_Embed = DCC_CreateEmbed
     (
-        title, 
+        ":key: AntiCheat", 
         content, 
         "", 
         "", 

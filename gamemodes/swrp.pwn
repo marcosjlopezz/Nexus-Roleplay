@@ -25100,7 +25100,7 @@ OnPlayerCheatDetected(playerid, cheat, Float:extra = 0.0)
 	}
 	
 	SendMessageToAdminsAC(-1, ac_message);
-	SendAntiCheatLogMessage(playerid, ac_dc);
+	SendAntiCheatLogMessage(ac_dc);
 
 	PlayerTemp[playerid][pt_LAST_CHEAT_DETECTED_TIME] = gettime();
 	return 1;
