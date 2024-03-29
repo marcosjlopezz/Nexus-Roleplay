@@ -12,9 +12,9 @@ AntiAmx()
 }
 
 #define MYSQL_HOST "23.167.232.40"
-#define MYSQL_USER "u12_zkQwIPJhlI"
-#define MYSQL_DB "s12_swrp_db"
-#define MYSQL_PASS "UI^m837VYjaPVk2^G15.gWyX"
+#define MYSQL_USER "u13_v0t8hXdvbj"
+#define MYSQL_DB "s13_swrp_db"
+#define MYSQL_PASS "3P6svgi+O1dqqq@K8guboeuz"
 
 /*#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
@@ -40,7 +40,7 @@ AntiAmx()
 #include <PawnPlus>
 #include <YSF>
 //#include <progress2>
-#include <samp_bcrypt>
+//#include <samp_bcrypt>
 #include <mobile>
 #include <eSelection>
 #include <discord-connector>
@@ -5127,6 +5127,10 @@ public OnGameModeInit()
 
 	print("BASE DE DATOS CARGADA CORRECTAMENTE");
 
+	new default_pass_hash[65];
+	SHA256_PassHash("s4mpW0rl3", "SampWorld", default_pass_hash, 64 + 1);
+	printf("'s4mpW0rl3' Hash: '%s'", default_pass_hash);
+
 	mysql_tquery(handle_db, "SELECT * FROM `properties` ORDER BY `id` ASC", "LoadProperties");
 	mysql_tquery(handle_db, "SELECT * FROM `crews` ORDER BY `id` ASC", "LoadCrews");
 	mysql_tquery(handle_db, "SELECT * FROM `territories` ORDER BY `id` ASC", "LoadGangZones");
@@ -5724,7 +5728,7 @@ CMD:a(playerid, params[])
     format(string, sizeof(string), "[Admin Chat | %s] {"#YELLOW_COLOR"}/%s (%d): {"#SILVER_COLOR"}%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, params);
 	SendChatMessageToAdmins(GOLD_COLOR2, string);
 
-	new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (rank: %s nick: %s pid: '%d' Message: %s)", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, params);
+	new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (rank: '%s' nick: '%s' Message: '%s')", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], params);
 	SendAdminChatLogMessage(playerid, dc_string);
 	return 1;
 }
@@ -5746,7 +5750,7 @@ hook OnPlayerText(playerid, text[])
 		format(string, sizeof(string), "[Admin Chat | %s] {"#YELLOW_COLOR"}#%s (%d): {"#SILVER_COLOR"}%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, text[1]);
 		SendChatMessageToAdmins(GOLD_COLOR2, string);
 
-		new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (rank: %s nick: %s pid: '%d' Message: %s)", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, text[1]);
+		new dc_string[445]; format(dc_string, sizeof(dc_string), "Admin Chat (rank: '%s' nick: '%s' Message: '%s')", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], text[1]);
 		SendAdminChatLogMessage(playerid, dc_string);
 		return 0;
 	}
@@ -10587,7 +10591,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(strlen(inputtext) < MIN_PASS_LENGTH || strlen(inputtext) > MAX_PASS_LENGTH) return ShowDialog(playerid, dialogid);
 				format(PlayerTemp[playerid][pt_PASSWD], 24, "%s", inputtext);
 				
-				bcrypt_hash(playerid, "OnPlayerRegisterPassword", PlayerTemp[playerid][pt_PASSWD], BCRYPT_COST);
+				//bcrypt_hash(playerid, "OnPlayerRegisterPassword", PlayerTemp[playerid][pt_PASSWD], BCRYPT_COST);
+				SHA256_PassHash(inputtext, "SampWorld", PI[playerid][pPASS], 64 + 1);
+				ShowDialog(playerid, DIALOG_EMAIL);			
 			}
 			else Kick(playerid);
 			return 1;
@@ -10632,7 +10638,15 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(!response) return Kick(playerid);
 			if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 			
-			bcrypt_verify(playerid, "OnPlayerLoginCheckPass", inputtext, PI[playerid][pPASS]);
+			//bcrypt_verify(playerid, "OnPlayerLoginCheckPass", inputtext, PI[playerid][pPASS]);
+
+			new password[64 + 1];
+			SHA256_PassHash(inputtext, "SampWorld", password, sizeof password);
+			if(!strcmp(password, PI[playerid][pPASS], false))
+			{
+				OnPlayerLoginCheckPass(playerid, true);
+			}
+			else OnPlayerLoginCheckPass(playerid, false);
 			return 1;
 		}
 		case DIALOG_CLOTHES:
@@ -13697,8 +13711,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El vendedor está demasiado lejos.");
 				if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "El vendedor no está disponible.");
 				
-				format(dc_message, 445, "Realizando Compra/Venta (Seller Coins: '%d' Buyer Coins: '%d')", PI[playerid][pCOINS], PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS]);
-				SendCoinsLogMessage(playerid, dc_message);
+				format(dc_message, 445, "Realizando Compra/Venta (Buyer Coins: '%d' Seller Coins: '%d')", PI[playerid][pCOINS], PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS]);
+				SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
 
 				PI[playerid][pCOINS] += PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
 				PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS] -= PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
@@ -13709,13 +13723,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					mysql_tquery(handle_db, QUERY_BUFFER);
 
 					format(dc_message, 445, QUERY_BUFFER);
-					SendCoinsLogMessage(playerid, dc_message);
+					SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
 
 					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET coins = %d WHERE id = %d;", PI[PlayerTemp[playerid][pt_TRICK_SELLER_PID]][pCOINS], PI[PlayerTemp[playerid][pt_TRICK_SELLER_PID]][pID]);
 					mysql_tquery(handle_db, QUERY_BUFFER);
 
 					format(dc_message, 445, QUERY_BUFFER);
-					SendCoinsLogMessage(playerid, dc_message);
+					SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
 
 					SendClientMessagef(playerid, -1, "Has gastado %s$ con esta compra.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
 					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
@@ -13724,8 +13738,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
 					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
 
-					format(dc_message, 445, "Compra/Venta procesada (nick: '%s' pid: '%d' to seller: '%s' spid: '%d') Monto Total: (Seller: %d, Buyer: %d)", PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pNAME], PlayerTemp[playerid][pt_TRICK_SELLER_PID], PI[playerid][pNAME], playerid, PI[playerid][pCOINS], PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS]);
-					SendCoinsLogMessage(playerid, dc_message);
+					format(dc_message, 445, "Compra/Venta procesada (nick: '%s' pid: '%d' to buyer: '%s' spid: '%d') Monto Total: (buyer: %d, seller: %d)", PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pNAME], PlayerTemp[playerid][pt_TRICK_SELLER_PID], PI[playerid][pNAME], playerid, PI[playerid][pCOINS], PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS]);
+					SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
 				}
 			}
 			else
@@ -13736,8 +13750,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 				SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "El comprador no ha aceptado tu trato.");
 
-				format(dc_message, 445, "Compra/Venta rechazada (nick: '%s' pid: '%d' to seller: '%s' spid: '%d')", PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pNAME], PlayerTemp[playerid][pt_TRICK_SELLER_PID], PI[playerid][pNAME], playerid);
-				SendCoinsLogMessage(playerid, dc_message);
+				format(dc_message, 445, "Compra/Venta rechazada (nick: '%s' pid: '%d' to buyer: '%s' spid: '%d')", PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pNAME], PlayerTemp[playerid][pt_TRICK_SELLER_PID], PI[playerid][pNAME], playerid);
+				SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
 			}
 			return 1;
 		}
@@ -14483,7 +14497,22 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 				
-				bcrypt_verify(playerid, "OnChangePasswordCheck", inputtext, PI[playerid][pPASS]);
+				//bcrypt_verify(playerid, "OnChangePasswordCheck", inputtext, PI[playerid][pPASS]);
+
+				new password[64 + 1];
+				SHA256_PassHash(inputtext, "SampWorld", password, sizeof password);
+			
+				if(!strcmp(password, PI[playerid][pPASS], false))
+				{
+					ShowDialog(playerid, DIALOG_CHANGE_PASSWORD_PASS);
+					PLAYER_TEMP[playerid][pt_BAD_LOGIN_ATTEMP] = 0;
+				}
+				else // Error
+				{
+					PLAYER_TEMP[playerid][pt_BAD_LOGIN_ATTEMP] ++;
+					if(PLAYER_TEMP[playerid][pt_BAD_LOGIN_ATTEMP] > MAX_BAD_LOGIN_ATTEMPS) return Kick(playerid);
+					SendMessagef(playerid, "Contraseña incorrecta, aviso %d/%d.", PLAYER_TEMP[playerid][pt_BAD_LOGIN_ATTEMP], MAX_BAD_LOGIN_ATTEMPS);
+				}
 			}
 			return 1;
 		}
@@ -14493,7 +14522,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(strlen(inputtext) < MIN_PASS_LENGTH || strlen(inputtext) > MAX_PASS_LENGTH) return ShowDialog(playerid, dialogid);
 				
-				bcrypt_hash(playerid, "OnChangePasswordHash", inputtext, BCRYPT_COST);
+				//bcrypt_hash(playerid, "OnChangePasswordHash", inputtext, BCRYPT_COST);
+				SHA256_PassHash(inputtext, "SampWorld", PI[playerid][pPASS], 64 + 1);
+	
+				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET pass = '%e' WHERE id = %d;", PI[playerid][pPASS], PI[playerid][pID]);
+				mysql_tquery(handle_db, QUERY_BUFFER);
+				
+				SendMessage(playerid, "Tu contraseña ha sido cambiada correctamente.");
 			}
 			return 1;
 		}
@@ -16072,7 +16107,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 		
-				bcrypt_verify(playerid, "OnChangeNamePassCheck", inputtext, PI[playerid][pPASS]);
+				//bcrypt_verify(playerid, "OnChangeNamePassCheck", inputtext, PI[playerid][pPASS]);
 			}
 			return 1;
 		}
@@ -25925,9 +25960,6 @@ CMD:esposar(playerid, params[])
 	{
 		if(oldstate == ROLEPLAY_STATE_CRACK) 
 		{
-			ClearAnimations(playerid);
-			CuffPlayer(params[0]);
-
 			new str_text[445];
 			SendPlayerAction(playerid, "saca sus esposas y rapidamente se las coloca al sujeto.");
 			format(str_text, sizeof(str_text), "* %s (( ¿Pondra resistencia? Si esta abatido entonces NO! ))", PlayerTemp[playerid][pt_NAME]);
@@ -25936,6 +25968,9 @@ CMD:esposar(playerid, params[])
 			KillTimer(pTemp(params[0])[pt_TASSED]);
 			pTemp(params[0])[pt_TASSED] = -1;
 			pTemp(params[0])[pt_TASSED_TIME] = 0;
+
+			ClearAnimations(playerid);
+			CuffPlayer(params[0]);
 		}
 		else 
 		{
@@ -28605,7 +28640,15 @@ CMD:setpass(playerid, params[])
 					if(connected) SendClientMessagef(playerid, -1, "JUGADOR '%s' DB-ID '%d' conectado, player_id: %d, no es necario cambiar la clave.", name, id, pid);
 					else
 					{
-						bcrypt_hash(playerid, "OnSetPassChange", new_pass, BCRYPT_COST, "iss", id, name, new_pass);
+						//bcrypt_hash(playerid, "OnSetPassChange", new_pass, BCRYPT_COST, "iss", id, name, new_pass);
+						
+						new pass_ex[64 + 1];
+						SHA256_PassHash(new_pass, "SampWorld", pass_ex, 64 + 1);
+						
+						mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player pass = '%e' WHERE id = %d;", pass_ex, id);
+						mysql_tquery(handle_db, QUERY_BUFFER);
+						
+						SendMessagef(playerid, "La contraseña de '%s' ahora es: %s", name, new_pass);					
 					}
 				}
 				else SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
@@ -32048,7 +32091,7 @@ callbackp:OnChangePasswordCheck(playerid, bool:success)
 	return 1;
 }
 
-callbackp:OnChangePasswordHash(playerid)
+/*callbackp:OnChangePasswordHash(playerid)
 {
 	bcrypt_get_hash(PI[playerid][pPASS]);
 	SendMessage(playerid, "Tu clave se ha cambiado correctamente.");
@@ -32060,7 +32103,7 @@ callbackp:OnPlayerRegisterPassword(playerid)
 	bcrypt_get_hash(PI[playerid][pPASS]);
 	ShowDialog(playerid, DIALOG_EMAIL);
 	return 1;
-}
+}*/
 
 public OnPlayerRegister(playerid)
 {
@@ -32238,7 +32281,7 @@ callbackp:OnChangeNamePassCheck(playerid, bool:success)
 	return 1;
 }
 
-callbackp:OnSetPassChange(playerid, id, name[], new_pass[])
+/*callbackp:OnSetPassChange(playerid, id, name[], new_pass[])
 {
 	new pass[64 + 1];
 	bcrypt_get_hash(pass);
@@ -32248,7 +32291,7 @@ callbackp:OnSetPassChange(playerid, id, name[], new_pass[])
 
 	SendMessagef(playerid, "La clave de '%s' ahora es: %s", name, new_pass);
 	return 1;
-}
+}*/
 
 stock IsPlayerLoggedIn(playerid)
 {
