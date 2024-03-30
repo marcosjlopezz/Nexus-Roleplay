@@ -152,7 +152,6 @@ stock ClearPlayerTempData(playerid)
     pTemp(playerid)[pt_CJ_WARNINGS] = 0;
     Loop(i, 24, 0) pTemp(playerid)[pt_FIRST_NAME][i] = 0;
     Loop(i, 24, 0) pTemp(playerid)[pt_SUB_NAME][i] = 0;
-    pTemp(playerid)[pt_POLICE_LABEL] = Text3D:INVALID_STREAMER_ID;
     pTemp(playerid)[pt_ADMIN_SERVICE] = false;
     pTemp(playerid)[pt_ADMIN_LABEL] = Text3D:INVALID_STREAMER_ID;
     pTemp(playerid)[pt_LAST_SAFE_ZONE_WARNING] = 0;

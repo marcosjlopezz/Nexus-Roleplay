@@ -1,6 +1,6 @@
 #include <YSI-Includes\YSI\y_hooks>
 
-hook OnPlayerSpawn(playerid) 
+stock SpawnPlayerDeath(playerid)
 {
     if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) 
     {
@@ -11,18 +11,28 @@ hook OnPlayerSpawn(playerid)
         PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
 
         SetPlayerHud(playerid);
-        if(PLAYER_TEMP[playerid][pt_GAME_STATE] == GAME_STATE_DEAD) SetPlayerHealthEx(playerid, 100.0);
+        SetPlayerHealthEx(playerid, 100.0);
         SetCameraBehindPlayer(playerid);
         SendAlertToMedics(playerid);
         TogglePlayerControllableEx(playerid, false);
+
         KillTimer(PLAYER_TEMP[playerid][pt_TIMERS][3]);
         PLAYER_TEMP[playerid][pt_TIMERS][3] = SetTimerEx("TogglePlayerControl", seconds(5), false, "ib", playerid, true);
         
-        if(PI[playerid][pWANTED_LEVEL] > 0) SendClientMessagef(playerid, -1, "Estás herido y en búsqueda, espera a que la policía venga a por ti.");
-        else SendClientMessagef(playerid, -1, "Estás herido, espera a que venga un medico.");
+        if(PI[playerid][pWANTED_LEVEL] > 0) SendClientMessagef(playerid, -1, "Estas herido y en búsqueda, espera a que la policia venga a por ti.");
+        else SendClientMessagef(playerid, -1, "Estas herido, espera a que venga un medico.");
 
         SetPlayerPosEx(playerid, PLAYER_TEMP[playerid][pt_INJURED_POS][0], PLAYER_TEMP[playerid][pt_INJURED_POS][1], PLAYER_TEMP[playerid][pt_INJURED_POS][2], PLAYER_TEMP[playerid][pt_INJURED_POS][3], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid), 0, 1);
         if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+    }
+}
+
+hook OnPlayerSpawn(playerid) 
+{
+    if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) 
+    {
+        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+		SpawnPlayerDeath(playerid);
     }
 }
 
@@ -62,12 +72,4 @@ hook OnPlayerEnterVehicle(playerid, vehicleid, ispassenger)
 		return Y_HOOKS_BREAK_RETURN_1;
 	}
     return Y_HOOKS_CONTINUE_RETURN_1;
-}
-
-hook OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
-{
-    if(PI[damagedid][pSTATE] == ROLEPLAY_STATE_CRACK)
-    {
-        GivePlayerHealthEx(damagedid, amount);
-    }
 }

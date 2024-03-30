@@ -39,7 +39,7 @@ AntiAmx()
 #define PP_SYNTAX_FOR_LIST
 #include <PawnPlus>
 #include <YSF>
-//#include <progress2>
+#include <progress2>
 //#include <samp_bcrypt>
 #include <mobile>
 #include <eSelection>
@@ -47,12 +47,12 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.3 Alpha"
+#define SERVER_VERSION			"2.4 Alpha"
 
-#define SERVER_NAME				"MegaWorld Roleplay"
-#define SERVER_SHORT_NAME		"MegaWorld"
+#define SERVER_NAME				"SampWorld Roleplay"
+#define SERVER_SHORT_NAME		"SampWorld"
 
-#define	SERVER_NAME1			"Mega"
+#define	SERVER_NAME1			"Samp"
 #define	SERVER_NAME2			"World"
 
 #define SERVER_GAMEMODE			"Roleplay r"SERVER_VERSION""
@@ -200,7 +200,6 @@ enum
 	CHEAT_VEHICLE_ENTER_SPAMMER,
 	CHEAT_JETPACK,
 	CHEAT_PLAYER_SPEED,
-	CHEAT_PLAYER_HEALTH,
 	CHEAT_PLAYER_ARMOUR,
 	CHEAT_VEHICLE_HEALTH,
 	CHEAT_PLAYER_VEHICLE_WORK, //Entra a un vehiculo que no es de su trabajo
@@ -2867,7 +2866,6 @@ enum Temp_Enum
 	pt_CJ_WARNINGS,
 	pt_FIRST_NAME[24],
 	pt_SUB_NAME[24],
-	Text3D:pt_POLICE_LABEL,
 	bool:pt_ADMIN_SERVICE,
 	Text3D:pt_ADMIN_LABEL,
 	pt_LAST_SAFE_ZONE_WARNING,
@@ -2919,7 +2917,8 @@ enum Temp_Enum
 	Float:pt_TASSED_TIME,
 	pt_TASER_ENERGY,
 	pt_TASER_TIMER,
-	pt_POLICE_SWAT
+	pt_POLICE_SWAT,
+	Text3D:pt_USER_LABEL
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3885,9 +3884,7 @@ new Textdraws[Textdraws_Enum];
 
 enum E_PBARS
 {
-	empty
-	/*PlayerBar:pbarHungry,
-	PlayerBar:pbarThirst*/
+	PlayerBar:pbHEALTH
 };
 new PlayerBars[MAX_PLAYERS][E_PBARS];
 
@@ -4356,11 +4353,6 @@ ResetPlayerVariables(playerid)
 
 DestroyPlayerCheckpoints(playerid)
 {
-	if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]))
-	{
-		DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]);
-		PlayerTemp[playerid][pt_POLICE_LABEL] = Text3D:INVALID_STREAMER_ID;
-	}
 	if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]))
 	{
 		DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]);
@@ -4474,6 +4466,8 @@ public OnPlayerSpawn(playerid)
 
 		PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
 		pTemp(playerid)[pt_TASER_GUN] = false;
+
+		SetPlayerNameLabel(playerid, false);
 		
 		TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
 		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "{d1d1d1}Bienvenido, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs\ny damos recompensa por encontrar bugs a los que son Asistentes\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
@@ -4645,7 +4639,6 @@ public OnPlayerSpawn(playerid)
 	
 	PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_STATE_SPAMMER][p_ac_info_IMMUNITY] = gettime() + 3;
-	PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_PLAYER_ARMOUR][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_UNOCCUPIED_VEHICLE_TP][p_ac_info_IMMUNITY] = gettime() + 5;
 	return 1;
@@ -4742,7 +4735,6 @@ hook OnPlayerDeath(playerid, killerid, reason)
 	KillTimer(PlayerTemp[playerid][pt_TIMERS][16]);
 	PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_STATE_SPAMMER][p_ac_info_IMMUNITY] = gettime() + 3;
-	PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_NOFUEL][p_ac_info_IMMUNITY] = gettime() + 15;
 	if(!PI[playerid][pVIP]) SetPlayerArmourEx(playerid, 0.0);
 	pTemp(playerid)[pt_TASER_GUN] = false;
@@ -5113,6 +5105,7 @@ public OnGameModeInit()
 	SendRconCommand("chatlogging 0");
 	SendRconCommand("sleep 1");
 	SendRconCommand("query 1");
+	ShowNameTags(0);
 
 	SetDatabaseInfo();
 
@@ -6113,6 +6106,68 @@ ptask AutoSavePlayerData[30000](playerid)
 	}
 }
 
+stock SetPlayerNameLabel(playerid, bool:update)
+{
+	new label_str[1024], colour[445] = "{ffffff}";
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
+	{
+		if(pTemp(playerid)[pt_POLICE_SWAT]) colour = "{"#SWAT_COLOR"}";
+		else colour = "{"#POLICE_COLOR"}";
+	}
+
+	format(label_str, 1024, "%s%s (%d)\n", colour, PlayerTemp[playerid][pt_NAME], playerid);
+
+	new wanted_str[445] = "";
+	if(PI[playerid][pWANTED_LEVEL])
+	{
+		format(wanted_str, 445, "{"#LIGHT_RED"}[{"#RED_COLOR"}Buscado #%d{"#LIGHT_RED"}]\n", PI[playerid][pWANTED_LEVEL]);
+	}
+	if(pTemp(playerid)[pt_CUFFED])
+	{
+		format(wanted_str, 445, "{C8FF73}[{"#GREEN_COLOR"}Esposado{C8FF73}]\n");
+	}
+	strins(label_str, wanted_str, 0);
+
+	new health_str[445], armour_str[445];
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || IsPlayerInSafeZone(playerid))
+	{
+		armour_str = "";
+		health_str = "";
+	}
+	else
+	{
+		if(PI[playerid][pARMOUR])
+		{
+			format(armour_str, 445, "{000000}[{ffffff}IIIIIIIIIIIIIIII{000000}]\n");
+			new start = floatround( floatdiv(PI[playerid][pARMOUR], floatdiv(100, 15.0)) );
+			if(start < 15) strins(armour_str, "{323232}", 17 + start);
+		}
+		else armour_str = "";
+
+		format(health_str, 445, "{000000}[{ff0000}IIIIIIIIIIIIIIII{000000}]\n");
+		new start = floatround( floatdiv(PI[playerid][pHEALTH], floatdiv(100, 15.0)) );
+		if(start < 15) strins(health_str, "{550000}", 17 + start);
+	}
+
+	strcat(label_str, armour_str);
+	strcat(label_str, health_str);
+
+	if(update)
+	{
+		UpdateDynamic3DTextLabelText(PlayerTemp[playerid][pt_USER_LABEL], PLAYER_COLOR, label_str);
+	}
+	else
+	{
+		if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_USER_LABEL]))
+		{
+			DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_USER_LABEL]);
+			PlayerTemp[playerid][pt_USER_LABEL] = Text3D:INVALID_STREAMER_ID;
+		}
+		PlayerTemp[playerid][pt_USER_LABEL] = CreateDynamic3DTextLabel(label_str, PLAYER_COLOR, 0.0, 0.0, 0.3, 40.0, playerid, .testlos = true);
+	}
+	return 1;
+}
+
 ptask UpdatePlayerInfo[250](playerid)
 {
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
@@ -6153,6 +6208,8 @@ ptask UpdatePlayerInfo[250](playerid)
 	}
 
 	if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
+
+	SetPlayerNameLabel(playerid, true);
 }
 
 CMD:ayuda(playerid, params[])
@@ -16819,6 +16876,7 @@ public OnPlayerEnterDynamicArea(playerid, areaid)
 		}
 		case AREA_TYPE_SAFE_ZONE:
 		{
+			SetPlayerNameLabel(playerid, true);
 			TextDrawShowForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
 		}
 	}
@@ -16884,6 +16942,7 @@ public OnPlayerLeaveDynamicArea(playerid, areaid)
 		case AREA_TYPE_SAFE_ZONE:
 		{
 			if(!IsPlayerInSafeZone(playerid)) TextDrawHideForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
+			SetPlayerNameLabel(playerid, true);
 		}
 	}
 	return 1;
@@ -17979,8 +18038,8 @@ CreatePlayerBars(playerid)
 	static const tmp_pbar[E_PBARS];
 	PlayerBars[playerid] = tmp_pbar;
 
-	/*PlayerBars[playerid][pbarHungry] = CreatePlayerProgressBar(playerid, 485.000000, 438.000000, 60.000000, 3.000000, -2686721, 100.000000, 0);
-	PlayerBars[playerid][pbarThirst] = CreatePlayerProgressBar(playerid, 578.000000, 438.000000, 60.000000, 3.000000, 16777215, 100.000000, 0);*/
+	if(IsPlayerUsingMobile(playerid)) PlayerBars[playerid][pbHEALTH] = CreatePlayerProgressBar(playerid, 512.000000, 64.000000, 55.500000, 13.000000, 0xFF0000FF, 100.000000, 0);
+	else PlayerBars[playerid][pbHEALTH] = CreatePlayerProgressBar(playerid, 545.000000, 68.000000, 69.000000, 7.000000, 0xFF0000FF, 100.000000, 0);
 }
 
 CreatePlayerTextDraws(playerid)
@@ -20100,29 +20159,9 @@ public OnPlayerUpdate(playerid)
 	new player_state = GetPlayerState(playerid);
 	if(player_state == PLAYER_STATE_SPAWNED || player_state == PLAYER_STATE_SPECTATING) return 1;
 	
-	new player_action = GetPlayerSpecialAction(playerid), Float:player_health, Float:player_armour, player_weapon = GetPlayerWeapon(playerid), current_gettime = gettime();
-	GetPlayerHealth(playerid, player_health);
+	new player_action = GetPlayerSpecialAction(playerid), Float:player_armour, player_weapon = GetPlayerWeapon(playerid), current_gettime = gettime();
 	GetPlayerArmour(playerid, player_armour);
 	if(player_weapon) CheckWeaponAndAmmo(playerid, player_weapon);
-	
-	if(ac_Info[CHEAT_PLAYER_HEALTH][ac_Enabled])
-	{
-		if(player_health > PI[playerid][pHEALTH] + 5.0)
-		{
-			if(current_gettime > PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_IMMUNITY])
-			{
-				if(!ac_Info[CHEAT_PLAYER_HEALTH][ac_Interval]) OnPlayerCheatDetected(playerid, CHEAT_PLAYER_HEALTH);
-				else
-				{
-					if(current_gettime - PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_LAST_DETECTION] > ac_Info[CHEAT_PLAYER_HEALTH][ac_Interval]) PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_DETECTIONS] = 0;
-					else PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_DETECTIONS] ++;
-					
-					PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_LAST_DETECTION] = current_gettime;
-					if(PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_DETECTIONS] >= ac_Info[CHEAT_PLAYER_HEALTH][ac_Detections]) OnPlayerCheatDetected(playerid, CHEAT_PLAYER_HEALTH);
-				}
-			}
-		}
-	}
 	
 	if(ac_Info[CHEAT_PLAYER_ARMOUR][ac_Enabled])
 	{
@@ -20369,7 +20408,6 @@ public OnPlayerUpdate(playerid)
 		}
 	}
 	
-	PI[playerid][pHEALTH] = player_health;
 	PI[playerid][pARMOUR] = player_armour;
 	GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
 	if(vehicleid)
@@ -21047,9 +21085,6 @@ UpdatePlayerHud(playerid)
 
 	format(str, sizeof str, "%d", floatround(PI[playerid][pTHIRST]));
 	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_HUD][2], str);
-
-	/*SetPlayerProgressBarValue(playerid, PlayerBars[playerid][pbarHungry], PI[playerid][pHUNGRY]);
-	SetPlayerProgressBarValue(playerid, PlayerBars[playerid][pbarThirst], PI[playerid][pTHIRST]);*/
 	return 1;
 }
 
@@ -21149,6 +21184,8 @@ SetPlayerHud(playerid)
 
 	KillTimer(PlayerTemp[playerid][pt_TIMERS][5]);
 	PlayerTemp[playerid][pt_TIMERS][5] = SetTimerEx("HungryThirstDown", INTERVAL_HUNGRY_THIRST_DOWN * 1000, true, "i", playerid);
+
+	ShowPlayerProgressBar(playerid, PlayerBars[playerid][pbHEALTH]);
 	return 1;
 }
 
@@ -21159,8 +21196,7 @@ HidePlayerHud(playerid)
 	
 	HidePlayerHudInfo(playerid);
 
-	/*HidePlayerProgressBar(playerid, PlayerBars[playerid][pbarHungry]);
-	HidePlayerProgressBar(playerid, PlayerBars[playerid][pbarThirst]);*/
+	HidePlayerProgressBar(playerid, PlayerBars[playerid][pbHEALTH]);
 	return 1;
 }
 
@@ -24864,7 +24900,7 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
     return 1;
 }
 
-public OnPlayerGiveDamage(playerid, damagedid, Float: amount, weaponid, bodypart)
+public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 {
 	if(damagedid != INVALID_PLAYER_ID)
 	{
@@ -24977,6 +25013,8 @@ public OnPlayerGiveDamage(playerid, damagedid, Float: amount, weaponid, bodypart
 			}
 		}
 	}
+
+	SetPlayerNameLabel(playerid, true);
     return 1;
 }
 
@@ -25003,8 +25041,21 @@ callbackp:TasePlayer(damagedid)
 	return 1;
 }
 
-public OnPlayerTakeDamage(playerid, issuerid, Float: amount, weaponid, bodypart)
+public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
+	new bool:GivePlayerDamage = false;
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) GivePlayerDamage = false;
+	else if(IsPlayerInSafeZone(playerid) && !PLAYER_WORKS[issuerid][WORK_POLICE][pwork_SET]) GivePlayerDamage = false;
+	else if(pTemp(playerid)[pt_TASER_GUN]) GivePlayerDamage = false;
+	else GivePlayerDamage = true;
+
+	if(GivePlayerDamage)
+	{
+		if(PI[playerid][pARMOUR] <= 0.0) PI[playerid][pHEALTH] -= amount;
+	}
+
+	SetPlayerNameLabel(playerid, true);
+	UpdatePlayerHealthInfo(playerid, issuerid, weaponid);
     return 1;
 }
 
@@ -25086,8 +25137,7 @@ OnPlayerCheatDetected(playerid, cheat, Float:extra = 0.0)
 		else format(ac_dc, sizeof ac_dc, "[KICK]: %s (%d): %s (cd: %02d, ps: %02d, ping: %d, dec: %d:%d)", PI[playerid][pNAME], playerid, ac_Info[cheat][ac_Name], cheat, player_state, GetPlayerPing(playerid), PLAYER_AC_INFO[playerid][cheat][p_ac_info_DETECTIONS], ac_Info[cheat][ac_Interval]);
 
 		KickEx(playerid);
-		
-		if(cheat == CHEAT_PLAYER_HEALTH) PI[playerid][pHEALTH] = 20.0;
+
 		if(cheat == CHEAT_PLAYER_ARMOUR) PI[playerid][pARMOUR] = 0.0;
 	}
 	else
@@ -25181,10 +25231,9 @@ LoadPlayerWeaponsData(playerid)
 
 SetPlayerHealthEx(playerid, Float:health)
 {
-	PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_IMMUNITY] = gettime() + 3;
-	
 	PI[playerid][pHEALTH] = health;
-	SetPlayerHealth(playerid, PI[playerid][pHEALTH]);
+	//SetPlayerHealth(playerid, PI[playerid][pHEALTH]);
+	UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
 	return 1;
 }
 
@@ -25194,16 +25243,17 @@ SetPlayerArmourEx(playerid, Float:armour)
 	
 	PI[playerid][pARMOUR] = armour;
 	SetPlayerArmour(playerid, PI[playerid][pARMOUR]);
+	//UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
+	SetPlayerNameLabel(playerid, true);
 	return 1;
 }
 
 GivePlayerHealthEx(playerid, Float:health)
 {
-	PLAYER_AC_INFO[playerid][CHEAT_PLAYER_HEALTH][p_ac_info_IMMUNITY] = gettime() + 3;
-	
 	PI[playerid][pHEALTH] += health;
 	if(PI[playerid][pHEALTH] > 100.0) PI[playerid][pHEALTH] = 100.0;
-	SetPlayerHealth(playerid, PI[playerid][pHEALTH]);
+	//SetPlayerHealth(playerid, PI[playerid][pHEALTH]);
+	UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
 	return 1;
 }
 
@@ -25214,6 +25264,199 @@ GivePlayerArmourEx(playerid, Float:armour)
 	PI[playerid][pARMOUR] += armour;
 	if(PI[playerid][pARMOUR] > 100.0) PI[playerid][pARMOUR] = 100.0;
 	SetPlayerArmour(playerid, PI[playerid][pARMOUR]);
+	//UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
+	SetPlayerNameLabel(playerid, true);
+	return 1;
+}
+
+stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
+{
+	SetPlayerHealth(playerid, 99999.9);
+
+	if(PI[playerid][pHEALTH] <= 0.1)
+	{
+		if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK)
+		{
+			if(PlayerTemp[playerid][pt_COMBAT]) ResetCombat(playerid);
+			
+			PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
+			PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_NOFUEL][p_ac_info_IMMUNITY] = gettime() + 15;
+			pTemp(playerid)[pt_TASER_GUN] = false;
+
+			for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
+			{
+				if(IsPlayerConnected(i) && pTemp(i)[pt_USER_LOGGED])
+				{
+					if(PI[i][pADMIN_LEVEL] >= CMD_MODERATOR && pTemp(i)[pt_ADMIN_SERVICE])
+					{
+						SendDeathMessageToPlayer(i, killerid, playerid, reason);
+					}
+				}
+			}
+
+			if(IsPlayerConnected(killerid) && PI[killerid][pSTATE] == ROLEPLAY_STATE_NORMAL && PI[playerid][pSTATE] == ROLEPLAY_STATE_NORMAL)
+			{
+				if(!PLAYER_WORKS[killerid][WORK_POLICE][pwork_SET])
+				{
+					if(IsPlayerInSafeZone(killerid))
+					{
+						SendClientMessage(killerid, -1, "Estás en una zona segura, la policía ha sido avisada del homicidio.");
+						
+						new level = PI[killerid][pWANTED_LEVEL] + 3;
+						if(level > 6) level = 6;
+
+						SetPlayerWantedLevelEx(killerid, level);
+						
+						new city[45], zone[45];
+						GetPlayerZones(killerid, city, zone);
+
+						new message[145];
+						format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s ha causado un asesinato en {"#POLICE_COLOR"}%s, %s.", pTemp(killerid)[pt_NAME], city, zone);
+						SendPoliceRadioMessage(-1, -1, message);
+						
+						pTemp(killerid)[pt_LAST_SAFE_ZONE_WARNING] = gettime();
+					}
+				}
+			}
+			
+			if(PlayerTemp[playerid][pt_SELECT_TEXTDRAW])
+			{
+				if(PlayerTemp[playerid][pt_CLOTHING_SHOP] != -1) ClosePlayerClothingMenu(playerid);
+				if(PlayerTemp[playerid][pt_TOYS_SHOP]) ClosePlayerToysMenu(playerid);
+			}
+			
+			StopAudioStreamForPlayer(playerid);
+			SetPlayerDrunkLevel(playerid, 0);
+			KillTimer(PlayerTemp[playerid][pt_TIMERS][3]);
+			SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
+			GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
+			GetPlayerFacingAngle(playerid, PI[playerid][pANGLE]);
+			PI[playerid][pINTERIOR] = GetPlayerInterior(playerid);
+			HidePlayerHud(playerid);
+			CancelEdit(playerid);
+			HidePlayerDialog(playerid);
+			SetNormalPlayerMarkers(playerid);
+			if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) CallLocalFunction("EndPlayerJob", "iib", playerid, PlayerTemp[playerid][pt_WORKING_IN], false);
+			PlayerTemp[playerid][pt_HUNGRY_MESSAGE] = false;
+			PlayerTemp[playerid][pt_THIRST_MESSAGE] = false;
+			PlayerTemp[playerid][pt_PLAYER_IN_ATM] = false;
+			PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
+			PlayerTemp[playerid][pt_CUFFED] = false;
+			PlayerTemp[playerid][pt_CUFFING] = false;
+
+			if(PlayerTemp[playerid][pt_WANT_TAXI])
+			{
+				PlayerTemp[playerid][pt_WANT_TAXI] = false;
+				DisablePlayerTaxiMark(playerid);
+			}
+
+			if(PlayerTemp[playerid][pt_PLAYER_IN_CALL]) EndPhoneCall(playerid);
+			if(PI[playerid][pWANTED_LEVEL] > 0) DisablePlayerPoliceMark(playerid);
+
+			if(PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] != INVALID_VEHICLE_ID)
+			{
+				if(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_JOB_STARTED])
+				{
+					if(PlayerTemp[playerid][pt_TRASH_DRIVER])
+					{
+						SendClientMessage(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_PASSENGER_ID], -1, "{"#SILVER_COLOR"}El trabajo se ha cancelado porque tu amigo ha dejado de trabajar.");
+						CancelTrashWork(playerid, TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_PASSENGER_ID], PlayerTemp[playerid][pt_TRASH_VEHICLE_ID]);
+					}
+					if(PlayerTemp[playerid][pt_TRASH_PASSENGER])
+					{
+						SendClientMessage(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_DRIVER_ID], -1, "{"#SILVER_COLOR"}El trabajo se ha cancelado porque tu amigo ha dejado de trabajar.");
+						CancelTrashWork(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_DRIVER_ID], playerid, PlayerTemp[playerid][pt_TRASH_VEHICLE_ID]);
+					}
+				}
+			}
+			
+			if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL)
+			{
+				PI[playerid][pPOLICE_JAIL_TIME] -= gettime() - PlayerTemp[playerid][pt_ENTER_JAIL_TIME];
+				if(PI[playerid][pPOLICE_JAIL_TIME] < 5) PI[playerid][pPOLICE_JAIL_TIME] = 5;
+				PlayerTemp[playerid][pt_ENTER_JAIL_TIME] = gettime();
+				PI[playerid][pINTERIOR] = JAIL_POSITIONS[ PI[playerid][pPOLICE_JAIL_ID]  ][jail_INTERIOR];
+				SetPlayerVirtualWorld(playerid, 0);
+			}
+			else
+			{
+				switch(PI[playerid][pSTATE])
+				{
+					case ROLEPLAY_STATE_INTERIOR:
+					{
+						new index = GetEnterExitIndexById(PI[playerid][pLOCAL_INTERIOR]);
+
+						PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
+						PI[playerid][pLOCAL_INTERIOR] = 0;
+						PI[playerid][pPOS_X] = ENTER_EXIT[index][ee_EXT_X];
+						PI[playerid][pPOS_Y] = ENTER_EXIT[index][ee_EXT_Y];
+						PI[playerid][pPOS_Z] = ENTER_EXIT[index][ee_EXT_Z];
+						PI[playerid][pANGLE] = ENTER_EXIT[index][ee_EXT_ANGLE];
+						PI[playerid][pINTERIOR] = ENTER_EXIT[index][ee_EXT_INTERIOR];
+					}
+					case ROLEPLAY_STATE_OWN_PROPERTY:
+					{
+						new index = GetEnterExitIndexById(PI[playerid][pLOCAL_INTERIOR]);
+						if(PROPERTY_INFO[index][property_OWNER_ID] == PI[playerid][pID])
+						{
+							PI[playerid][pPOS_X] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_X];
+							PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
+
+							new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
+							z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+							PI[playerid][pPOS_Z] = z_pos;
+
+							PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];
+							PI[playerid][pINTERIOR] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_INTERIOR];
+						}
+						else
+						{
+							PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
+							PI[playerid][pLOCAL_INTERIOR] = 0;
+							PI[playerid][pPOS_X] = PROPERTY_INFO[index][property_EXT_X];
+							PI[playerid][pPOS_Y] = PROPERTY_INFO[index][property_EXT_Y];
+							PI[playerid][pPOS_Z] = PROPERTY_INFO[index][property_EXT_Z];
+							PI[playerid][pANGLE] = PROPERTY_INFO[index][property_EXT_ANGLE];
+							PI[playerid][pINTERIOR] = PROPERTY_INFO[index][property_EXT_INTERIOR];
+						}
+					}
+					case ROLEPLAY_STATE_GUEST_PROPERTY:
+					{
+						new index = GetPropertyIndexByID(PI[playerid][pLOCAL_INTERIOR]);
+						PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
+						PI[playerid][pLOCAL_INTERIOR] = 0;
+						PI[playerid][pPOS_X] = PROPERTY_INFO[index][property_EXT_X];
+						PI[playerid][pPOS_Y] = PROPERTY_INFO[index][property_EXT_Y];
+						PI[playerid][pPOS_Z] = PROPERTY_INFO[index][property_EXT_Z];
+						PI[playerid][pANGLE] = PROPERTY_INFO[index][property_EXT_ANGLE];
+						PI[playerid][pINTERIOR] = PROPERTY_INFO[index][property_EXT_INTERIOR];
+					}
+					default:
+					{
+						GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
+						GetPlayerFacingAngle(playerid, PI[playerid][pANGLE]);
+						PI[playerid][pINTERIOR] = GetPlayerInterior(playerid);
+					}
+				}
+
+				PI[playerid][pSTATE] = ROLEPLAY_STATE_CRACK;
+
+				PlayerTemp[playerid][pt_INJURED_POS][0] = PI[playerid][pPOS_X];
+				PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
+				PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
+				PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
+				PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
+			}
+
+			if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+			SpawnPlayerDeath(playerid);
+
+			PLAYER_TEMP[playerid][pt_GAME_STATE] = GAME_STATE_NORMAL;
+		}
+	}
+
+	SetPlayerNameLabel(playerid, true);
+	SetPlayerProgressBarValue(playerid, PlayerBars[playerid][pbHEALTH], PI[playerid][pHEALTH]);
 	return 1;
 }
 
@@ -26733,6 +26976,7 @@ stock SetPlayerWantedLevelEx(playerid, level)
 {
 	PI[playerid][pWANTED_LEVEL] = level;
 	SetPlayerWantedLevel(playerid, level);
+	SetPlayerNameLabel(playerid, true);
 
 	if(PI[playerid][pWANTED_LEVEL] == 0)
 	{
@@ -29017,17 +29261,7 @@ public StartPlayerJob(playerid, work, vehicleid)
 		}
 		case WORK_POLICE:
 		{
-			new label_str[128];
 			if(PI[playerid][pPOLICE_DUTY] == 285) pTemp(playerid)[pt_POLICE_SWAT] = true;
-			if(pTemp(playerid)[pt_POLICE_SWAT]) format(label_str, sizeof label_str, "{"#POLICE_COLOR"}S.W.A.T | Nº%d | %c. %s", PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
-			else format(label_str, sizeof label_str, "%s | Nº%d | %c. %s", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
-
-			if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]))
-			{
-				DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]);
-				PlayerTemp[playerid][pt_POLICE_LABEL] = Text3D:INVALID_STREAMER_ID;
-			}
-			PlayerTemp[playerid][pt_POLICE_LABEL] = CreateDynamic3DTextLabel(label_str, 0xCCCCCCCC, 0.0, 0.0, 0.3, 20.0, playerid, .testlos = true);
 
 			SetWantedPlayerMarkers(playerid);
 			for(new i = 0; i != MAX_VIP_TOYS; i ++) RemovePlayerAttachedObject(playerid, i);
@@ -29148,12 +29382,6 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 			PlayerTemp[playerid][pt_POLICE_RADIO] = 0;
 			pTemp(playerid)[pt_TASER_GUN] = false;
 			PlayerTemp[playerid][pt_REQUEST_HELP] = false;
-			
-			if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]))
-			{
-				DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_POLICE_LABEL]);
-				PlayerTemp[playerid][pt_POLICE_LABEL] = Text3D:INVALID_STREAMER_ID;
-			}
 
 			if(changeskin)
 			{
@@ -32339,7 +32567,7 @@ UpdatePlayerWorldInfo(playerid)
 	if(PlayerTemp[playerid][pt_GAME_STATE] == GAME_STATE_DEAD || PlayerTemp[playerid][pt_GAME_STATE] == GAME_STATE_NORMAL)
 	{
 		//health armour
-		GetPlayerHealth(playerid, PI[playerid][pHEALTH]);
+		//GetPlayerHealth(playerid, PI[playerid][pHEALTH]);
 		GetPlayerArmour(playerid, PI[playerid][pARMOUR]);
 		if(PI[playerid][pHEALTH] <= 0.0) PI[playerid][pHEALTH] = 1.0;
 		if(PI[playerid][pHEALTH] > 100.0) PI[playerid][pHEALTH] = 100.0;
@@ -32799,24 +33027,6 @@ hook OnPlayerKeyPress(playerid, Float:percentage) {
 	}
 	return Y_HOOKS_CONTINUE_RETURN_1;
 }
-
-/*
-ANTI AIMBOT no funciona bn, se atraviesan los players
-const PLAYER_SYNC = 207;
-IPacket:PLAYER_SYNC(playerid, BitStream:bs)
-{
-    new onFootData[PR_OnFootSync];
-
-    BS_IgnoreBits(bs, 8); 
-    BS_ReadOnFootSync(bs, onFootData);
-
-    onFootData[PR_specialAction] = SPECIAL_ACTION_ENTER_VEHICLE;
-
-    BS_SetWriteOffset(bs, 8);
-    BS_WriteOnFootSync(bs, onFootData);
-    return 1;
-}
-*/
 
 stock GetPlayerCameraRotation(playerid,&Float:rx,&Float:rz){
 	new Float:mx,Float:my,Float:mz;
