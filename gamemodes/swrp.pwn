@@ -24904,11 +24904,11 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 				if(PlayerTemp[playerid][pt_COMBAT])
 				{
 					KillTimer(PlayerTemp[playerid][pt_COMBAT_TIMER]);
-					PlayerTemp[playerid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", playerid);
+					PlayerTemp[playerid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", seconds(30), false, "i", playerid);
 				}
 				else
 				{
-					PlayerTemp[playerid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", playerid);
+					PlayerTemp[playerid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", seconds(30), false, "i", playerid);
 					PlayerTemp[playerid][pt_COMBAT] = true;
 				}
 			}
@@ -24972,11 +24972,11 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 				if(PlayerTemp[damagedid][pt_COMBAT])
 				{
 					KillTimer(PlayerTemp[damagedid][pt_COMBAT_TIMER]);
-					PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", damagedid);
+					PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", seconds(30), false, "i", damagedid);
 				}
 				else
 				{
-					PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", damagedid);
+					PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", seconds(30), false, "i", damagedid);
 					PlayerTemp[damagedid][pt_COMBAT] = true;
 				}
 			}
