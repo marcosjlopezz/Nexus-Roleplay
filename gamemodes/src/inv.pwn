@@ -65,9 +65,9 @@ stock ShowPlayerPocketOptions(playerid, opt) //DIALOG_PLAYER_POCKETS_OPTION
 		case INVENTORY_TYPE_SEED_MEDICINE: format(f_pocket, "Dar\n");
 		case INVENTORY_TYPE_SEED_CANNABIS: format(f_pocket, "Dar\n");
 		case INVENTORY_TYPE_SEED_CRACK: format(f_pocket, "Dar\n");
-		case INVENTORY_TYPE_MEDICINE: format(f_pocket, "Consumir\nDar\nVender");
-		case INVENTORY_TYPE_CANNABIS: format(f_pocket, "Consumir\nDar\nVender");
-		case INVENTORY_TYPE_CRACK: format(f_pocket, "Consumir\nDar\nVender");
+		case INVENTORY_TYPE_MEDICINE: format(f_pocket, "Consumir\nDar\nVender\nGuardar");
+		case INVENTORY_TYPE_CANNABIS: format(f_pocket, "Consumir\nDar\nVender\nGuardar");
+		case INVENTORY_TYPE_CRACK: format(f_pocket, "Consumir\nDar\nVender\nGuardar");
 		case INVENTORY_TYPE_MECHANIC_KITS: format(f_pocket, "Reparar vehiculo cercano\nDar");
 		case INVENTORY_TYPE_MEDICAL_KITS: format(f_pocket, "Curar\nDar");
 		default: return 0;
@@ -445,7 +445,7 @@ stock ShowPlayerPocketOption(playerid, opt, extra)
 
 					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
 				}
-				case 3:
+				case 2:
 				{
 					format(f_pocket, "{d1d1d1}Escribe la ID del jugador al que quieres venderle los medicamentos, el usuario debe estar conectado\n{d1d1d1}y a una distancia de 4 o menos metros de ti.\n\n{d1d1d1}Jugadores Cercanos:\n");
 
@@ -478,6 +478,10 @@ stock ShowPlayerPocketOption(playerid, opt, extra)
 					}
 
 					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
+				}
+				case 3:
+				{
+					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", "{d1d1d1}Escribe la cantidad de medicamentos que quieres guardar en tu maletero/closet:", "Continuar", "Atras");
 				}
 			}
 		}
@@ -523,7 +527,7 @@ stock ShowPlayerPocketOption(playerid, opt, extra)
 
 					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
 				}
-				case 3:
+				case 2:
 				{
 					format(f_pocket, "{d1d1d1}Escribe la ID del jugador al que quieres venderle marihuana, el usuario debe estar conectado\n{d1d1d1}y a una distancia de 4 o menos metros de ti.\n\n{d1d1d1}Jugadores Cercanos:\n");
 
@@ -556,6 +560,10 @@ stock ShowPlayerPocketOption(playerid, opt, extra)
 					}
 
 					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
+				}
+				case 3:
+				{
+					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", "{d1d1d1}Escribe la cantidad de marihuana que quieres guardar en tu maletero/closet:", "Continuar", "Atras");
 				}
 			}
 		}
@@ -601,7 +609,7 @@ stock ShowPlayerPocketOption(playerid, opt, extra)
 
 					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
 				}
-				case 3:
+				case 2:
 				{
 					format(f_pocket, "{d1d1d1}Escribe la ID del jugador al que quieres venderle crack, el usuario debe estar conectado\n{d1d1d1}y a una distancia de 4 o menos metros de ti.\n\n{d1d1d1}Jugadores Cercanos:\n");
 
@@ -634,6 +642,10 @@ stock ShowPlayerPocketOption(playerid, opt, extra)
 					}
 
 					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", dialog, "Continuar", "Atras");
+				}
+				case 3:
+				{
+					ShowPlayerDialog(playerid, DIALOG_POCKETS_OPTION, DIALOG_STYLE_INPUT, "Inventario - Opción", "{d1d1d1}Escribe la cantidad de crack que quieres guardar en tu maletero/closet:", "Continuar", "Atras");
 				}
 			}
 		}
@@ -1084,6 +1096,14 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de medicamentos", "{d1d1d1}Escribe la cantidad de medicamentos que quieres vender:", "Confirmar", "Cancelar");
 							}
+							case 3:
+							{
+								new params_extra;
+								if(sscanf(inputtext, "d", params_extra)) return SendMessage(playerid, "Error en los parametros, intentalo de nuevo.");
+
+								new cmd[445]; format(cmd, 445, "/guardar medicamentos %d", params_extra);
+								PC_EmulateCommand(playerid, cmd);
+							}
 						}
 					}
 					case INVENTORY_TYPE_CANNABIS:
@@ -1132,6 +1152,14 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
 								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de marihuana", "{d1d1d1}Escribe la cantidad de marihuana que quieres vender:", "Confirmar", "Cancelar");
 							}
+							case 3:
+							{
+								new params_extra;
+								if(sscanf(inputtext, "d", params_extra)) return SendMessage(playerid, "Error en los parametros, intentalo de nuevo.");
+
+								new cmd[445]; format(cmd, 445, "/guardar marihuana %d", params_extra);
+								PC_EmulateCommand(playerid, cmd);
+							}
 						}
 					}
 					case INVENTORY_TYPE_CRACK:
@@ -1179,6 +1207,14 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(PLAYER_TEMP[pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes interactuar con este jugador ahora.");
 
 								ShowPlayerDialog(playerid, DIALOG_POCKETS_EXTRA, DIALOG_STYLE_INPUT, "Inventario - Cantidad de crack", "{d1d1d1}Escribe la cantidad de crack que quieres vender:", "Confirmar", "Cancelar");
+							}
+							case 3:
+							{
+								new params_extra;
+								if(sscanf(inputtext, "d", params_extra)) return SendMessage(playerid, "Error en los parametros, intentalo de nuevo.");
+
+								new cmd[445]; format(cmd, 445, "/guardar crack %d", params_extra);
+								PC_EmulateCommand(playerid, cmd);
 							}
 						}
 					}

@@ -4233,22 +4233,25 @@ public OnPlayerDisconnect(playerid, reason)
 		PlayerTemp[playerid][pt_LOGIN_KICK_TIMER] = -1;
 	}
 
-	if(PlayerTemp[playerid][pt_COMBAT])
+	if(playerid, PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE)
 	{
-		new 
-			str_text[190],
-			price = minrand(500, 2000)
-		;
+		if(PlayerTemp[playerid][pt_COMBAT])
+		{
+			new 
+				str_text[190],
+				price = minrand(500, 2000)
+			;
 
-		PlayerTemp[playerid][pt_COMBAT] = false;
-		KillTimer(PlayerTemp[playerid][pt_COMBAT_TIMER]);
-		PlayerTemp[playerid][pt_COMBAT_TIMER] = -1;
+			PlayerTemp[playerid][pt_COMBAT] = false;
+			KillTimer(PlayerTemp[playerid][pt_COMBAT_TIMER]);
+			PlayerTemp[playerid][pt_COMBAT_TIMER] = -1;
 
-		GivePlayerCash(playerid, -price, true, true);
-		GivePlayerBlackCash(playerid, -price, true, true);
+			GivePlayerCash(playerid, -price, true, true);
+			GivePlayerBlackCash(playerid, -price, true, true);
 
-		format(str_text, 190, "* %s ha perdido un poco de dinero por salirse en combate.", PlayerTemp[playerid][pt_NAME]);
-		ProxDetector(playerid, 25.0, str_text, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 85);
+			format(str_text, 190, "* %s ha perdido un poco de dinero por desconectarse en combate.", PlayerTemp[playerid][pt_NAME]);
+			ProxDetector(playerid, 25.0, str_text, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 85);
+		}
 	}
 
 	if(GetPlayerState(playerid) == PLAYER_STATE_DRIVER)
@@ -6125,24 +6128,30 @@ stock SetPlayerNametagInfo(playerid, bool:update)
 		format(extra_str, 445, "{C8FF73}[{"#GREEN_COLOR"}Esposado{C8FF73}]\n");
 	}
 
-	if(IsPlayerPaused(playerid))
+	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
-		format(extra_str, 445, "{000000}[{C8C8C8}Pausa{000000}]\n");
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(extra_str, 445, "{"#POLICE_COLOR"}S.W.A.T | N.%d | %c. %s\n", PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
+		else format(extra_str, 445, "{CCCCCC}%s | N.%d | %c. %s\n", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
 	}
 
-	if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK || !IsPlayerInSafeZone(playerid) || !PlayerTemp[playerid][pt_COMBAT])
+	if(IsPlayerPaused(playerid))
+	{
+		format(extra_str, 445, "{000000}[{232323}Pausa{000000}]\n");
+	}
+
+	if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && !IsPlayerInSafeZone(playerid) && PlayerTemp[playerid][pt_COMBAT])
 	{
 		if(PI[playerid][pARMOUR])
 		{
-			format(armour_str, 445, "{000000}[{ffffff}IIIIIIIIIIIIIIII{000000}]\n");
-			new start = floatround( floatdiv(PI[playerid][pARMOUR], floatdiv(100, 15.0)) );
-			if(start < 15) strins(armour_str, "{323232}", 17 + start);
+			format(armour_str, 445, "{000000}[{ffffff}IIIIIIIIII{000000}]\n");
+			new start = floatround( floatdiv(PI[playerid][pARMOUR], floatdiv(100, 10.0)) );
+			if(start < 10) strins(armour_str, "{323232}", 17 + start);
 		}
 		else armour_str = "";
 
-		format(health_str, 445, "{000000}[{ff0000}IIIIIIIIIIIIIIII{000000}]\n");
-		new start = floatround( floatdiv(PI[playerid][pHEALTH], floatdiv(100, 15.0)) );
-		if(start < 15) strins(health_str, "{550000}", 17 + start);
+		format(health_str, 445, "{000000}[{ff0000}IIIIIIIIII{000000}]\n");
+		new start = floatround( floatdiv(PI[playerid][pHEALTH], floatdiv(100, 10.0)) );
+		if(start < 10) strins(health_str, "{550000}", 17 + start);
 	}
 
 	if(strlen(armour_str) > 0) strcat(label_str, armour_str);
@@ -10372,7 +10381,7 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_POLICE_BYC:
 		{
 			new caption[128];
-			format(caption, sizeof caption, "Placa Nº%d | %c. %s", PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
+			format(caption, sizeof caption, "Placa N.%d | %c. %s", PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST, caption, "Ver ultimos registros a BYC\nBuscar BYC de una persona", "Continuar", "Cerrar");	
 			return 1;
 		}
@@ -24899,7 +24908,7 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 	{
 		if(!IsPlayerInSafeZone(playerid))
 		{
-			if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE && PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL) 
+			if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL) 
 			{
 				if(PlayerTemp[playerid][pt_COMBAT])
 				{
@@ -24967,7 +24976,7 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 
 		if(!IsPlayerInSafeZone(playerid))
 		{
-			if(PlayerTemp[damagedid][pt_WORKING_IN] != WORK_POLICE && PI[damagedid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[damagedid][pSTATE] != ROLEPLAY_STATE_JAIL) 
+			if(PI[damagedid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[damagedid][pSTATE] != ROLEPLAY_STATE_JAIL) 
 			{
 				if(PlayerTemp[damagedid][pt_COMBAT])
 				{
@@ -25038,6 +25047,7 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else if(IsPlayerInSafeZone(playerid) && !PLAYER_WORKS[issuerid][WORK_POLICE][pwork_SET]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else if(pTemp(playerid)[pt_TASER_GUN]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
+	else if(PlayerTemp[playerid][pt_ADMIN_SERVICE]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else PlayerTemp[playerid][pt_PLAYER_DAMAGE] = true;
 	
 	if(!PlayerTemp[playerid][pt_PLAYER_DAMAGE]) SetPlayerArmourEx(playerid, PI[playerid][pARMOUR]);
@@ -25260,7 +25270,7 @@ GivePlayerArmourEx(playerid, Float:armour)
 
 stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 {
-	SetPlayerHealth(playerid, 99999.9);
+	SetPlayerHealth(playerid, 999999999.9);
 
 	if(PI[playerid][pHEALTH] <= 0.1)
 	{
