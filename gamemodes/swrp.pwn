@@ -44,10 +44,11 @@ AntiAmx()
 #include <mobile>
 #include <eSelection>
 #include <discord-connector>
+#include <discord-cmd>
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.5 Alpha"
+#define SERVER_VERSION			"2.5.5 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -3959,7 +3960,8 @@ enum enum_PI
 	pMEDICAL_KITS,
 	pCONFIG_GLOBAL,
 	pGLOBAL_MUTE,
-	pBLACK_CASH
+	pBLACK_CASH,
+	pDISCORD_USERID[DCC_ID_SIZE]
 };
 new PI[MAX_PLAYERS][enum_PI];
 
@@ -32437,6 +32439,8 @@ callbackp:OnPlayerLoginCheckPass(playerid, bool:success)
 					cache_get_value_name_int(0, "global_channel", PI[playerid][pCONFIG_GLOBAL]);
 					cache_get_value_name_int(0, "global_mute", PI[playerid][pGLOBAL_MUTE]);
 					cache_get_value_name_int(0, "black_cash", PI[playerid][pBLACK_CASH]);
+					cache_get_value_name(0, "discord_userid", PI[playerid][pDISCORD_USERID]);
+					if(strlen(PI[playerid][pDISCORD_USERID]) < DCC_ID_SIZE) format(PI[playerid][pDISCORD_USERID], DCC_ID_SIZE, "");
 					CallLocalFunction("OnPlayerLogin", "i", playerid);
 				}
 				else Kick(playerid);
@@ -32480,7 +32484,7 @@ public OnPlayerLogin(playerid)
 	SetPlayerHealthEx(playerid, PI[playerid][pHEALTH]);
 	SetPlayerArmourEx(playerid, PI[playerid][pARMOUR]);
 	SetPlayerVirtualWorld(playerid, 0);
-	
+	UpdatePlayerDiscordName(playerid);
 	StopAudioStreamForPlayer(playerid);
 	CancelSelectTextDrawEx(playerid);
 	PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
@@ -32496,7 +32500,7 @@ public OnPlayerLogin(playerid)
 	SetPlayerInterior(playerid, PI[playerid][pINTERIOR]);
 	
 	PlayerTemp[playerid][pt_BAD_LOGIN_ATTEMP] = 0;
-	SendClientMessagef(playerid, PRIMARY_COLOR2, "[*] {ffffff} Bienvenido {"#BLUE_COLOR"}%s.{ffffff} Tu ultima conexion fue el {"#GOLD_COLOR"}%s.", PlayerTemp[playerid][pt_NAME], PI[playerid][pLAST_CONNECTION]);
+	SendClientMessagef(playerid, PRIMARY_COLOR2, "[*]{ffffff} Bienvenido {"#BLUE_COLOR"}%s.{ffffff} Tu ultima conexion fue el {"#GOLD_COLOR"}%s.", PlayerTemp[playerid][pt_NAME], PI[playerid][pLAST_CONNECTION]);
 
     TogglePlayerSpectatingEx(playerid, false);
 	TogglePlayerControllableEx(playerid, false);
@@ -32757,7 +32761,8 @@ SavePlayerData(playerid)
 					medical_kits = %d,\
 					global_channel = %d,\
 					global_mute = %d,\
-					black_cash = %d \
+					black_cash = %d,\
+					discord_userid = '%e' \
 				WHERE id = %d;\
 			",
 				PI[playerid][pNAME], PI[playerid][pIP], PI[playerid][pEMAIL], PI[playerid][pPASS], PI[playerid][pREG_DATE], PI[playerid][pLAST_CONNECTION],
@@ -32771,7 +32776,7 @@ SavePlayerData(playerid)
 				PI[playerid][pFUEL_DRUM], PI[playerid][pSEED_MEDICINE], PI[playerid][pSEED_CANNABIS], PI[playerid][pSEED_CRACK], PI[playerid][pMEDICINE],
 				PI[playerid][pCANNABIS], PI[playerid][pCRACK], PI[playerid][pCONFIG_SOUNDS], PI[playerid][pCONFIG_AUDIO],
 				PI[playerid][pCONFIG_ADMIN], PI[playerid][pMUTE], PI[playerid][pPLACA_PD], tmp_crew, PI[playerid][pCREW_RANK],
-				PI[playerid][pMECHANIC_KITS], PI[playerid][pMEDICAL_KITS], PI[playerid][pCONFIG_GLOBAL], PI[playerid][pGLOBAL_MUTE], PI[playerid][pBLACK_CASH],
+				PI[playerid][pMECHANIC_KITS], PI[playerid][pMEDICAL_KITS], PI[playerid][pCONFIG_GLOBAL], PI[playerid][pGLOBAL_MUTE], PI[playerid][pBLACK_CASH], PI[playerid][pDISCORD_USERID],
 				PI[playerid][pID]
 		);
 		mysql_tquery(handle_db, QUERY_BUFFER);
