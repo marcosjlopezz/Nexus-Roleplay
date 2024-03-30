@@ -239,7 +239,6 @@ new ac_Info[][e_ac_Info] = /* Valores por defecto si no se carga de AC.txt */
 	{"vehicle enter spammer",	true, false,	1, 0},
 	{"jetpack",					true, true,		1, 0},
 	{"player speed",			true, true,		1, 0},
-	{"player health",			true, true,		1, 0},
 	{"player armour",			true, true,		1, 0},
 	{"vehicle health",			true, true,		1, 0},
 	{"pwork != vwork",			true, true,		1, 0},
