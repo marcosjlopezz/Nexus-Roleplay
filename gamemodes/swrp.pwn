@@ -5155,7 +5155,6 @@ public OnGameModeInit()
 	UsePlayerPedAnims();
 	MapAndreas_Init(MAP_ANDREAS_MODE_FULL);
 
-	FO_SetValue(0);
 	SetTimer("ToggleServerLoaded", seconds(15), false);
 	return 1;
 }
@@ -5170,10 +5169,6 @@ callbackp:ToggleServerLoaded()
     SendRconCommand("language "SERVER_LANGUAGE"");
 	SendRconCommand("weburl "SERVER_WEBSITE"");
 	SendRconCommand("mapname "SERVER_WEBSITE"");
-
-	FO_SetMode(FO_RELATIVE);
-	FO_SetValue((3 + random(9)));
-	SetTimer("UpdateFOPlayers", 60000, true);
 	return 1;
 }
 
@@ -30797,6 +30792,10 @@ stock LoadServerInfo()
 	
 	//Cosechador
 	Harvest_Area = CreateDynamicRectangle(-428.336059, -1667.658569, -116.565414, -1220.122070, 0, 0);
+
+	FO_SetMode(FO_RELATIVE);
+	FO_SetValue((3 + random(9)));
+	SetTimer("UpdateFOPlayers", 60000, true);
 	return 1;
 }
 
