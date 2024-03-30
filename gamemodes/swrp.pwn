@@ -19252,7 +19252,7 @@ callbackp:LoadProperties()
 
 			new id_player, bool:isnull_id_player;
 			cache_is_value_name_null(i, "id_player", isnull_id_player);
-			cache_get_value_name_int(i, "id_player", id_player);
+			if(!isnull_id_player) cache_get_value_name_int(i, "id_player", id_player);
 
 			if(id_player) CreatePropertyInfo(i, id_player, "No Disponible...");
 			else CreatePropertyInfo(i, 0, "");
