@@ -273,10 +273,6 @@ DCMD:ingresar(user, channel, params[])
                     cache_get_value_name(0, "name", playername, 24);
                     cache_get_value_name(0, "discord_userid", db_discord_userid, DCC_ID_SIZE);
                     
-                    new DiscordUserID_Int = strval(DiscordUserID);
-                    new Discord_UserID_Int = strval(db_discord_userid);
-
-                    if(DiscordUserID_Int != Discord_UserID_Int)  return DCC_SendChannelMessage(channel, ":x: Esta cuenta ya esta ingresada!");
                     if(connected) return DCC_SendChannelMessage(channel, ":x: Para realizar esta operacion debes hacerlo desconectado del servidor!");
 
                     new DCC_User:OldUser = DCC_FindUserById(db_discord_userid);
