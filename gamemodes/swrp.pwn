@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-#define MYSQL_HOST "23.167.232.40"
+/*#define MYSQL_HOST "23.167.232.40"
 #define MYSQL_USER "u13_v0t8hXdvbj"
 #define MYSQL_DB "s13_swrp_db"
-#define MYSQL_PASS "3P6svgi+O1dqqq@K8guboeuz"
+#define MYSQL_PASS "3P6svgi+O1dqqq@K8guboeuz"*/
 
-/*#define MYSQL_HOST "localhost"
+#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""*/
+#define MYSQL_PASS ""
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -47,7 +47,7 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.4 Alpha"
+#define SERVER_VERSION			"2.5 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -2849,7 +2849,7 @@ enum Temp_Enum
 	pt_CREW_SELECTED_NEW_RANK,
 	pt_LAST_TERRITORY,
 	pt_PLAYER_TERRITORY_PRO,
-	pt_PLAYER_COLOR,
+	pt_PLAYER_COLOR[10],
 	pt_LAST_GOT_CREW,
 	pt_POLICE_PEN_PID,
 	pt_POLICE_PEN_AID,
@@ -2917,7 +2917,8 @@ enum Temp_Enum
 	pt_TASER_ENERGY,
 	pt_TASER_TIMER,
 	pt_POLICE_SWAT,
-	Text3D:pt_USER_LABEL
+	Text3D:pt_PLAYER_NAMETAG,
+	bool:pt_PLAYER_DAMAGE
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3873,7 +3874,6 @@ enum Textdraws_Enum
 	Text:textdraw_SERVER_TIME,
 	Text:textdraw_TERRITORY_BOX,
 	Text:textdraw_HUD[HUD_TEXTDRAWS_SIZE],
-	Text:textdraw_COMBAT_MODE,
 	Text:textdraw_PLAY[4],
 	Text:textdraw_GENDER[10],
 	Text:textdraw_SAFE_ZONE,
@@ -4157,7 +4157,12 @@ public OnPlayerConnect(playerid)
 	pTemp(playerid)[pt_TASSED] = -1;
 	pTemp(playerid)[pt_TASSED_TIME] = 0;
 	for(new i = 0; i != MAX_OBJECTS_PER_ROUTE; i ++) TRASH_PLAYER_OBJECTS[playerid][i] = INVALID_STREAMER_ID;
-	
+	if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]))
+	{
+		DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]);
+		PlayerTemp[playerid][pt_PLAYER_NAMETAG] = Text3D:INVALID_STREAMER_ID;
+	}
+
 	GetPlayerName(playerid, PlayerTemp[playerid][pt_NAME], 24);
 	GetPlayerIp(playerid, PlayerTemp[playerid][pt_IP], 16);
 	
@@ -4169,7 +4174,7 @@ public OnPlayerConnect(playerid)
 	CancelSelectTextDrawEx(playerid);
 	SetPlayerScore(playerid, 0);
 	ResetPlayerWeapons(playerid);
-	SetPlayerColorEx(playerid, PLAYER_COLOR);
+	SetPlayerNormalColour(playerid);
 	CancelEdit(playerid);
 	TogglePlayerClock(playerid, false);
 
@@ -4231,18 +4236,18 @@ public OnPlayerDisconnect(playerid, reason)
 	if(PlayerTemp[playerid][pt_COMBAT])
 	{
 		new 
-			str_text[190];
+			str_text[190],
+			price = minrand(500, 2000)
+		;
 
 		PlayerTemp[playerid][pt_COMBAT] = false;
 		KillTimer(PlayerTemp[playerid][pt_COMBAT_TIMER]);
 		PlayerTemp[playerid][pt_COMBAT_TIMER] = -1;
 
-		mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pweapons WHERE id_player = %d;", pInfo(playerid)[pID]);
-		mysql_tquery(handle_db, QUERY_BUFFER);
+		GivePlayerCash(playerid, -price, true, true);
+		GivePlayerBlackCash(playerid, -price, true, true);
 
-		ResetPlayerWeaponsEx(playerid);
-
-		format(str_text, 190, "* %s ha perdido todas sus armas por desconectar estando en combate.", PlayerTemp[playerid][pt_NAME]);
+		format(str_text, 190, "* %s ha perdido un poco de dinero por salirse en combate.", PlayerTemp[playerid][pt_NAME]);
 		ProxDetector(playerid, 25.0, str_text, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 0xDD4C4FFF, 85);
 	}
 
@@ -4352,6 +4357,11 @@ ResetPlayerVariables(playerid)
 
 DestroyPlayerCheckpoints(playerid)
 {
+	if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]))
+	{
+		DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]);
+		PlayerTemp[playerid][pt_PLAYER_NAMETAG] = Text3D:INVALID_STREAMER_ID;
+	}
 	if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]))
 	{
 		DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]);
@@ -4466,10 +4476,8 @@ public OnPlayerSpawn(playerid)
 		PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
 		pTemp(playerid)[pt_TASER_GUN] = false;
 
-		SetPlayerNameLabel(playerid, false);
-		
+		SetPlayerNametagInfo(playerid, false);
 		TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
-		ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, ""SERVER_NAME"", "{d1d1d1}Bienvenido, recuerda que estamos en fase alpha, hemos abierto el servidor para que\nPuedas encontrar bugs y ayudarnos con el desarollo, cualquier error abre ticket en discord\n\nRecuerda que tenemos rango administrativo para los que se dedican a buscar bugs\ny damos recompensa por encontrar bugs a los que son Asistentes\n\nAtentamente: "SERVER_SHORT_NAME".", "Entiendo", "");
 
 		if(PI[playerid][pPOLICE_DUTY] != 0)
 		{
@@ -4626,7 +4634,7 @@ public OnPlayerSpawn(playerid)
 	if(PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL && PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK) SetWeaponsForPlayer(playerid);
 	SetPlayerWantedLevelEx(playerid, PI[playerid][pWANTED_LEVEL]);
 	SetPlayerArmedWeapon(playerid, 0);
-	SetPlayerNormalColor(playerid);
+	
 	SetPlayerCityWeather(playerid);
 	GameTextForPlayer(playerid, "_", 500, 3);
 	PlayerTemp[playerid][pt_TIMERS][23] = -1;
@@ -5317,17 +5325,6 @@ stock Float:GetDistanceBetweenPoints3D(Float:x1, Float:y1, Float:z1, Float:x2, F
 CreateTextDraws()
 {
 	for(new i; i < sizeof(Textdraws); i++) Textdraws[Textdraws_Enum:i] = INVALID_TEXT_DRAW;
-	
-	Textdraws[textdraw_COMBAT_MODE] = TextDrawCreate(87.000000, 315.000000, "En_combate");
-	TextDrawLetterSize(Textdraws[textdraw_COMBAT_MODE], 0.267000, 1.521185);
-	TextDrawTextSize(Textdraws[textdraw_COMBAT_MODE], 0.000000, 98.000000);
-	TextDrawAlignment(Textdraws[textdraw_COMBAT_MODE], 2);
-	TextDrawColor(Textdraws[textdraw_COMBAT_MODE], -16776961);
-	TextDrawSetShadow(Textdraws[textdraw_COMBAT_MODE], 0);
-	TextDrawSetOutline(Textdraws[textdraw_COMBAT_MODE], 1);
-	TextDrawBackgroundColor(Textdraws[textdraw_COMBAT_MODE], 255);
-	TextDrawFont(Textdraws[textdraw_COMBAT_MODE], 2);
-	TextDrawSetProportional(Textdraws[textdraw_COMBAT_MODE], 1);
 
     Textdraws[textdraw_SAFE_ZONE] = TextDrawCreate(320.000000, 410.000000, "Zona_~g~Segura");
 	TextDrawFont(Textdraws[textdraw_SAFE_ZONE], 1);
@@ -6105,35 +6102,35 @@ ptask AutoSavePlayerData[30000](playerid)
 	}
 }
 
-stock SetPlayerNameLabel(playerid, bool:update)
+stock SetPlayerNametagInfo(playerid, bool:update)
 {
-	new label_str[1024], colour[445] = "{ffffff}";
-	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
-	{
-		if(pTemp(playerid)[pt_POLICE_SWAT]) colour = "{"#SWAT_COLOR"}";
-		else colour = "{"#POLICE_COLOR"}";
-	}
+	new label_str[1024], extra_str[445] = "", health_str[445] = "", armour_str[445] = "";
+	format(label_str, 1024, "%s%s (%d)\n", PlayerTemp[playerid][pt_PLAYER_COLOR], PlayerTemp[playerid][pt_NAME], playerid);
 
-	format(label_str, 1024, "%s%s (%d)\n", colour, PlayerTemp[playerid][pt_NAME], playerid);
-
-	new wanted_str[445] = "";
 	if(PI[playerid][pWANTED_LEVEL])
 	{
-		format(wanted_str, 445, "{"#LIGHT_RED"}[{"#RED_COLOR"}Buscado #%d{"#LIGHT_RED"}]\n", PI[playerid][pWANTED_LEVEL]);
+		switch(PI[playerid][pWANTED_LEVEL])
+		{
+			case 1: format(extra_str, 445, "{FFFED0}[{fffdba}Buscado *%d{FFFED0}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 2: format(extra_str, 445, "{F6F391}[{f7f254}Buscado *%d{F6F391}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 3: format(extra_str, 445, "{D8A144}[{d98900}Buscado *%d{D8A144}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 4: format(extra_str, 445, "{CB724A}[{ce4202}Buscado *%d{CB724A}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 5: format(extra_str, 445, "{FF7DFF}[{ff00ff}Buscado *%d{FF7DFF}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 6: format(extra_str, 445, "{A742C8}[{9900cc}Buscado *%d{A742C8}]\n", PI[playerid][pWANTED_LEVEL]);
+		}
 	}
+
 	if(pTemp(playerid)[pt_CUFFED])
 	{
-		format(wanted_str, 445, "{C8FF73}[{"#GREEN_COLOR"}Esposado{C8FF73}]\n");
+		format(extra_str, 445, "{C8FF73}[{"#GREEN_COLOR"}Esposado{C8FF73}]\n");
 	}
-	strins(label_str, wanted_str, 0);
 
-	new health_str[445], armour_str[445];
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || IsPlayerInSafeZone(playerid))
+	if(IsPlayerPaused(playerid))
 	{
-		armour_str = "";
-		health_str = "";
+		format(extra_str, 445, "{000000}[{C8C8C8}Pausa{000000}]\n");
 	}
-	else
+
+	if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK || !IsPlayerInSafeZone(playerid) || !PlayerTemp[playerid][pt_COMBAT])
 	{
 		if(PI[playerid][pARMOUR])
 		{
@@ -6148,21 +6145,22 @@ stock SetPlayerNameLabel(playerid, bool:update)
 		if(start < 15) strins(health_str, "{550000}", 17 + start);
 	}
 
-	strcat(label_str, armour_str);
-	strcat(label_str, health_str);
+	if(strlen(armour_str) > 0) strcat(label_str, armour_str);
+	if(strlen(health_str) > 0) strcat(label_str, health_str);
+	if(strlen(extra_str) > 0) strins(label_str, extra_str, 0);
 
 	if(update)
 	{
-		UpdateDynamic3DTextLabelText(PlayerTemp[playerid][pt_USER_LABEL], PLAYER_COLOR, label_str);
+		UpdateDynamic3DTextLabelText(PlayerTemp[playerid][pt_PLAYER_NAMETAG], PLAYER_COLOR, label_str);
 	}
 	else
 	{
-		if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_USER_LABEL]))
+		if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]))
 		{
-			DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_USER_LABEL]);
-			PlayerTemp[playerid][pt_USER_LABEL] = Text3D:INVALID_STREAMER_ID;
+			DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]);
+			PlayerTemp[playerid][pt_PLAYER_NAMETAG] = Text3D:INVALID_STREAMER_ID;
 		}
-		PlayerTemp[playerid][pt_USER_LABEL] = CreateDynamic3DTextLabel(label_str, PLAYER_COLOR, 0.0, 0.0, 0.3, 40.0, playerid, .testlos = true);
+		PlayerTemp[playerid][pt_PLAYER_NAMETAG] = CreateDynamic3DTextLabel(label_str, PLAYER_COLOR, 0.0, 0.0, 0.3, 40.0, playerid, .testlos = true);
 	}
 	return 1;
 }
@@ -6189,11 +6187,10 @@ ptask UpdatePlayerInfo[250](playerid)
 				}
 			}
 		}
-		else
-		{
-			if(pTemp(playerid)[pt_POLICE_SWAT]) SetPlayerColorEx(playerid, PLAYER_SWAT_COLOR);
-			else SetPlayerColorEx(playerid, PLAYER_POLICE_COLOR);
-		}
+		else DisablePlayerGlobalMarker(playerid);
+
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(PlayerTemp[playerid][pt_PLAYER_COLOR], 10, "{"#SWAT_COLOR"}");
+		else format(PlayerTemp[playerid][pt_PLAYER_COLOR], 10, "{"#POLICE_COLOR"}");
 		
 		if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) SendAlertToMedics(playerid);
 		if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
@@ -6202,13 +6199,24 @@ ptask UpdatePlayerInfo[250](playerid)
 	else if(PlayerTemp[playerid][pt_WANT_TAXI]) SendAlertToTaxiDrivers(playerid);
 	else
 	{
-		if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
-		else SetPlayerNormalColor(playerid);
+		if(PlayerTemp[playerid][pt_LAST_TERRITORY] != INVALID_STREAMER_ID)
+		{
+			if(IsPlayerInDynamicArea(playerid, TERRITORIES[ PlayerTemp[playerid][pt_LAST_TERRITORY] ][territory_AREA]))
+			{
+				if(TERRITORIES[ PlayerTemp[playerid][pt_LAST_TERRITORY] ][territory_WAR])
+				{
+					format(PlayerTemp[playerid][pt_PLAYER_COLOR], 11, "{%06x}", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8);
+				}
+				else SetPlayerNormalColour(playerid);
+			}
+			else SetPlayerNormalColour(playerid);
+		}
+		else SetPlayerNormalColour(playerid);
 	}
 
 	if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
 
-	SetPlayerNameLabel(playerid, true);
+	SetPlayerNametagInfo(playerid, true);
 }
 
 CMD:ayuda(playerid, params[])
@@ -15128,7 +15136,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 												if(connected)
 												{
 													CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_ONLINE_MEMBERS] --;
-													SetPlayerNormalColor(pid);
+													
 													if(PlayerTemp[playerid][pt_LAST_TERRITORY] != INVALID_STREAMER_ID)
 													{
 														TextDrawHideForPlayer(pid, Textdraws[textdraw_TERRITORY_BOX]);
@@ -15160,7 +15168,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 								if(connected)
 								{
 									CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_ONLINE_MEMBERS] --;
-									SetPlayerNormalColor(pid);
+									
 									if(PlayerTemp[playerid][pt_LAST_TERRITORY] != INVALID_STREAMER_ID)
 									{
 										TextDrawHideForPlayer(pid, Textdraws[textdraw_TERRITORY_BOX]);
@@ -15539,7 +15547,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							if(PI[i][pCREW] == PI[playerid][pCREW])
 							{
-								SetPlayerNormalColor(i);
+								
 								HidePlayerGangZones(i);
 								if(pTemp(i)[pt_LAST_TERRITORY] != INVALID_STREAMER_ID)
 								{
@@ -15606,7 +15614,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 									mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET crew = NULL, crew_rank = 0 WHERE id = %d;", PI[playerid][pID]);
 									mysql_tquery(handle_db, QUERY_BUFFER);
 									
-									SetPlayerNormalColor(playerid);
+									
 									CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_MEMBERS] --;
 									CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_ONLINE_MEMBERS] --;
 									HidePlayerGangZones(playerid);
@@ -15630,7 +15638,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET crew = NULL, crew_rank = 0 WHERE id = %d;", PI[playerid][pID]);
 					mysql_tquery(handle_db, QUERY_BUFFER);
 					
-					SetPlayerNormalColor(playerid);
+					
 					CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_MEMBERS] --;
 					CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_ONLINE_MEMBERS] --;
 					HidePlayerGangZones(playerid);
@@ -15816,33 +15824,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE territories SET id_crew = NULL WHERE id = %d;", TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_ID]);
 				mysql_tquery(handle_db, QUERY_BUFFER);
 				CallLocalFunction("OnCrewLeftTerritory", "iiii", PI[playerid][pCREW], PlayerTemp[playerid][pt_CREW_INDEX], TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_ID], PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO]);
-				
-				for(new i = 0; i != MAX_PROPERTIES; i ++)
-				{
-					if(!PROPERTY_INFO[i][property_VALID]) continue;
-					
-					if(IsPointInDynamicArea(TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_AREA], PROPERTY_INFO[i][property_EXT_X], PROPERTY_INFO[i][property_EXT_Y], PROPERTY_INFO[i][property_EXT_Z]))
-					{
-						PROPERTY_INFO[ i ][property_SOLD] = false;
-						PROPERTY_INFO[ i ][property_OWNER_ID] = 0;
-						format(PROPERTY_INFO[ i ][property_NAME], 24, "PROPIEDAD %d", PROPERTY_INFO[ i ][property_ID]);
-						
-						new info[3];
-						UpdateUnnocupiedPropertyLabel(i);
-						
-						DestroyDynamicPickup(PROPERTY_INFO[ i ][property_EXT_PICKUP_ID]);
-						PROPERTY_INFO[ i ][property_EXT_PICKUP_ID] = INVALID_STREAMER_ID;
-						
-						PROPERTY_INFO[ i ][property_EXT_PICKUP_ID] = CreateDynamicPickup(1273, 1, PROPERTY_INFO[ i ][property_EXT_X], PROPERTY_INFO[ i ][property_EXT_Y], PROPERTY_INFO[ i ][property_EXT_Z], 0, PROPERTY_INFO[ i ][property_EXT_INTERIOR]);
-						info[0] = PICKUP_TYPE_PROPERTY;
-						info[1] = i; // Index
-						info[2] = 2; // Pickup Exterior
-						Streamer_SetArrayData(STREAMER_TYPE_PICKUP, PROPERTY_INFO[ i ][property_EXT_PICKUP_ID], E_STREAMER_EXTRA_ID, info);
-							
-						mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = NULL, id_territory = NULL WHERE id = %d;", PROPERTY_INFO[ i ][property_ID]);
-						mysql_tquery(handle_db, QUERY_BUFFER);
-					}
-				}
 				
 				new message[145];
 				format(message, sizeof message, "{"#PRIMARY_COLOR"}[BANDAS] {FFFFFF}La banda '%s' ha abandonado un territorio en %s.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME], TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_NAME]);
@@ -16863,10 +16844,6 @@ public OnPlayerEnterDynamicArea(playerid, areaid)
 					{
 						SendClientMessagef(playerid, -1, "Este territorio está siendo atacado por la banda '%s'.",CREW_INFO[ TERRITORIES[index][territory_ATTACKER_CREW_INDEX] ][crew_NAME]);
 						
-						new r, g, b, a;
-						HexToRGBA(CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR], r, g, b, a);
-						SetPlayerColorEx(playerid, RGBAToHex(r, g, b, 0));
-						
 						TextDrawShowForPlayer(playerid, Textdraws[textdraw_TERRITORY_BOX]);
 						TextDrawShowForPlayer(playerid, TERRITORIES[index][territory_TEXTDRAW]);
 					}
@@ -16875,7 +16852,6 @@ public OnPlayerEnterDynamicArea(playerid, areaid)
 		}
 		case AREA_TYPE_SAFE_ZONE:
 		{
-			SetPlayerNameLabel(playerid, true);
 			TextDrawShowForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
 		}
 	}
@@ -16932,7 +16908,6 @@ public OnPlayerLeaveDynamicArea(playerid, areaid)
 			{
 				if(PI[playerid][pCREW])
 				{
-					SetPlayerNormalColor(playerid);
 					TextDrawHideForPlayer(playerid, Textdraws[textdraw_TERRITORY_BOX]);
 					TextDrawHideForPlayer(playerid, TERRITORIES[index][territory_TEXTDRAW]);
 				}
@@ -16941,7 +16916,6 @@ public OnPlayerLeaveDynamicArea(playerid, areaid)
 		case AREA_TYPE_SAFE_ZONE:
 		{
 			if(!IsPlayerInSafeZone(playerid)) TextDrawHideForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
-			SetPlayerNameLabel(playerid, true);
 		}
 	}
 	return 1;
@@ -22069,7 +22043,7 @@ public ResyncPlayer(playerid)
 		PR_FLOAT, y,
 		PR_FLOAT, z,
 		PR_FLOAT, angle,
-		PR_UINT32, PlayerTemp[playerid][pt_PLAYER_COLOR],
+		PR_UINT32, PLAYER_COLOR,
 		PR_UINT8, GetPlayerFightingStyle(playerid)
 	);
 
@@ -22848,9 +22822,9 @@ public OnUnoccupiedVehicleUpdate(vehicleid, playerid, passenger_seat, Float:new_
 			case VEHICLE_TYPE_WORK:
 			{
 				if(TRASH_VEHICLES[vehicleid][trash_vehicle_JOB_STARTED]) return 1;
-				if(spawn_distance < 25.0)
+				if(spawn_distance < 10.0)
 				{
-					if(spawn_distance > 10.0) SetVehicleToRespawnEx(vehicleid);
+					if(spawn_distance > 5.0) SetVehicleToRespawnEx(vehicleid);
 				}
 			}
 			case VEHICLE_TYPE_DRIVING_SCHOOL:
@@ -23349,6 +23323,26 @@ SendAlertToTaxiDrivers(playerid)
 	return 1;
 }
 
+stock SetPlayerNormalColour(playerid)
+{
+	format(PlayerTemp[playerid][pt_PLAYER_COLOR], 10, "{ffffff}");
+	SetPlayerColor(playerid, PLAYER_COLOR);
+	return 1;
+}
+
+stock DisablePlayerGlobalMarker(playerid)
+{
+	//PlayerTemp[playerid][pt_PLAYER_COLOR] = "{ffffff}";
+
+	for(new i = 0; i != MAX_PLAYERS; i++)
+	{
+		if(IsPlayerConnected(i))
+		{
+			SetPlayerMarkerForPlayer(i, playerid, PLAYER_COLOR);
+		}
+	}
+}
+
 DisablePlayerTaxiMark(playerid)
 {
 	for(new i = 0; i != MAX_PLAYERS; i++)
@@ -23393,7 +23387,7 @@ SetNormalPlayerMarkers(playerid)
 	{
 		if(IsPlayerConnected(i))
 		{
-			SetPlayerMarkerForPlayer(playerid, i, pTemp(i)[pt_PLAYER_COLOR]);
+			SetPlayerMarkerForPlayer(playerid, i, PLAYER_COLOR);
 		}
 	}
 	return 1;
@@ -24903,21 +24897,20 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 {
 	if(damagedid != INVALID_PLAYER_ID)
 	{
-		if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE && PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL) 
+		if(!IsPlayerInSafeZone(playerid))
 		{
-			if(PlayerTemp[playerid][pt_COMBAT])
+			if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE && PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL) 
 			{
-				KillTimer(PlayerTemp[playerid][pt_COMBAT_TIMER]);
-				PlayerTemp[playerid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", playerid);
-			}
-			else
-			{
-				PlayerTemp[playerid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", playerid);
-				PlayerTemp[playerid][pt_COMBAT] = true;
-
-				TextDrawShowForPlayer(playerid, Textdraws[textdraw_COMBAT_MODE]);
-
-				SendClientMessagef(playerid, -1, "Has entrado en modo de combate. Saldrás de este modo en 2 minutos. Si te desconectas, perderás todas tus armas, y en caso de tener cargos irás a prision.");
+				if(PlayerTemp[playerid][pt_COMBAT])
+				{
+					KillTimer(PlayerTemp[playerid][pt_COMBAT_TIMER]);
+					PlayerTemp[playerid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", playerid);
+				}
+				else
+				{
+					PlayerTemp[playerid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", playerid);
+					PlayerTemp[playerid][pt_COMBAT] = true;
+				}
 			}
 		}
 
@@ -24972,48 +24965,48 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 			}
 		}
 
-		if(PlayerTemp[damagedid][pt_WORKING_IN] != WORK_POLICE && PI[damagedid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[damagedid][pSTATE] != ROLEPLAY_STATE_JAIL) 
+		if(!IsPlayerInSafeZone(playerid))
 		{
-			if(PlayerTemp[damagedid][pt_COMBAT])
+			if(PlayerTemp[damagedid][pt_WORKING_IN] != WORK_POLICE && PI[damagedid][pSTATE] != ROLEPLAY_STATE_CRACK && PI[damagedid][pSTATE] != ROLEPLAY_STATE_JAIL) 
 			{
-				KillTimer(PlayerTemp[damagedid][pt_COMBAT_TIMER]);
-				PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", damagedid);
-			}
-			else
-			{
-				PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", damagedid);
-				PlayerTemp[damagedid][pt_COMBAT] = true;
-
-				TextDrawShowForPlayer(damagedid, Textdraws[textdraw_COMBAT_MODE]);
-
-				SendClientMessagef(damagedid, -1, "Has entrado en modo de combate. Saldrás de este modo en 2 minutos. Si te desconectas, perderás todas tus armas, y en caso de tener cargos irás a prision.");
+				if(PlayerTemp[damagedid][pt_COMBAT])
+				{
+					KillTimer(PlayerTemp[damagedid][pt_COMBAT_TIMER]);
+					PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", damagedid);
+				}
+				else
+				{
+					PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", 60000 * 2, false, "i", damagedid);
+					PlayerTemp[damagedid][pt_COMBAT] = true;
+				}
 			}
 		}
 	}
-		
-	if(!PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET])
+	
+	if(!IsPlayerInSafeZone(playerid))
 	{
-		if(gettime() > PlayerTemp[playerid][pt_LAST_SAFE_ZONE_WARNING] + 60)
+		if(!PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET])
 		{
-			if(IsPlayerInSafeZone(playerid))
+			if(gettime() > PlayerTemp[playerid][pt_LAST_SAFE_ZONE_WARNING] + 60)
 			{
-				SendClientMessagef(playerid, -1, "Estás en una zona segura, la policía ha sido avisada de la agresion.");
-				
-				new city[45], zone[45];
-				GetPlayerZones(playerid, city, zone);
+				if(IsPlayerInSafeZone(playerid))
+				{
+					SendClientMessagef(playerid, -1, "Estás en una zona segura, la policía ha sido avisada de la agresion.");
+					
+					new city[45], zone[45];
+					GetPlayerZones(playerid, city, zone);
 
-				if(!PI[playerid][pWANTED_LEVEL]) SetPlayerWantedLevelEx(playerid, 1);
+					if(!PI[playerid][pWANTED_LEVEL]) SetPlayerWantedLevelEx(playerid, 1);
 
-				new message[145];
-				format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s está causando disturbios en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], city, zone);
-				SendPoliceRadioMessage(-1, -1, message);
-				
-				PlayerTemp[playerid][pt_LAST_SAFE_ZONE_WARNING] = gettime();
+					new message[145];
+					format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s está causando disturbios en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], city, zone);
+					SendPoliceRadioMessage(-1, -1, message);
+					
+					PlayerTemp[playerid][pt_LAST_SAFE_ZONE_WARNING] = gettime();
+				}
 			}
 		}
 	}
-
-	SetPlayerNameLabel(playerid, true);
     return 1;
 }
 
@@ -25042,18 +25035,17 @@ callbackp:TasePlayer(damagedid)
 
 public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
-	new bool:GivePlayerDamage = false;
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) GivePlayerDamage = false;
-	else if(IsPlayerInSafeZone(playerid) && !PLAYER_WORKS[issuerid][WORK_POLICE][pwork_SET]) GivePlayerDamage = false;
-	else if(pTemp(playerid)[pt_TASER_GUN]) GivePlayerDamage = false;
-	else GivePlayerDamage = true;
-
-	if(GivePlayerDamage)
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
+	else if(IsPlayerInSafeZone(playerid) && !PLAYER_WORKS[issuerid][WORK_POLICE][pwork_SET]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
+	else if(pTemp(playerid)[pt_TASER_GUN]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
+	else PlayerTemp[playerid][pt_PLAYER_DAMAGE] = true;
+	
+	if(!PlayerTemp[playerid][pt_PLAYER_DAMAGE]) SetPlayerArmourEx(playerid, PI[playerid][pARMOUR]);
+	if(PlayerTemp[playerid][pt_PLAYER_DAMAGE])
 	{
 		if(PI[playerid][pARMOUR] <= 0.0) PI[playerid][pHEALTH] -= amount;
 	}
 
-	SetPlayerNameLabel(playerid, true);
 	UpdatePlayerHealthInfo(playerid, issuerid, weaponid);
     return 1;
 }
@@ -25243,7 +25235,6 @@ SetPlayerArmourEx(playerid, Float:armour)
 	PI[playerid][pARMOUR] = armour;
 	SetPlayerArmour(playerid, PI[playerid][pARMOUR]);
 	//UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
-	SetPlayerNameLabel(playerid, true);
 	return 1;
 }
 
@@ -25264,7 +25255,6 @@ GivePlayerArmourEx(playerid, Float:armour)
 	if(PI[playerid][pARMOUR] > 100.0) PI[playerid][pARMOUR] = 100.0;
 	SetPlayerArmour(playerid, PI[playerid][pARMOUR]);
 	//UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
-	SetPlayerNameLabel(playerid, true);
 	return 1;
 }
 
@@ -25454,7 +25444,6 @@ stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 		}
 	}
 
-	SetPlayerNameLabel(playerid, true);
 	SetPlayerProgressBarValue(playerid, PlayerBars[playerid][pbHEALTH], PI[playerid][pHEALTH]);
 	return 1;
 }
@@ -26975,7 +26964,6 @@ stock SetPlayerWantedLevelEx(playerid, level)
 {
 	PI[playerid][pWANTED_LEVEL] = level;
 	SetPlayerWantedLevel(playerid, level);
-	SetPlayerNameLabel(playerid, true);
 
 	if(PI[playerid][pWANTED_LEVEL] == 0)
 	{
@@ -27765,7 +27753,7 @@ CMD:duty(playerid)
 	if(PlayerTemp[playerid][pt_ADMIN_SERVICE])
 	{
 		PlayerTemp[playerid][pt_ADMIN_SERVICE] = false;
-		SetPlayerNormalColor(playerid);
+		
 		
 		if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]))
 		{
@@ -27778,7 +27766,7 @@ CMD:duty(playerid)
 	else
 	{
 		PlayerTemp[playerid][pt_ADMIN_SERVICE] = true;
-		SetPlayerNormalColor(playerid);
+		
 		
 		if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]))
 		{
@@ -29390,7 +29378,7 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 			}
 
 			SetNormalPlayerMarkers(playerid);
-			SetPlayerNormalColor(playerid);
+			
 		}
 		case WORK_MECHANIC:
 		{
@@ -30043,13 +30031,8 @@ StartTerritoryAttack(crew_index, territory_index, time)
 				SendClientMessage(i, -1, message);
 				if(IsPlayerInDynamicArea(i, TERRITORIES[territory_index][territory_AREA]))
 				{	
-					if(PI[i][pWANTED_LEVEL] < 3)
-						SetPlayerWantedLevelEx(i, 3);
+					if(PI[i][pWANTED_LEVEL] < 3) SetPlayerWantedLevelEx(i, 3);
 
-					new r, g, b, a;
-					HexToRGBA(CREW_INFO[ pTemp(i)[pt_CREW_INDEX] ][crew_COLOR], r, g, b, a);
-					SetPlayerColorEx(i, RGBAToHex(r, g, b, 0));
-					
 					TextDrawShowForPlayer(i, Textdraws[textdraw_TERRITORY_BOX]);
 					TextDrawShowForPlayer(i, TERRITORIES[territory_index][territory_TEXTDRAW]);
 				}
@@ -30114,7 +30097,7 @@ public UpdateTerritoryAttack(territory_index)
 							GivePlayerBlackCash(i, amount, true, false);
 							SendClientMessagef(i, 0xd1d1d1d1, "{"#SILVER_COLOR"}Has ganado %d {"#GRAY_COLOR"}DN${"#SILVER_COLOR"} por conquistar este territorio.", amount);
 						}
-						SetPlayerNormalColor(i);
+						
 						
 						TextDrawHideForPlayer(i, Textdraws[textdraw_TERRITORY_BOX]);
 						TextDrawHideForPlayer(i, TERRITORIES[territory_index][territory_TEXTDRAW]);
@@ -30158,8 +30141,6 @@ public UpdateTerritoryAttack(territory_index)
 					SendClientMessage(i, -1, message);
 					if(IsPlayerInDynamicArea(i, TERRITORIES[territory_index][territory_AREA]))
 					{
-						SetPlayerNormalColor(i);
-						
 						TextDrawHideForPlayer(i, Textdraws[textdraw_TERRITORY_BOX]);
 						TextDrawHideForPlayer(i, TERRITORIES[territory_index][territory_TEXTDRAW]);
 					}
@@ -30197,12 +30178,6 @@ CountCrewPlayersInTerritory(crew_index, territory_index)
 		}
 	}
 	return count;
-}
-
-SetPlayerColorEx(playerid, color)
-{
-	PlayerTemp[playerid][pt_PLAYER_COLOR] = color;
-	return SetPlayerColor(playerid, color);
 }
 
 stock SetDatabaseInfo()
@@ -31386,11 +31361,6 @@ public CarJackingFinish(playerid)
 	return 1;
 }
 
-SetPlayerNormalColor(playerid)
-{
-	return SetPlayerColorEx(playerid, PLAYER_COLOR);
-}
-
 SendAdminAd(color, const text[])
 {
 	for(new i = 0; i != MAX_PLAYERS; i++)
@@ -32486,7 +32456,7 @@ public OnPlayerLogin(playerid)
 	SetPlayerHealthEx(playerid, PI[playerid][pHEALTH]);
 	SetPlayerArmourEx(playerid, PI[playerid][pARMOUR]);
 	SetPlayerVirtualWorld(playerid, 0);
-	SetPlayerNormalColor(playerid);
+	
 	StopAudioStreamForPlayer(playerid);
 	CancelSelectTextDrawEx(playerid);
 	PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
@@ -32880,10 +32850,6 @@ public ResetCombat(damagedid)
 
 	KillTimer(PlayerTemp[damagedid][pt_COMBAT_TIMER]);
 	PlayerTemp[damagedid][pt_COMBAT_TIMER] = -1;
-
-	TextDrawHideForPlayer(damagedid, Textdraws[textdraw_COMBAT_MODE]);
-	
-	SendClientMessagef(damagedid, -1, "Ya no estás en combate.");
 	return 1;
 }
 
