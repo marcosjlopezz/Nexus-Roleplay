@@ -5111,11 +5111,10 @@ public OnGameModeInit()
 {
 	AntiAmx();
 	SetGameModeText("-");
-    SendRconCommand("hostname Cargando...");
+    SendRconCommand("hostname Cargando Informacion... (Puede demorar un poco)");
     SendRconCommand("language -");
 	SendRconCommand("weburl -");
 	SendRconCommand("mapname -");
-	SendRconCommandf("password %d", random(9999));
 	SendRconCommand("minconnectiontime 0");
     SendRconCommand("ackslimit 8000");
     SendRconCommand("messageslimit 100");
@@ -5170,7 +5169,6 @@ callbackp:ToggleServerLoaded()
     SendRconCommand("language "SERVER_LANGUAGE"");
 	SendRconCommand("weburl "SERVER_WEBSITE"");
 	SendRconCommand("mapname "SERVER_WEBSITE"");
-	SendRconCommand("password 0");
 	return 1;
 }
 
