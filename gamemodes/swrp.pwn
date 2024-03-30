@@ -148,6 +148,7 @@ AntiAmx()
 #define pTemp(%0)[%1]				PLAYER_TEMP[%0][%1]
 
 stock
+	bool:server_loaded = false,
 	rcon_pass,
 	MySQL:handle_db,
 	QUERY_BUFFER[6144],
@@ -4117,8 +4118,15 @@ new ADMIN_LEVELS[][] =
 	"Moderador",
 	"Moderador Global",
 	"Administrador",
-	"Dueño"
+	"Comunity Manager"
 };
+
+public OnIncomingConnection(playerid, ip_address[], port)
+{
+	if(!server_loaded) BlockIpAddress(ip_address, minutes(1));
+	return 1;
+}
+
 
 public OnPlayerConnect(playerid)
 {
@@ -5102,11 +5110,12 @@ public OnPlayerRequestSpawn(playerid) // Intentar 'spawnear' mediante la selecci
 public OnGameModeInit()
 {
 	AntiAmx();
-	SetGameModeText(SERVER_GAMEMODE);
-    SendRconCommand("hostname "SERVER_HOSTNAME"");
-    SendRconCommand("language "SERVER_LANGUAGE"");
-	SendRconCommand("weburl "SERVER_WEBSITE"");
-	SendRconCommand("mapname "SERVER_WEBSITE"");
+	SetGameModeText("-");
+    SendRconCommand("hostname Cargando...");
+    SendRconCommand("language -");
+	SendRconCommand("weburl -");
+	SendRconCommand("mapname -");
+	SendRconCommandf("password %d", random(9999));
 	SendRconCommand("minconnectiontime 0");
     SendRconCommand("ackslimit 8000");
     SendRconCommand("messageslimit 100");
@@ -5146,6 +5155,22 @@ public OnGameModeInit()
 	FormatDialogStrings();
 	UsePlayerPedAnims();
 	MapAndreas_Init(MAP_ANDREAS_MODE_FULL);
+
+	SetTimer("ToggleServerLoaded", seconds(15), false);
+	return 1;
+}
+
+callbackp:ToggleServerLoaded()
+{
+	server_loaded = true;
+	print("EL SERVIDOR SE HA CARGADO CORRECTAMENTE.");
+
+	SetGameModeText(SERVER_GAMEMODE);
+    SendRconCommand("hostname "SERVER_HOSTNAME"");
+    SendRconCommand("language "SERVER_LANGUAGE"");
+	SendRconCommand("weburl "SERVER_WEBSITE"");
+	SendRconCommand("mapname "SERVER_WEBSITE"");
+	SendRconCommand("password 0");
 	return 1;
 }
 
