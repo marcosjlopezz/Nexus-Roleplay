@@ -19250,21 +19250,10 @@ callbackp:LoadProperties()
 			if(PROPERTY_INFO[i][property_EXTRA]) PROPERTY_INFO[i][property_PRICE] = 0;
 			if(PROPERTY_INFO[i][property_VIP_LEVEL]) PROPERTY_INFO[i][property_LEVEL] = 1;
 
-			new id_player, pname[24], bool:isnull_id_player, bool:isnull_pname;
+			new id_player, bool:isnull_id_player;
 			cache_is_value_name_null(i, "id_player", isnull_id_player);
-			if(!isnull_id_player)
-			{
-				cache_get_value_name_int(i, "id_player", id_player);
 
-				inline OnPlayerNameGet()
-				{
-					cache_is_value_name_null(i, "name", isnull_pname);
-					if(!isnull_pname) cache_get_value_name(0, "name", pname);
-				}
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT name FROM player WHERE id = %d;", id_player);
-				mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPlayerNameGet);
-			}
-			if(id_player) CreatePropertyInfo(i, id_player, pname);
+			if(id_player) CreatePropertyInfo(i, id_player, "No Disponible...");
 			else CreatePropertyInfo(i, 0, "");
 
 			inline OnPropertyClosetLoad()
