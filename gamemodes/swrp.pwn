@@ -5174,7 +5174,7 @@ callbackp:ToggleServerLoaded()
 	SendRconCommand("mapname "SERVER_WEBSITE"");
 
 	FO_SetMode(FO_RELATIVE);
-	FO_SetValue((3 + random(9)));
+	FO_SetValue((10 + random(9)));
 	SetTimer("UpdateFOPlayers", 60000, true);
 	return 1;
 }
@@ -30794,7 +30794,7 @@ stock LoadServerInfo()
 
 callbackp:UpdateFOPlayers()
 {
-	FO_SetValue((8 + random(9)));
+	FO_SetValue((20 + random(9)));
 	return 1;
 }
 	
