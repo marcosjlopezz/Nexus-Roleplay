@@ -48,7 +48,7 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.5.5 Alpha"
+#define SERVER_VERSION			"2.5.6 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -65,8 +65,8 @@ AntiAmx()
 #define SERVER_COIN				"Yuan"
 
 #define MAX_BAD_LOGIN_ATTEMPS 	3
-#define REP_MULTIPLIER 			5
-#define TIME_FOR_REP 			1500000 
+#define REP_MULTIPLIER 			8
+#define TIME_FOR_REP 			minutes(45) 
 #define REP_FOR_PAYDAY 			3
 #define LOGIN_TIME 				180000
 
@@ -2908,7 +2908,6 @@ enum Temp_Enum
 	Float:pt_INVENTORY_POCKET_EXTRA_3,
 	Float:pt_INVENTORY_POCKET_EXTRA_4,
 	pt_MEDICINE_TIMER,
-	pt_INJURED_TIMER_POS,
 	pt_ELEVATOR_INDEX,
 	pt_ELEVATOR_OPTION,
 	pt_GIVECASHALL_TIME,
@@ -4942,7 +4941,6 @@ hook OnPlayerDeath(playerid, killerid, reason)
 		PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
 		PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
 		PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
-		PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
 	}
 	
 	PlayerTemp[playerid][pt_GAME_STATE] = GAME_STATE_DEAD;
@@ -6753,7 +6751,7 @@ GetPropertyIndexByID(id)
 CMD:dar(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
-	if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para usar este comando.");
+	if(PI[playerid][pLEVEL] < 3) return SendMessage(playerid, "Debes ser al menos nivel 3 para usar este comando.");
 	
 	new option[24], to_playerid, extra;
 	if(sscanf(params, "s[24]ud", option, to_playerid, extra)) return SendMessage(playerid, "Error en los parámetros, utilice {"#SILVER_COLOR"}/man dar.");
@@ -6916,7 +6914,7 @@ CMD:dar(playerid, params[])
 CMD:vender(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
-	if(PI[playerid][pLEVEL] < 2) return SendMessage(playerid, "Debes ser al menos nivel 2 para usar este comando.");
+	if(PI[playerid][pLEVEL] < 3) return SendMessage(playerid, "Debes ser al menos nivel 3 para usar este comando.");
 	
 	new option[24], to_playerid, extra, price;
 	if(sscanf(params, "s[24]udd", option, to_playerid, extra, price)) return SendMessage(playerid, "Error en los parámetros, utilice ~r~/man vender~w~.");
@@ -19539,7 +19537,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 		{
 			if(PlayerTemp[playerid][pt_INTERIOR_INDEX] != -1 && ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] == INTERIOR_CITY_HALL_LS)
 			{
-				if(PI[playerid][pLEVEL] >= 2)
+				if(PI[playerid][pLEVEL] >= 3)
 				{
 					if(PI[playerid][pBANK_ACCOUNT] == 0)
 					{
@@ -19551,7 +19549,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 						ShowDialog(playerid, DIALOG_NOTARY);
 					}
 				}
-				else SendMessage(playerid, "Debes ser al menos nivel 2.");
+				else SendMessage(playerid, "Debes ser al menos nivel 3.");
 			}
 		}
 		case PICKUP_TYPE_CRANE:
@@ -25302,6 +25300,8 @@ stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 			PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_NOFUEL][p_ac_info_IMMUNITY] = gettime() + 15;
 			pTemp(playerid)[pt_TASER_GUN] = false;
 
+			DropHandWeapon(playerid);
+
 			for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
 			{
 				if(IsPlayerConnected(i) && pTemp(i)[pt_USER_LOGGED])
@@ -25464,7 +25464,6 @@ stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 				PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
 				PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
 				PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
-				PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
 			}
 
 			if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
@@ -32282,7 +32281,8 @@ SetPiDefaultValues(playerid)
 	PI[playerid][pPLAYERID] = playerid;
 	PI[playerid][pTIME_FOR_REP] = TIME_FOR_REP;
 	PI[playerid][pSKIN] = 250;
-	PI[playerid][pCASH] = 15000;
+	PI[playerid][pCASH] = 1500000;
+	PI[playerid][pCOINS] = 2;
 	PI[playerid][pPOS_X] = New_User_Pos[0];
 	PI[playerid][pPOS_Y] = New_User_Pos[1];
 	PI[playerid][pPOS_Z] = New_User_Pos[2];
@@ -32290,7 +32290,7 @@ SetPiDefaultValues(playerid)
 	PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
 	PI[playerid][pFIGHT_STYLE] = 4;
 	PI[playerid][pHEALTH] = 100.0;
-	PI[playerid][pARMOUR] = 0.0;
+	PI[playerid][pARMOUR] = 25.0;
 	PI[playerid][pHUNGRY] = 100.0;
 	PI[playerid][pTHIRST] = 100.0;
 	PI[playerid][pCONFIG_SOUNDS] = 1;
@@ -32494,7 +32494,6 @@ public OnPlayerLogin(playerid)
 	PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
 	PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
 	PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
-	PlayerTemp[playerid][pt_INJURED_TIMER_POS] = gettime() + 5;
 	
 	SetSpawnInfo(playerid, NO_TEAM, PI[playerid][pSKIN], PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z], PI[playerid][pANGLE], 0, 0, 0, 0, 0, 0);
 	SetPlayerInterior(playerid, PI[playerid][pINTERIOR]);

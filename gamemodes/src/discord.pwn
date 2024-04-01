@@ -242,12 +242,9 @@ SendCoinsLogMessage(playerid, const message[])
 
 stock UpdatePlayerDiscordName(playerid)
 {
-    if(strlen(PI[playerid][pDISCORD_USERID]) > 0)
-    {
-        new DCC_User:user = DCC_FindUserById(PI[playerid][pDISCORD_USERID]);
-        new NickNameFormat[445]; format(NickNameFormat, 445, "%s | DB-ID: %d", PI[playerid][pNAME], PI[playerid][pID]);
-        DCC_SetGuildMemberNickname(Discord_Servers[0], user, NickNameFormat);
-    }
+    new DCC_User:user = DCC_FindUserById(PI[playerid][pDISCORD_USERID]);
+    new NickNameFormat[445]; format(NickNameFormat, 445, "%s | DB-ID: %d", PI[playerid][pNAME], PI[playerid][pID]);
+    DCC_SetGuildMemberNickname(Discord_Servers[0], user, NickNameFormat);
 }
 
 DCMD:ingresar(user, channel, params[])
