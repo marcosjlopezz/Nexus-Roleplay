@@ -48,7 +48,7 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.5.6 Alpha"
+#define SERVER_VERSION			"2.6 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -421,6 +421,7 @@ enum
 	DIALOG_PLAYER_GPS_VEHICLES,
 	DIALOG_PROPERTY_OPTIONS,
 	DIALOG_PROPERTY_NAME,
+	DIALOG_PROPERTY_DESCRIPTION,
 	DIALOG_PROPERTY_BANK_SELL,
 	DIALOG_BUY_VEHICLE,
 	DIALOG_NOTARY,
@@ -515,7 +516,6 @@ enum
 	DIALOG_CREW_MODIFY_MEMBERS,
 	DIALOG_CREW_MODIFY_MEMBER,
 	DIALOG_CREW_LEAVE_TERRITORY,
-	DIALOG_CREW_LEAVE_PROPERTY,
 	DIALOG_POLICE_PENALTY,
 	DIALOG_VIP_BUY,
 	DIALOG_VIP,
@@ -569,7 +569,8 @@ enum
 	DIALOG_BLACK_MARKET_AMMO,
 	DIALOG_BLACK_MARKET_ARMOUR,
 	DIALOG_RENOUNCE,
-	DIALOG_SELECT_POLICE_DIVISION
+	DIALOG_SELECT_POLICE_DIVISION,
+	DIALOG_LOGIN_DISCORD
 }
 
 enum
@@ -803,7 +804,7 @@ new work_info[][work_info_info] =
 	{WORK_TYPE_NORMAL, 1, "Basurero", true, 0, 0, 0},
 	{WORK_TYPE_NORMAL, 1, "Talador", false, 0, 0, 0},
 	{WORK_TYPE_NORMAL, 3, "Agricultor", false, 0, 0, 0},
-	{WORK_TYPE_FAMILY, 3, "Policía", true, 0, 0, 0},
+	{WORK_TYPE_FAMILY, 3, "Policía", true, 500, 1, 10000},
 	{WORK_TYPE_NORMAL, 1, "Pizzero", true, 0, 0, 0},
 	{WORK_TYPE_NORMAL, 3, "Médico", true, 0, 0, 0}
 };
@@ -862,17 +863,15 @@ enum enum_TERRITORIES
 {
 	bool:territory_VALID,
 	territory_ID,
-	territory_NAME[32],
+	territory_NAME[64],
 	bool:territory_OCCUPIED,
 	territory_CREW_ID,
 	territory_CREW_INDEX,
 	territory_COLOR,
 	Float:territory_MIN_X,
 	Float:territory_MIN_Y,
-	Float:territory_MIN_Z,
 	Float:territory_MAX_X,
 	Float:territory_MAX_Y,
-	Float:territory_MAX_Z,
 	
 	territory_AREA,
 	territory_GANG_ZONE,
@@ -889,7 +888,7 @@ forward OnTerritoriesLoaded();
 
 // Crews
 #define MAX_CREWS		50
-#define MAX_CREW_RANKS	10
+#define MAX_CREW_RANKS	6
 
 enum enum_CREW_INFO
 {
@@ -909,7 +908,6 @@ new CREW_INFO[MAX_CREWS][enum_CREW_INFO];
 forward OnCrewDeleted(crewId);
 forward OnCrewCaptureTerritory(crewId, crewIndex, territoryId, territoryIndex);
 forward OnCrewLeftTerritory(crewId, crewIndex, territoryId, territoryIndex);
-
 
 new RandomColors[] =
 {
@@ -946,22 +944,6 @@ new RandomColors[] =
 	0xD8C762FF,	0xD8C762FF
 };
 
-
-/* 
-Permisos de rangos
-
-0 - cambiar nombre
-1 - invitar
-2 - echar
-3 - cambiar rango de miembros
-4 - crear rangos y modificar rangos
-5 - poner casas personales a casas de banda
-6 - vender casas de banda
-7 - cambiar color de la banda
-8 - abandonar territorio
-9 - destruir cbanda
-*/
-
 //permisos
 enum
 {
@@ -970,10 +952,7 @@ enum
 	CREW_RANK_CAST_MEMBERS,
 	CREW_RANK_MODIFY_MEMBERS,
 	CREW_RANK_MODIFY_RANKS,
-	CREW_RANK_ADD_PROPERTIES,
-	CREW_RANK_DELETE_PROPERTIES,
 	CREW_RANK_CHANGE_COLOR,
-	CREW_RANK_LEAVE_TERRITORY,
 	CREW_RANK_DELETE,
 	
 	CREW_RANK_SIZE, // dejar siempre el ultimo
@@ -986,11 +965,8 @@ new CREW_RANKS_PERMISSIONS[][] =
 	"echar miembros",				//2
 	"cambiar rangos de miembros",	//3
 	"crear rangos o modificarlos",	//4
-	"poner propiedades de banda",	//5
-	"liberar propiedades de banda",	//6
-	"cambiar color de la banda",	//7
-	"abandonar territorios",		//8
-	"eliminar banda"				//9
+	"cambiar color de la banda",	//5
+	"eliminar banda"				//6
 };
 
 enum enum_CREW_RANK_INFO
@@ -2144,24 +2120,23 @@ enum enum_SAFE_ZONES
 }
 new SAFE_ZONES[][enum_SAFE_ZONES] =
 {
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1996.91,	-1449.67,	2056.86,	-1350.719, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1323.9,	-1842.27,	1701.9,	-1722.26, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1440.9,	-1722.26,	1583.5,	-1577.589, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1249.619,	-2394.33,	1852.0,	-2179.25, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1382.729,	-2730.879,	2201.82,	-2394.33, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -2078.669,	578.395,	-1499.89,	744.267, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -2741.07,	458.411,	-2533.04,	793.411, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -1794.92,	-730.117,	-1213.91,	-50.096, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -792.254,	-698.554,	-452.403,	-380.042, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -594.19,	-1648.55,	-187.699,	-1276.599, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 2237.399,	2202.76,	2536.429,	2542.55, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1236.63,	1203.28,	1457.369,	1883.109, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1457.369,	1203.28,	1777.39,	1883.109, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -91.585,	1655.05,	421.234,	2123.01, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -613.953796, -209.777252, -381.961181, -6.355076, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -115.255050, -1211.812377, -54.539089, -1179.635253, 0, 0},
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1205.5, -1704.5, 1293.5, -1614.5, 0, 0}, //Spawn Inicial
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1905.5, -1826.5, 1952.5, -1796.5, 0, 0}
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1433.5, -1725.5, 1525.5, -1597.5, 0, 0}, //Parque Comisaria
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1525.5, -1725.5, 1582.5, -1597.5, 0, 0}, //Comisaria
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1318.5, -1864.5, 1575.5, -1742.5, 0, 0}, //Gob y 247
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1048.5, -1561.5, 1182.5, -1415.5, 0, 0}, //Spawn
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1149.5, -1391.5, 1342.5, -1284.5, 0, 0}, //HP Market
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -632.5, -647.5, -424.5, -463.5, 0, 0}, //Camionero
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 2115.5, -1207.5, 2166.5, -1119.5, 0, 0}, //Concesionaria Pobre
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1714.5, 1857.5, 1774.5, 2045.5, 0, 0}, //Conce Motos LV
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1657.5, 1788.5, 1733.5, 1857.5, 0, 0}, //Conce Motos LV
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1577.5, 1722.5, 1639.5, 1864.5, 0, 0}, //HP LV
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 493.5, -1325.5, 620.5, -1237.5, 0, 0}, //Conce Grotti
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -2003.5, 219.5, -1877.5, 311.5, 0, 0}, //Conce Wang Cars
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -1701.5, 625.5, -1564.5, 725.5, 0, 0}, //Policia SF
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -1709.5, 936.5, -1562.5, 1008.5, 0, 0}, //Conce Cara
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -664.5, -231.5, -346.5, 46.5, 0, 0}, //Talador
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -342.5, 1000.5, -282.5, 1067.5, 0, 0}, //HP BlueBerry
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 2235.5, 2418.5, 2361.5, 2506.5, 0, 0} //Policia LV
 };
 
 /* Rangos Policias */
@@ -2178,8 +2153,7 @@ new POLICE_WEAPONS[][enum_POLICE_WEAPONS] =
 	{3, 25},
 	{5, 27},
 	{3, 29},
-	{2, 31},
-	{6, 34}
+	{2, 31}
 };
 
 
@@ -2370,13 +2344,13 @@ enum Property_Info_Enum
 
 	bool:property_POLICE_FORCING,
 	bool:property_POLICE_FORCED,
-	property_POLICE_FORCE_TIMER
+	property_POLICE_FORCE_TIMER,
+	property_DESCRIPTION[24]
 }
 new PROPERTY_INFO[MAX_PROPERTIES][Property_Info_Enum];
 
 
 /* PROPERTY CONSTRUCTOR */
-#define PROPERTY_EMPTY_INTERIOR_Z_OFFSET 20.0
 new TOTAL_PROPERTIES_LOADED;
 enum PROPERTY_INTERIOR_ENUM
 {
@@ -2387,31 +2361,30 @@ enum PROPERTY_INTERIOR_ENUM
 	Float:property_INT_Z,
 	Float:property_INT_ANGLE,
 	property_INT_INTERIOR,
-	bool:property_INT_FREEZE,
-	bool:property_EMPTY_INTERIOR
+	bool:property_INT_FREEZE
 }
 new PROPERTY_INTERIORS[][PROPERTY_INTERIOR_ENUM] =
 {
-	{6, 180000, 140.249008, 1366.197509, 1083.859375, 0.0, 5, false, true},
-	{6, 160000, 2324.530029, -1149.540039, 1050.710083, 0.0, 12, false, true},
-	{6, 270000, 225.679992, 1021.450012, 1084.017700, 0.0, 7, false, true},
-	{6, 190000, 234.190002, 1063.729980, 1084.212280, 0.0, 6, false, true},
-	{6, 120000, 226.300003, 1114.239990, 1080.992919, 270.0, 5, false, true},
-	{6, 180000, 2317.889892, -1026.760009, 1050.217773, 0.0, 9, false, true},
-	{6, 120000, 2495.979980, -1692.079956, 1014.742187, 180.0, 3, false, true},
-	{6, 90000,  2196.626464, -1204.321411, 1049.023437, 90.0, 6, false, true},
-	{6, 105000, 2270.143554, -1210.490600, 1047.562500, 90.0, 10, false, true},
-	{4, 90000,  2365.199951, -1135.595825, 1050.882568, 0.0, 8, false, true},
-	{3, 75000,  2237.590087, -1081.640014, 1049.023437, 0.0, 2, false, true},
-	{4, 65000,  2468.840087, -1698.239990, 1013.507812, 90.0, 2, false, false},
-	{3, 45000,  2282.928955, -1140.004516, 1050.898437, 0.0, 11, false, true},
-	{4, 50000,  2308.775878, -1212.731689, 1049.023437, 0.0, 6, false, true},
-	{6, 135000, 2233.681396, -1114.973510, 1050.882812, 0.0, 5, false, true},
-	{6, 230000, 2218.162597, -1076.148315, 1050.484375, 90.0, 1, false, true},
-	{6, 220000, 266.654327, 304.961791, 999.148437, 270.0, 2, false, true},
-	{6, 30000,  243.720001, 304.910003, 999.148437, 270.0, 1, false, true},
-	{6, 65000,  2259.440673, -1135.905883, 1050.640258, 270.0, 10, false, true},
-	{12, 3000000, 1260.910034, -785.320068, 1091.906250, 280.0, 5, false, false}
+	{6, 180000, 140.249008, 1366.197509, 1083.859375, 0.0, 5, false},
+	{6, 160000, 2324.530029, -1149.540039, 1050.710083, 0.0, 12, false},
+	{6, 270000, 225.679992, 1021.450012, 1084.017700, 0.0, 7, false},
+	{6, 190000, 234.190002, 1063.729980, 1084.212280, 0.0, 6, false},
+	{6, 120000, 226.300003, 1114.239990, 1080.992919, 270.0, 5, false},
+	{6, 180000, 2317.889892, -1026.760009, 1050.217773, 0.0, 9, false},
+	{6, 120000, 2495.979980, -1692.079956, 1014.742187, 180.0, 3, false},
+	{6, 90000,  2196.626464, -1204.321411, 1049.023437, 90.0, 6, false},
+	{6, 105000, 2270.143554, -1210.490600, 1047.562500, 90.0, 10, false},
+	{4, 90000,  2365.199951, -1135.595825, 1050.882568, 0.0, 8, false},
+	{3, 75000,  2237.590087, -1081.640014, 1049.023437, 0.0, 2, false},
+	{4, 65000,  2468.840087, -1698.239990, 1013.507812, 90.0, 2, false},
+	{3, 45000,  2282.928955, -1140.004516, 1050.898437, 0.0, 11, false},
+	{4, 50000,  2308.775878, -1212.731689, 1049.023437, 0.0, 6, false},
+	{6, 135000, 2233.681396, -1114.973510, 1050.882812, 0.0, 5, false},
+	{6, 230000, 2218.162597, -1076.148315, 1050.484375, 90.0, 1, false},
+	{6, 220000, 266.654327, 304.961791, 999.148437, 270.0, 2, false},
+	{6, 30000,  243.720001, 304.910003, 999.148437, 270.0, 1, false},
+	{6, 65000,  2259.440673, -1135.905883, 1050.640258, 270.0, 10, false},
+	{12, 3000000, 1260.910034, -785.320068, 1091.906250, 280.0, 5, false}
 };
 
 enum PROPERTY_CLOSET_POS_ENUM
@@ -2868,7 +2841,6 @@ enum Temp_Enum
 	pt_FIRST_NAME[24],
 	pt_SUB_NAME[24],
 	bool:pt_ADMIN_SERVICE,
-	Text3D:pt_ADMIN_LABEL,
 	pt_LAST_SAFE_ZONE_WARNING,
 	pt_SELECTED_POLICE_OBJECT_INDEX,
 	pt_SELECTED_BYC_ID,
@@ -4124,7 +4096,11 @@ new ADMIN_LEVELS[][] =
 
 public OnIncomingConnection(playerid, ip_address[], port)
 {
-	if(!server_loaded) BlockIpAddress(ip_address, minutes(1));
+	if(!server_loaded)
+	{
+		BlockIpAddress(ip_address, minutes(1));
+		SendRconCommand("gmx");
+	}
 	return 1;
 }
 
@@ -4373,11 +4349,6 @@ DestroyPlayerCheckpoints(playerid)
 	{
 		DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]);
 		PlayerTemp[playerid][pt_PLAYER_NAMETAG] = Text3D:INVALID_STREAMER_ID;
-	}
-	if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]))
-	{
-		DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]);
-		PlayerTemp[playerid][pt_ADMIN_LABEL] = Text3D:INVALID_STREAMER_ID;
 	}
 	if(IsValidDynamicCP(PlayerTemp[playerid][pt_GPS_CHECKPOINT]))
 	{
@@ -4899,7 +4870,7 @@ hook OnPlayerDeath(playerid, killerid, reason)
 					PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
 
 					new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
-					z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+					
 					PI[playerid][pPOS_Z] = z_pos;
 
 					PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];
@@ -6118,6 +6089,12 @@ CMD:web(playerid, params[])
 	return 1;
 }
 
+CMD:discord(playerid, params[])
+{
+	SendClientMessage(playerid, -1, "Discord: {"#BLUE_COLOR"}"SERVER_DISCORD"");
+	return 1;
+}
+
 ptask AutoSavePlayerData[30000](playerid)
 {
 	if(IsPlayerRegistered(playerid))
@@ -6151,10 +6128,7 @@ stock SetPlayerNametagInfo(playerid, bool:update)
 		}
 	}
 
-	if(pTemp(playerid)[pt_CUFFED])
-	{
-		format(extra_str, 445, "{C8FF73}[{"#GREEN_COLOR"}Esposado{C8FF73}]\n");
-	}
+	if(pTemp(playerid)[pt_CUFFED]) format(extra_str, 445, "{C8FF73}[{"#GREEN_COLOR"}Esposado{C8FF73}]\n");
 
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
@@ -6162,11 +6136,9 @@ stock SetPlayerNametagInfo(playerid, bool:update)
 		else format(extra_str, 445, "{CCCCCC}%s | N.%d | %c. %s\n", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
 	}
 
-	if(IsPlayerPaused(playerid))
-	{
-		format(extra_str, 445, "{000000}[{232323}Pausa{000000}]\n");
-	}
-
+	if(PlayerTemp[playerid][pt_ADMIN_SERVICE]) format(extra_str, 445, "{"#PRIMARY_COLOR"}[%s]\n", PI[playerid][pADMIN_LEVEL]);
+	if(IsPlayerPaused(playerid)) format(extra_str, 445, "{000000}[{232323}Pausa{000000}]\n");
+	
 	if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && !IsPlayerInSafeZone(playerid) && PlayerTemp[playerid][pt_COMBAT])
 	{
 		if(PI[playerid][pARMOUR])
@@ -6186,10 +6158,7 @@ stock SetPlayerNametagInfo(playerid, bool:update)
 	if(strlen(health_str) > 0) strcat(label_str, health_str);
 	if(strlen(extra_str) > 0) strins(label_str, extra_str, 0);
 
-	if(update)
-	{
-		UpdateDynamic3DTextLabelText(PlayerTemp[playerid][pt_PLAYER_NAMETAG], PLAYER_COLOR, label_str);
-	}
+	if(update) UpdateDynamic3DTextLabelText(PlayerTemp[playerid][pt_PLAYER_NAMETAG], PLAYER_COLOR, label_str);
 	else
 	{
 		if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]))
@@ -7208,65 +7177,42 @@ CMD:man(playerid, params[])
 
 CMD:puerta(playerid, params[])
 {
-	if(PI[playerid][pSTATE] != ROLEPLAY_STATE_OWN_PROPERTY) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	if(PlayerTemp[playerid][pt_LAST_PICKUP_ID] == 0) return SendMessage(playerid, "No estás en el lugar adecuado.");
-		
-	new info[3];
-	Streamer_GetArrayData(STREAMER_TYPE_PICKUP, PlayerTemp[playerid][pt_LAST_PICKUP_ID], E_STREAMER_EXTRA_ID, info);
-	if(info[0] != PICKUP_TYPE_PROPERTY) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	
-	new Float:pos[3]; 
-	Streamer_GetFloatData(STREAMER_TYPE_PICKUP, PlayerTemp[playerid][pt_LAST_PICKUP_ID], E_STREAMER_X, pos[0]);
-	Streamer_GetFloatData(STREAMER_TYPE_PICKUP, PlayerTemp[playerid][pt_LAST_PICKUP_ID], E_STREAMER_Y, pos[1]);
-	Streamer_GetFloatData(STREAMER_TYPE_PICKUP, PlayerTemp[playerid][pt_LAST_PICKUP_ID], E_STREAMER_Z, pos[2]);
-	
-	if(!IsPlayerInRangeOfPoint(playerid, 1.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	
-	if(info[2] == 1) // Está en el Pickup Interior
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_OWN_PROPERTY)
 	{
-		if(PROPERTY_INFO[info[1]][property_OWNER_ID] == PI[playerid][pID])
-		{
-			if(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID] == INVALID_PLAYER_ID) return SendClientMessagef(playerid, -1, "Nadie ha tocado en la puerta.");
-			if(!IsPlayerConnected(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID])) return SendClientMessagef(playerid, -1, "Nadie ha tocado en la puerta o ya se ha ido.");
-			if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID], 3.0, PROPERTY_INFO[info[1]][property_EXT_X], PROPERTY_INFO[info[1]][property_EXT_Y], PROPERTY_INFO[info[1]][property_EXT_Z])) return SendClientMessagef(playerid, -1, "Nadie ha tocado en la puerta o ya se ha ido.");
-			if(PlayerTemp[playerid][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "Este jugador no puede entrar ahora.");
+		new index = GetPropertyIndexByID(PI[playerid][pLOCAL_INTERIOR]);
+		if(index == -1) return SendMessage(playerid, "BUG: Toma captura de pantalla y abre ticket en discord.");
+		if(PROPERTY_INFO[index][property_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Esta no es tu casa");
 
-			PI[PlayerTemp[playerid][pt_KNOCK_PLAYER_ID]][pSTATE] = ROLEPLAY_STATE_GUEST_PROPERTY;
-			PI[PlayerTemp[playerid][pt_KNOCK_PLAYER_ID]][pLOCAL_INTERIOR] = PROPERTY_INFO[info[1]][property_ID];
-			pTemp(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID])[pt_PROPERTY_INDEX] = info[1];
+		if(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID] == INVALID_PLAYER_ID) return SendClientMessagef(playerid, -1, "Nadie ha tocado en la puerta.");
+		if(!IsPlayerConnected(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID])) return SendClientMessagef(playerid, -1, "Nadie ha tocado en la puerta o ya se ha ido.");
+		if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID], 3.0, PROPERTY_INFO[index][property_EXT_X], PROPERTY_INFO[index][property_EXT_Y], PROPERTY_INFO[index][property_EXT_Z])) return SendClientMessagef(playerid, -1, "Nadie ha tocado en la puerta o ya se ha ido.");
+		if(PlayerTemp[playerid][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "Este jugador no puede entrar ahora.");
 
-			new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Z];
-			z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
-			SetPlayerPosEx(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Y], z_pos, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_ANGLE], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_INTERIOR], PROPERTY_INFO[info[1]][property_ID], false /*PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_FREEZE]*/, true);
-			FreezePlayer(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID]);
-		}
-		else SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
+		PI[PlayerTemp[playerid][pt_KNOCK_PLAYER_ID]][pSTATE] = ROLEPLAY_STATE_GUEST_PROPERTY;
+		PI[PlayerTemp[playerid][pt_KNOCK_PLAYER_ID]][pLOCAL_INTERIOR] = PROPERTY_INFO[index][property_ID];
+		pTemp(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID])[pt_PROPERTY_INDEX] = index;
+
+		new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
+		
+		SetPlayerPosEx(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID], PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y], z_pos, PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE], PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_INTERIOR], PROPERTY_INFO[index][property_ID], false /*PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_FREEZE]*/, true);
+		FreezePlayer(PlayerTemp[playerid][pt_KNOCK_PLAYER_ID]);
 	}
-	else SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
+	else SendClientMessagef(playerid, -1, "No estás en tu casa.");
 	return 1;
 }
 
 CMD:casa(playerid, params[])
 {
-	if(PlayerTemp[playerid][pt_LAST_PICKUP_ID] == 0) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_OWN_PROPERTY || PI[playerid][pSTATE] == ROLEPLAY_STATE_GUEST_PROPERTY) 
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_OWN_PROPERTY)
 	{
 		new index = GetPropertyIndexByID(PI[playerid][pLOCAL_INTERIOR]);
-		if(index == -1) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
+		if(index == -1) return SendMessage(playerid, "BUG: Toma captura de pantalla y abre ticket en discord.");
+		if(PROPERTY_INFO[index][property_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Esta no es tu casa");
 
-		if(PI[playerid][pSTATE] == ROLEPLAY_STATE_OWN_PROPERTY)
-		{	
-			if(PROPERTY_INFO[index][property_OWNER_ID] == PI[playerid][pID])
-			{
-				PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] = index;
-				ShowDialog(playerid, DIALOG_PROPERTY_OPTIONS);
-			}
-			else SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-		}
-		else if(PI[playerid][pSTATE] == ROLEPLAY_STATE_GUEST_PROPERTY) SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
+		PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] = index;
+		ShowDialog(playerid, DIALOG_PROPERTY_OPTIONS);
 	}
-	else SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
+	else SendClientMessagef(playerid, -1, "No estás en tu casa.");
 	return 1;
 }
 
@@ -7279,7 +7225,7 @@ CMD:armario(playerid, params[])
 		if(PROPERTY_INFO[index][property_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Esta no es tu casa");
 
 		new Float:z_pos = PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Z];
-		z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+		
 		if(IsPlayerInRangeOfPoint(playerid, 1.0, PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_X], PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Y], z_pos))
 		{
 			PlayerTemp[playerid][pt_DIALOG_CLOSET_PROPERTY] = index;
@@ -7933,7 +7879,7 @@ stock ShowDialog(playerid, dialogid)
 
 				if(index != -1) {
 					new Float:z_pos = PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Z];
-					z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+					
 					if(PROPERTY_INFO[index][property_OWNER_ID] == PI[playerid][pID] && IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_X], PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Y], z_pos)) {
 						strcat(dialog_body, "- Guardar en el armario");
 					}
@@ -8494,7 +8440,7 @@ stock ShowDialog(playerid, dialogid)
 			format(caption, sizeof caption, "Propiedad - %s", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_NAME]);
 
 			new dialog[512];
-			format(dialog, sizeof dialog, "1. Cambiar nombre de la propiedad\n2. Echar a todo del mundo de mi propiedad\n");
+			format(dialog, sizeof dialog, "1. Cambiar nombre de la propiedad\n2. Echar a todo del mundo de mi propiedad\n3. Cambiar descripcion de la propiedad");
 
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Atrás");
 			return 1;
@@ -8503,6 +8449,13 @@ stock ShowDialog(playerid, dialogid)
 		{
 			new dialog[85];
 			format(dialog, sizeof dialog, "Nombre actual: %s\nIndica el nuevo nombre de la propiedad.", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_NAME]);
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_INPUT, "Propiedad - Cambiar nombre", dialog, "Continuar", "Atrás");
+			return 1;
+		}
+		case DIALOG_PROPERTY_DESCRIPTION:
+		{
+			new dialog[85];
+			format(dialog, sizeof dialog, "Descripcion actual: %s\nIndica la nueva descripcion de la propiedad.", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_DESCRIPTION]);
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_INPUT, "Propiedad - Cambiar nombre", dialog, "Continuar", "Atrás");
 			return 1;
 		}
@@ -10336,16 +10289,6 @@ stock ShowDialog(playerid, dialogid)
 			mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnCrewInfoLoad);
 			return 1;
 		}
-		case DIALOG_CREW_LEAVE_TERRITORY:
-		{
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Abandonar territorio", "¿Estás seguro que quieres abandonar este territorio?\nEsta opcion no se puede deshacer.", "Continuar", "Cancelar");
-			return 1;
-		}
-		case DIALOG_CREW_LEAVE_PROPERTY:
-		{
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Propiedad de banda", "¿Estás seguro que quieres liberar esta propiedad?\nEsta opcion no se puede deshacer.", "Continuar", "Cancelar");
-			return 1;
-		}
 		case DIALOG_POLICE_PENALTY:
 		{
 			new dialog[128];
@@ -11880,11 +11823,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					SendClientMessagef(playerid, -1, "Has gastado %d "SERVER_COIN" en la compra de esta propiedad.", PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_EXTRA]);
 				}
 				
-				
 				PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_SOLD] = true;
 				PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_OWNER_ID] = PI[playerid][pID];
-				CreatePropertyInfo(PlayerTemp[playerid][pt_BUY_HOUSE_INDEX], PI[playerid][pID], PI[playerid][pNAME]);
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = %d, id_territory = NULL WHERE id = %d;", PI[playerid][pID], PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_ID]);
+				CreatePropertyInfo(PlayerTemp[playerid][pt_BUY_HOUSE_INDEX], PI[playerid][pID]);
+				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = %d WHERE id = %d;", PI[playerid][pID], PROPERTY_INFO[PlayerTemp[playerid][pt_BUY_HOUSE_INDEX]][property_ID]);
 				mysql_tquery(handle_db, QUERY_BUFFER);
 				
 				
@@ -12182,6 +12124,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(total == 0) SendClientMessagef(playerid, -1, "No hay nadie en tu propiedad.");
 						else SendClientMessagef(playerid, -1, "Has echado %d personas de tu propiedad.", total);
 					}
+					case 2: ShowDialog(playerid, DIALOG_PROPERTY_DESCRIPTION);
 				}
 			}
 			return 1;
@@ -12206,6 +12149,34 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				mysql_tquery(handle_db, QUERY_BUFFER);
 				
 				SendClientMessagef(playerid, -1, "Nombre de la propiedad actualizado a '%s'.", inputtext);
+			}
+			else ShowDialog(playerid, DIALOG_PROPERTY_OPTIONS);
+			return 1;
+		}
+		case DIALOG_PROPERTY_DESCRIPTION:
+		{
+			if(response)
+			{
+				if(!PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_VALID]) return 1;
+				if(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_OWNER_ID] != PI[playerid][pID]) return 1;
+				
+				if(isnull(inputtext)) return ShowDialog(playerid, dialogid);
+				if(strlen(inputtext) > 24)
+				{
+					ShowDialog(playerid, dialogid);
+					SendClientMessagef(playerid, -1, "{"#SILVER_COLOR"}Caracteres: 1-24.");
+					return 1;
+				}
+				
+				format(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_DESCRIPTION], 24, "%s", inputtext);
+				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET description = '%e' WHERE id = %d;", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_DESCRIPTION], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID]);
+				mysql_tquery(handle_db, QUERY_BUFFER);
+				
+				SendClientMessagef(playerid, -1, "Descripcion de la propiedad actualizada a '%s'.", inputtext);
+
+				new label_str[1024];
+				format(label_str, sizeof label_str, "Propiedad {"#PRIMARY_COLOR"}#%d\n\n{FFFFFF}Descripcion: {"#PRIMARY_COLOR"}%s\n{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_DESCRIPTION]);
+				UpdateDynamic3DTextLabelText(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
 			}
 			else ShowDialog(playerid, DIALOG_PROPERTY_OPTIONS);
 			return 1;
@@ -12368,7 +12339,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET bank_money = %d WHERE id = %d;", PI[playerid][pBANK_MONEY], PI[playerid][pID]);
 				mysql_tquery(handle_db, QUERY_BUFFER);
 
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = NULL, id_territory = NULL WHERE id = %d;", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID]);
+				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = NULL WHERE id = %d;", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID]);
 				mysql_tquery(handle_db, QUERY_BUFFER);
 						
 				RegisterBankAccountTransaction(PI[playerid][pID], PI[playerid][pID], BANK_TRANSACTION_SOLD_PROPERTY, payment);
@@ -12461,14 +12432,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					sizeof label_str, 
 					"\
 						Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
-						{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n\
+						{FFFFFF}Descripcion: {"#PRIMARY_COLOR"}%s\n\
 						{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
-					", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID], PI[playerid][pNAME]
+					", PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_DESCRIPTION]
 				);
 				UpdateDynamic3DTextLabelText(PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
 				
 				PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_OWNER_ID] = PI[playerid][pID];
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = %d, id_territory = NULL WHERE id = %d;", PI[playerid][pID], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID]);
+				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = %d WHERE id = %d;", PI[playerid][pID], PROPERTY_INFO[ PlayerTemp[playerid][pt_PLAYER_PROPERTY_SELECTED] ][property_ID]);
 				mysql_tquery(handle_db, QUERY_BUFFER);
 				
 				// Banco
@@ -14816,10 +14787,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					CREW_RANK_INFO[index][0][crew_rank_PERMISSION][CREW_RANK_CAST_MEMBERS] =
 					CREW_RANK_INFO[index][0][crew_rank_PERMISSION][CREW_RANK_MODIFY_MEMBERS] =
 					CREW_RANK_INFO[index][0][crew_rank_PERMISSION][CREW_RANK_MODIFY_RANKS] =
-					CREW_RANK_INFO[index][0][crew_rank_PERMISSION][CREW_RANK_ADD_PROPERTIES] =
-					CREW_RANK_INFO[index][0][crew_rank_PERMISSION][CREW_RANK_DELETE_PROPERTIES] =
 					CREW_RANK_INFO[index][0][crew_rank_PERMISSION][CREW_RANK_CHANGE_COLOR] =
-					CREW_RANK_INFO[index][0][crew_rank_PERMISSION][CREW_RANK_LEAVE_TERRITORY] =
 					CREW_RANK_INFO[index][0][crew_rank_PERMISSION][CREW_RANK_DELETE] =
 						
 					NewCrewRegister(index, playerid);
@@ -14996,31 +14964,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				
 				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE crews SET name = '%e' WHERE id = %d;", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME], CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_ID]);
 				mysql_tquery(handle_db, QUERY_BUFFER);
-				//actualizar nombre casas pickups
 				
-				
-				new message[145], label_str[256];
+				new message[145];
 				format(message, sizeof message, "{%06x}[Banda] {FFFFFF}%s (%s) cambio el nombre de la banda a '%s'.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_COLOR] >>> 8, PlayerTemp[playerid][pt_NAME], CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_NAME], CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME]);
 				SendMessageToCrewMembers(PI[playerid][pCREW], -1, message);
-				
-				
-				for(new i = 0; i != MAX_PROPERTIES; i ++)
-				{
-					if(!PROPERTY_INFO[i][property_VALID]) continue;
-		
-					format
-					(
-						label_str, 
-						sizeof label_str, 
-						"\
-							Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
-							{FFFFFF}Banda: {"#PRIMARY_COLOR"}%s\n\
-							{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
-						", PROPERTY_INFO[i][property_ID], CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME]
-					);
-					
-					UpdateDynamic3DTextLabelText(PROPERTY_INFO[i][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
-				}
 				
 				ShowDialog(playerid, DIALOG_CREW_MENU);
 			}
@@ -15417,10 +15364,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_PERMISSION][CREW_RANK_CAST_MEMBERS] =
 				CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_PERMISSION][CREW_RANK_MODIFY_MEMBERS] =
 				CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_PERMISSION][CREW_RANK_MODIFY_RANKS] =
-				CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_PERMISSION][CREW_RANK_ADD_PROPERTIES] =
-				CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_PERMISSION][CREW_RANK_DELETE_PROPERTIES] =
 				CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_PERMISSION][CREW_RANK_CHANGE_COLOR] =
-				CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_PERMISSION][CREW_RANK_LEAVE_TERRITORY] =
 				CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PlayerTemp[playerid][pt_CREW_SELECTED_RANK] ][crew_rank_PERMISSION][CREW_RANK_DELETE] = 0;
 				RegisterNewCrewRank(PlayerTemp[playerid][pt_CREW_INDEX], PlayerTemp[playerid][pt_CREW_SELECTED_RANK]);
 								
@@ -15839,44 +15783,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			else ShowDialog(playerid, DIALOG_CREW_MODIFY_MEMBERS);
 			return 1;
 		}
-		case DIALOG_CREW_LEAVE_TERRITORY:
-		{
-			if(!PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "No perteneces a ninguna banda.");
-			if(!CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_VALID]) return SendClientMessagef(playerid, -1, "La banda ya no existe.");
-			if(!CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_PERMISSION][CREW_RANK_LEAVE_TERRITORY]) return SendClientMessagef(playerid, -1, "No tienes permiso.");
-			
-			if(response)
-			{
-				if(!IsPlayerInDynamicArea(playerid, TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_AREA])) return SendClientMessagef(playerid, -1, "No estás en un territorio de tu banda.");
-				if(TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_CREW_ID] != PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "No estás en un territorio de tu banda.");			
-				if(CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_FIGHTING]) return SendClientMessagef(playerid, -1, "No puedes abandonar territorios mientras tu banda está en combate.");
-				if(TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_WAR]) return SendClientMessagef(playerid, -1, "No se puede abandonar este territorio cuando está siendo conquistado.");
-
-				TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_OCCUPIED] = false;
-				TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_CREW_ID] = 0;
-				TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_CREW_INDEX] = 0;
-				TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_COLOR] = 0xCCCCCC55;
-				UpdateGangZoneColor(PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO]);
-				
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE territories SET id_crew = NULL WHERE id = %d;", TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_ID]);
-				mysql_tquery(handle_db, QUERY_BUFFER);
-				CallLocalFunction("OnCrewLeftTerritory", "iiii", PI[playerid][pCREW], PlayerTemp[playerid][pt_CREW_INDEX], TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_ID], PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO]);
-				
-				new message[145];
-				format(message, sizeof message, "{"#PRIMARY_COLOR"}[BANDAS] {FFFFFF}La banda '%s' ha abandonado un territorio en %s.", CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_NAME], TERRITORIES[ PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] ][territory_NAME]);
-				for(new i = 0; i != MAX_PLAYERS; i++)
-				{
-					if(IsPlayerConnected(i))
-					{
-						if(PI[i][pCREW])
-						{
-							SendClientMessage(i, -1, message);
-						}
-					}
-				}
-			}
-			return 1;
-		}
 		case DIALOG_POLICE_PENALTY:
 		{
 			if(response)
@@ -16218,9 +16124,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 										sizeof label_str, 
 										"\
 											Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
-											{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n\
+											{FFFFFF}Descripcion: {"#PRIMARY_COLOR"}%s\n\
 											{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
-										", PROPERTY_INFO[i][property_ID], PI[playerid][pNAME]
+										", PROPERTY_INFO[i][property_ID], PROPERTY_INFO[i][property_DESCRIPTION]
 									);
 									UpdateDynamic3DTextLabelText(PROPERTY_INFO[i][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
 								}
@@ -19142,7 +19048,7 @@ LoadEnterExits()
 	return 1;
 }
 
-CreatePropertyInfo(i, pid, const pname[])
+CreatePropertyInfo(i, pid)
 {
 	if(PROPERTY_INFO[i][property_EXT_LABEL_ID] != Text3D:INVALID_STREAMER_ID)
 	{
@@ -19171,7 +19077,7 @@ CreatePropertyInfo(i, pid, const pname[])
 		pickup_modelid = 0;
 		PROPERTY_INFO[i][property_SOLD] = true;
 		PROPERTY_INFO[i][property_OWNER_ID] = pid;
-		format(label_str, sizeof label_str, "Propiedad {"#PRIMARY_COLOR"}#%d\n\n{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.", PROPERTY_INFO[i][property_ID], pname);
+		format(label_str, sizeof label_str, "Propiedad {"#PRIMARY_COLOR"}#%d\n\n{FFFFFF}Descripcion: {"#PRIMARY_COLOR"}%s\n{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.", PROPERTY_INFO[i][property_ID], PROPERTY_INFO[i][property_DESCRIPTION]);
 	}
 	else
 	{
@@ -19194,7 +19100,7 @@ CreatePropertyInfo(i, pid, const pname[])
 	PROPERTY_INFO[i][property_EXT_LABEL_ID] = CreateDynamic3DTextLabel(label_str, 0xFFFFFFFF, PROPERTY_INFO[i][property_EXT_X], PROPERTY_INFO[i][property_EXT_Y], PROPERTY_INFO[i][property_EXT_Z] + 0.25, 5.0, .testlos = true, .worldid = 0, .interiorid = PROPERTY_INFO[i][property_EXT_INTERIOR]);
 
 	new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[i][property_ID_INTERIOR] ][property_INT_Z];
-	z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+	
 	PROPERTY_INFO[i][property_INT_LABEL_ID] = CreateDynamic3DTextLabel("Presiona {"#PRIMARY_COLOR"}Y {FFFFFF}para salir\n\nEscribe {"#PRIMARY_COLOR"}/casa {FFFFFF}para más opciones", 0xFFFFFFFF, PROPERTY_INTERIORS[ PROPERTY_INFO[i][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[i][property_ID_INTERIOR] ][property_INT_Y], z_pos + 0.25, 3.0, .testlos = true, .worldid = PROPERTY_INFO[i][property_ID], .interiorid = PROPERTY_INTERIORS[ PROPERTY_INFO[i][property_ID_INTERIOR] ][property_INT_INTERIOR]);
 
 	PROPERTY_INFO[i][property_EXT_PICKUP_ID] = CreateDynamicPickup(pickup_modelid, 1, PROPERTY_INFO[i][property_EXT_X], PROPERTY_INFO[i][property_EXT_Y], PROPERTY_INFO[i][property_EXT_Z], 0, PROPERTY_INFO[i][property_EXT_INTERIOR]);
@@ -19246,6 +19152,7 @@ callbackp:LoadProperties()
 			cache_get_value_name_int(i, "level", PROPERTY_INFO[i][property_LEVEL]);
 			cache_get_value_name_int(i, "extra", PROPERTY_INFO[i][property_EXTRA]);
 			cache_get_value_name_int(i, "vip_level", PROPERTY_INFO[i][property_VIP_LEVEL]);
+			cache_get_value_name(i, "description", PROPERTY_INFO[i][property_DESCRIPTION]);
 
 			if(PROPERTY_INFO[i][property_EXTRA]) PROPERTY_INFO[i][property_PRICE] = 0;
 			if(PROPERTY_INFO[i][property_VIP_LEVEL]) PROPERTY_INFO[i][property_LEVEL] = 1;
@@ -19254,8 +19161,8 @@ callbackp:LoadProperties()
 			cache_is_value_name_null(i, "id_player", isnull_id_player);
 			if(!isnull_id_player) cache_get_value_name_int(i, "id_player", id_player);
 
-			if(id_player) CreatePropertyInfo(i, id_player, "No Disponible...");
-			else CreatePropertyInfo(i, 0, "");
+			if(id_player) CreatePropertyInfo(i, id_player);
+			else CreatePropertyInfo(i, 0);
 
 			inline OnPropertyClosetLoad()
 			{
@@ -19354,13 +19261,13 @@ callbackp:LoadCrews()
 						cache_get_value_name_int(x, "permission4", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][4]);
 						cache_get_value_name_int(x, "permission5", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][5]);
 						cache_get_value_name_int(x, "permission6", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][6]);
-						cache_get_value_name_int(x, "permission7", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][7]);
-						cache_get_value_name_int(x, "permission8", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][8]);
-						cache_get_value_name_int(x, "permission9", CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][9]);
 
-						if(rank_pos == 0) {
+						if(rank_pos == 0) 
+						{
 							for(new j = 0; j < CREW_RANK_SIZE; j ++)
-							CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][j] = 1;
+							{
+								CREW_RANK_INFO[i][rank_pos][crew_rank_PERMISSION][j] = 1;
+							}
 						}
 					}
 				}
@@ -19389,15 +19296,13 @@ callbackp:LoadGangZones()
 			new crewid, color, bool:isnull_crewid;
 			TERRITORIES[i][territory_VALID] = true;
 			cache_get_value_name_int(i, "id", TERRITORIES[i][territory_ID]);
-			cache_get_value_name(i, "name", TERRITORIES[i][territory_NAME]);
 			cache_get_value_name_float(i, "min_x", TERRITORIES[i][territory_MIN_X]);
 			cache_get_value_name_float(i, "min_y", TERRITORIES[i][territory_MIN_Y]);
-			cache_get_value_name_float(i, "min_z", TERRITORIES[i][territory_MIN_Z]);
 			cache_get_value_name_float(i, "max_x", TERRITORIES[i][territory_MAX_X]);
 			cache_get_value_name_float(i, "max_y", TERRITORIES[i][territory_MAX_Y]);
-			cache_get_value_name_float(i, "max_z", TERRITORIES[i][territory_MAX_Z]);
 			cache_is_value_name_null(i, "id_crew", isnull_crewid);
-			if(!isnull_crewid) {
+			if(!isnull_crewid) 
+			{
 				cache_get_value_name_int(i, "id_crew", crewid);
 				cache_get_value_name_int(i, "color", color);
 			}
@@ -19422,8 +19327,12 @@ callbackp:LoadGangZones()
 				TERRITORIES[i][territory_COLOR] = 0xCCCCCC55;
 			}
 
-			TERRITORIES[i][territory_AREA] = CreateDynamicCube(TERRITORIES[i][territory_MIN_X], TERRITORIES[i][territory_MIN_Y], TERRITORIES[i][territory_MIN_Z], TERRITORIES[i][territory_MAX_X], TERRITORIES[i][territory_MAX_Y], TERRITORIES[i][territory_MAX_Z], 0, 0);
-
+			new city[445], zone[445];
+			GetPointZone(TERRITORIES[i][territory_MIN_X], TERRITORIES[i][territory_MAX_Y], city, zone);
+			format(TERRITORIES[i][territory_NAME], 64, "%s", city);
+		
+			TERRITORIES[i][territory_AREA] = CreateDynamicRectangle(TERRITORIES[i][territory_MIN_X], TERRITORIES[i][territory_MIN_Y], TERRITORIES[i][territory_MAX_X], TERRITORIES[i][territory_MAX_Y], 0, 0);
+			
 			new info[2];
 			info[0] = AREA_TYPE_GANGZONE;
 			info[1] = i;
@@ -20105,7 +20014,7 @@ callbackp:EnterExit(playerid)
 				if(PROPERTY_INFO[info[1]][property_POLICE_FORCED] && (PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)) 
 				{
 					new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Z];
-					z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+					
 					SetPlayerPosEx(playerid, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Y], z_pos, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_ANGLE], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_INTERIOR], PROPERTY_INFO[info[1]][property_ID], false /*PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_FREEZE]*/, true);
 					FreezePlayer(playerid);
 
@@ -20122,7 +20031,7 @@ callbackp:EnterExit(playerid)
 					PlayerTemp[playerid][pt_PROPERTY_INDEX] = info[1];
 
 					new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Z];
-					z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+					
 					SetPlayerPosEx(playerid, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_X], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_Y], z_pos, PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_ANGLE], PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_INTERIOR], PROPERTY_INFO[info[1]][property_ID], false /*PROPERTY_INTERIORS[ PROPERTY_INFO[info[1]][property_ID_INTERIOR] ][property_INT_FREEZE]*/, true);
 					FreezePlayer(playerid);
 
@@ -23283,7 +23192,7 @@ Create_PlayerPropertyConstructo(playerid)
 	inline OnPropertyInserted()
 	{
 		PROPERTY_INFO[slot][property_ID] = cache_insert_id();
-		CreatePropertyInfo(slot, 0, "");
+		CreatePropertyInfo(slot, 0);
 
 		SendClientMessagef(playerid, -1, "Propiedad creada, id: %d (%d/%d).", PROPERTY_INFO[slot][property_ID], slot, MAX_PROPERTIES);
 		ExitPlayerPropertyConstructor(playerid);
@@ -24826,8 +24735,9 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 	
 	if(pTemp(playerid)[pt_TASER_GUN])
 	{
-		SetPlayerArmedWeapon(playerid, 0);
-		SendMessage(playerid, "Guarda el taser primero.");
+		pTemp(playerid)[pt_TASER_GUN] = false;
+		UpdateWeaponsInBody(playerid);
+		Auto_SendPlayerAction(playerid, "guarda rapidamente su taser.");
 	}
 
 	if(ac_Info[CHEAT_UNDETECTED_WEAPON][ac_Enabled])
@@ -25422,7 +25332,7 @@ stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 							PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
 
 							new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
-							z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+							
 							PI[playerid][pPOS_Z] = z_pos;
 
 							PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];
@@ -26013,7 +25923,7 @@ CMD:guardar(playerid, params[])
 		if(PROPERTY_INFO[index][property_OWNER_ID] != PI[playerid][pID]) return SendClientMessagef(playerid, -1, "Esta no es tu casa");
 
 		new Float:z_pos = PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Z];
-		z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+		
 		if(IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_X], PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Y], z_pos))
 		{
 			new closet_slot = GetPropertyAvaibleClosetSlot(index);
@@ -26502,8 +26412,10 @@ public OnPlayerSelectDynamicObject(playerid, STREAMER_TAG_OBJECT objectid, model
 			EditDynamicObject(playerid, objectid);
 			return 1;
 		}
-		default: {
-			if(PI[playerid][pADMIN_LEVEL] == CMD_OWNER) {
+		default: 
+		{
+			if(PI[playerid][pADMIN_LEVEL] == CMD_OWNER) 
+			{
 				EditDynamicObject(playerid, objectid);
 			}
 		}
@@ -26607,6 +26519,8 @@ public OnPlayerEditDynamicObject(playerid, STREAMER_TAG_OBJECT objectid, respons
 				case OBJECT_TYPE_TEST: 
 				{
 					printf("CreateDynamicObject(%d, %f, %f, %f, %f, %f, %f);", Streamer_GetIntData(STREAMER_TYPE_OBJECT, objectid, E_STREAMER_MODEL_ID), x, y, z, rx, ry, rz);
+					SetDynamicObjectPos(objectid, x, y, z);
+					SetDynamicObjectRot(objectid, rx, ry, rz);
 					SetCorrectObjectPos(objectid);
 				}
 			}
@@ -27782,31 +27696,11 @@ CMD:duty(playerid)
 	if(PlayerTemp[playerid][pt_ADMIN_SERVICE])
 	{
 		PlayerTemp[playerid][pt_ADMIN_SERVICE] = false;
-		
-		
-		if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]))
-		{
-			DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]);
-			PlayerTemp[playerid][pt_ADMIN_LABEL] = Text3D:INVALID_STREAMER_ID;
-		}
-
 		SendClientMessagef(playerid, -1, "Ahora no estás de servicio como %s.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
 	}	
 	else
 	{
 		PlayerTemp[playerid][pt_ADMIN_SERVICE] = true;
-		
-		
-		if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]))
-		{
-			DestroyDynamic3DTextLabel(PlayerTemp[playerid][pt_ADMIN_LABEL]);
-			PlayerTemp[playerid][pt_ADMIN_LABEL] = Text3D:INVALID_STREAMER_ID;
-		}
-		
-		new label_str[64];
- 		format(label_str, sizeof label_str, "{"#PRIMARY_COLOR"}[%s]\n{ffffff}En Servicio", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
-		PlayerTemp[playerid][pt_ADMIN_LABEL] = CreateDynamic3DTextLabel(label_str, -1, 0.0, 0.0, 0.4, 20.0, playerid, .testlos = true);
-
 		SendClientMessagef(playerid, -1, "Ahora estás de servicio como %s.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
 	}
 	return 1;
@@ -28829,9 +28723,9 @@ CMD:setname(playerid, params[])
 						sizeof label_str, 
 						"\
 							Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
-							{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n\
+							{FFFFFF}Descripcion: {"#PRIMARY_COLOR"}%s\n\
 							{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
-						", PROPERTY_INFO[i][property_ID], PI[to_playerid][pNAME]
+						", PROPERTY_INFO[i][property_ID], PROPERTY_INFO[i][property_DESCRIPTION]
 					);
 					UpdateDynamic3DTextLabelText(PROPERTY_INFO[i][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
 				}
@@ -28875,7 +28769,7 @@ CMD:exproperty(playerid, params[])
 	info[2] = 2; // Pickup Exterior
 	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, PROPERTY_INFO[ index ][property_EXT_PICKUP_ID], E_STREAMER_EXTRA_ID, info);
 				
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = NULL, id_territory = NULL WHERE id = %d;", PROPERTY_INFO[ index ][property_ID]);
+	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE properties SET id_player = NULL WHERE id = %d;", PROPERTY_INFO[ index ][property_ID]);
 	mysql_tquery(handle_db, QUERY_BUFFER);
 	SendClientMessagef(playerid, -1, "Propiedad (%d) expropiada.", PROPERTY_INFO[ index ][property_ID]);
 	
@@ -29280,6 +29174,7 @@ public StartPlayerJob(playerid, work, vehicleid)
 			if(PI[playerid][pPOLICE_DUTY] == 285) pTemp(playerid)[pt_POLICE_SWAT] = true;
 
 			SetWantedPlayerMarkers(playerid);
+			SetPlayerDynamicGangZones(playerid);
 			for(new i = 0; i != MAX_VIP_TOYS; i ++) RemovePlayerAttachedObject(playerid, i);
 			SetPlayerSkin(playerid, PI[playerid][pPOLICE_DUTY]);
 		}
@@ -29407,7 +29302,7 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 			}
 
 			SetNormalPlayerMarkers(playerid);
-			
+			HidePlayerGangZones(playerid);
 		}
 		case WORK_MECHANIC:
 		{
@@ -29740,20 +29635,6 @@ CMD:banda(playerid, params[])
 	return 1;
 }
 
-CMD:abandonar(playerid, params[])
-{
-	if(!PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "No perteneces a ninguna banda.");
-	if(!CREW_RANK_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][ PI[playerid][pCREW_RANK] ][crew_rank_PERMISSION][CREW_RANK_LEAVE_TERRITORY]) return SendClientMessagef(playerid, -1, "No tienes permiso para abandonar territorios.");
-	if(PlayerTemp[playerid][pt_LAST_TERRITORY] == INVALID_STREAMER_ID) return SendClientMessagef(playerid, -1, "No estás en un territorio de tu banda.");
-	if(!IsPlayerInDynamicArea(playerid, TERRITORIES[ PlayerTemp[playerid][pt_LAST_TERRITORY] ][territory_AREA])) return SendClientMessagef(playerid, -1, "No estás en un territorio de tu banda.");
-	if(TERRITORIES[ PlayerTemp[playerid][pt_LAST_TERRITORY] ][territory_CREW_ID] != PI[playerid][pCREW]) return SendClientMessagef(playerid, -1, "No estás en un territorio de tu banda.");			
-	if(CREW_INFO[ PlayerTemp[playerid][pt_CREW_INDEX] ][crew_FIGHTING]) return SendClientMessagef(playerid, -1, "No puedes abandonar territorios mientras tu banda está en combate.");
-	
-	PlayerTemp[playerid][pt_PLAYER_TERRITORY_PRO] = PlayerTemp[playerid][pt_LAST_TERRITORY];
-	ShowDialog(playerid, DIALOG_CREW_LEAVE_TERRITORY);
-	return 1;
-}
-
 CMD:invitar(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
@@ -29921,13 +29802,12 @@ RegisterNewCrewRank(index, rank)
 	(
 		handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, 
 		"\
-			INSERT INTO crew_ranks (id_crew, rank_pos, rank_name, permission0, permission1, permission2, permission3, permission4, permission5, permission6, permission7, permission8, permission9)\
-			VALUES (%d, %d, '%e', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d);\
+			INSERT INTO crew_ranks (id_crew, rank_pos, rank_name, permission0, permission1, permission2, permission3, permission4, permission5, permission6)\
+			VALUES (%d, %d, '%e', %d, %d, %d, %d, %d, %d);\
 		",
 			CREW_INFO[index][crew_ID], rank, CREW_RANK_INFO[index][rank][crew_rank_NAME], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][0], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][1],
 			CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][2], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][3], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][4],
-			CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][5], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][6], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][7],
-			CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][8], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][9]
+			CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][5], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][6]
 	);
 	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnCrewRankInserted);
 	return 1;
@@ -29948,6 +29828,25 @@ SetPlayerGangZones(playerid)
 			GangZoneFlashForPlayer(playerid, TERRITORIES[i][territory_GANG_ZONE], flash_color);
 		}
 		else GangZoneShowForPlayer(playerid, TERRITORIES[i][territory_GANG_ZONE], TERRITORIES[i][territory_COLOR]);
+	}
+	return 1;
+}
+
+SetPlayerDynamicGangZones(playerid)
+{
+	for(new i = 0; i != MAX_TERRITORIES; i ++)
+	{
+		if(!TERRITORIES[i][territory_VALID]) continue;
+		
+		if(TERRITORIES[i][territory_WAR])
+		{
+			new flash_color, r, g, b, a;
+			HexToRGBA(CREW_INFO[ TERRITORIES[i][territory_ATTACKER_CREW_INDEX] ][crew_COLOR], r, g, b, a);
+			flash_color = RGBAToHex(r, g, b, 135);
+			
+			GangZoneFlashForPlayer(playerid, TERRITORIES[i][territory_GANG_ZONE], flash_color);
+		}
+		else GangZoneHideForPlayer(playerid, TERRITORIES[i][territory_GANG_ZONE]);
 	}
 	return 1;
 }
@@ -30049,7 +29948,7 @@ StartTerritoryAttack(crew_index, territory_index, time)
 	}
 
 	new message_police[1024];
-	format(message_police, sizeof message_police, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}La banda '%s' está atacando un territorio en %s.", CREW_INFO[crew_index][crew_NAME], TERRITORIES[territory_index][territory_NAME]);
+	format(message_police, sizeof message_police, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}Personas armadas están causando disturbios en %s.", TERRITORIES[territory_index][territory_NAME]);
 	
 	for(new i = 0; i != MAX_PLAYERS; i++)
 	{
@@ -30312,7 +30211,6 @@ stock LoadServerInfo()
 	for(new i = 0; i < sizeof PROPERTY_CLOSET_POS; i++)
 	{
 		CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}Armario\n\n{FFFFFF}Escribe {"#PRIMARY_COLOR"}/armario {FFFFFF}para verlo", 0xFFFFFFFF, PROPERTY_CLOSET_POS[i][property_closet_X], PROPERTY_CLOSET_POS[i][property_closet_Y], PROPERTY_CLOSET_POS[i][property_closet_Z] + 0.25, 10.0, .testlos = true, .interiorid = PROPERTY_INTERIORS[i][property_INT_INTERIOR]);
-		if(PROPERTY_INTERIORS[i][property_EMPTY_INTERIOR]) CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}Armario\n\n{FFFFFF}Escribe {"#PRIMARY_COLOR"}/armario {FFFFFF}para verlo", 0xFFFFFFFF, PROPERTY_CLOSET_POS[i][property_closet_X], PROPERTY_CLOSET_POS[i][property_closet_Y], PROPERTY_CLOSET_POS[i][property_closet_Z] + 0.25 + PROPERTY_EMPTY_INTERIOR_Z_OFFSET, 10.0, .testlos = true, .interiorid = PROPERTY_INTERIORS[i][property_INT_INTERIOR]);
 	}
 
 	// 3D Texts Ropas
@@ -31743,7 +31641,7 @@ CMD:cleanproperties(playerid, params[])
 		}
 	}
 	
-	mysql_tquery(handle_db, "UPDATE properties SET id_player = NULL, id_territory = NULL;");
+	mysql_tquery(handle_db, "UPDATE properties SET id_player = NULL;");
 	
 	SendClientMessagef(playerid, -1, "Se han liberado todas las propiedades (%d).", total);
 	
@@ -31828,24 +31726,6 @@ CMD:osetname(playerid, params[])
 									mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET name = '%e' WHERE id = %d;", new_name, id);
 									mysql_tquery(handle_db, QUERY_BUFFER);
 
-									for(new i = 0; i != MAX_PROPERTIES; i ++)
-									{
-										if(!PROPERTY_INFO[i][property_VALID]) continue;
-										if(PROPERTY_INFO[i][property_OWNER_ID] != id) continue;
-										
-										new label_str[256];
-										format
-										(
-											label_str, 
-											sizeof label_str, 
-											"\
-												Propiedad {"#PRIMARY_COLOR"}#%d\n\n\
-												{FFFFFF}Propietario: {"#PRIMARY_COLOR"}%s\n\
-												{"#GOLD_COLOR"}Acercate {FFFFFF}o pulsa {"#YELLOW_COLOR"}'Y' {FFFFFF}para entrar.\
-											", PROPERTY_INFO[i][property_ID], new_name
-										);
-										UpdateDynamic3DTextLabelText(PROPERTY_INFO[i][property_EXT_LABEL_ID], 0xFFFFFFFF, label_str);
-									}
 									SendClientMessagef(playerid, -1, "El nombre de '%s' ahora es: %s", name, new_name);
 								}
 							}
@@ -32500,6 +32380,7 @@ public OnPlayerLogin(playerid)
 	
 	PlayerTemp[playerid][pt_BAD_LOGIN_ATTEMP] = 0;
 	SendClientMessagef(playerid, PRIMARY_COLOR2, "[*]{ffffff} Bienvenido {"#BLUE_COLOR"}%s.{ffffff} Tu ultima conexion fue el {"#GOLD_COLOR"}%s.", PlayerTemp[playerid][pt_NAME], PI[playerid][pLAST_CONNECTION]);
+	if(strlen(PI[playerid][pDISCORD_USERID]) < 0) SendClientMessagef(playerid, PRIMARY_COLOR2, "[*]{ffffff} No tienes una cuenta de discord vinculada, utiliza el comando {"#GOLD_COLOR"}/vincular");
 
     TogglePlayerSpectatingEx(playerid, false);
 	TogglePlayerControllableEx(playerid, false);
@@ -32617,7 +32498,7 @@ UpdatePlayerWorldInfo(playerid)
 						PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
 
 						new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
-						z_pos += PROPERTY_EMPTY_INTERIOR_Z_OFFSET;
+						
 						PI[playerid][pPOS_Z] = z_pos;
 
 						PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];

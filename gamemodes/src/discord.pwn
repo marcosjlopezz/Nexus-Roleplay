@@ -14,7 +14,6 @@ new DCC_Channel:Discord_Channels[11];
     7 = admin chat
     8 = anticheat
     9 = coins
-    10 = Verify Channel
 */
 
 new DCC_Guild:Discord_Servers[2];
@@ -34,6 +33,11 @@ new DCC_Role:Discord_Roles[1];
     Comunity: 1176691877249032243
     Administration: 1179858986892267520
 
+*/
+
+/* 
+    Dialogs
+    DIALOG_LOGIN_DISCORD
 */
 
 //Impl
@@ -240,62 +244,74 @@ SendCoinsLogMessage(playerid, const message[])
     DCC_SendChannelEmbedMessage(Discord_Channels[9], Log_Embed, "");
 }
 
-stock UpdatePlayerDiscordName(playerid)
+stock ShowDiscordLoginDialog(playerid)
 {
-    new DCC_User:user = DCC_FindUserById(PI[playerid][pDISCORD_USERID]);
-    new NickNameFormat[445]; format(NickNameFormat, 445, "%s | DB-ID: %d", PI[playerid][pNAME], PI[playerid][pID]);
-    DCC_SetGuildMemberNickname(Discord_Servers[0], user, NickNameFormat);
+    new dialog[445];
+    if(strlen(PI[playerid][pDISCORD_USERID]) > 0)
+    {
+        new DCC_User:user = DCC_FindUserById(PI[playerid][pDISCORD_USERID]), dest[DCC_NICKNAME_SIZE];
+        DCC_GetUserName(user, dest);
+
+        if(strlen(dest) < 0) dest = "No Encontrado.";
+        format(dialog, 445, "{d1d1d1}Actualmente tienes una cuenta de discord vinculada a tu cuenta.\
+        \nNombre: {ff0000}%s\n\n{d1d1d1}Escribe el nuevo nombre de usuario para vincular tu nueva cuenta y desvincular la otra:", dest);
+    }
+    else format(dialog, 445, "{d1d1d1}Escribe tu nombre de usuario en discord para poder vincular tu cuenta de discord\n{d1d1d1}Es necesario estar en el servidor de /discord oficial para poder vincular tu cuenta\n\nRecuerda que el STAFF nunca te pedira tu contraseña.");
+
+    ShowPlayerDialog(playerid, DIALOG_LOGIN_DISCORD, DIALOG_STYLE_INPUT, "Discord - Vincular Cuenta", dialog, "Continuar", "Cancelar");
+    return 1;
 }
 
-DCMD:ingresar(user, channel, params[])
+CMD:vincular(playerid, params[])
 {
-    new name[24], password[MAX_PASS_LENGTH], pass_ex[65];
-    if(!sscanf(params, "s[24]s[18]", name, password))
-    {
-        SHA256_PassHash(password, "SampWorld", pass_ex, 64);
-
-        inline OnPlayerLoginDiscord()
-        {
-            new rows;
-            if(cache_get_row_count(rows))
-            {
-                if(rows)
-                {
-                    new DiscordUserID[DCC_ID_SIZE];
-                    DCC_GetUserId(user, DiscordUserID);
-
-                    new id, playername[24], connected, db_discord_userid[DCC_ID_SIZE];
-                    cache_get_value_name_int(0, "id", id);
-                    cache_get_value_name_int(0, "connected", connected);
-                    cache_get_value_name(0, "name", playername, 24);
-                    cache_get_value_name(0, "discord_userid", db_discord_userid, DCC_ID_SIZE);
-                    
-                    if(connected) return DCC_SendChannelMessage(channel, ":x: Para realizar esta operacion debes hacerlo desconectado del servidor!");
-
-                    new DCC_User:OldUser = DCC_FindUserById(db_discord_userid);
-                    DCC_SetGuildMemberNickname(Discord_Servers[0], OldUser, "");
-                    DCC_AddGuildMemberRole(Discord_Servers[0], OldUser, Discord_Roles[0]);
-
-                    new NickNameFormat[445]; format(NickNameFormat, 445, "%s | DB-ID: %d", playername, id);
-                    DCC_SetGuildMemberNickname(Discord_Servers[0], user, NickNameFormat);
-                    DCC_RemoveGuildMemberRole(Discord_Servers[0], user, Discord_Roles[0]);
-
-                    DCC_SendChannelMessage(channel, ":white_check_mark: has ingresado correctamente! Recuerda eliminar el mensaje :) para mayor seguridad.");
-
-                    mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET discord_userid = '%e' WHERE id = %d;", DiscordUserID, id);
-                    mysql_tquery(handle_db, QUERY_BUFFER);
-                }
-                else
-                {
-                    DCC_SendChannelMessage(channel, ":x: Datos no encontrados!");
-                }
-            }
-        }
-        mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT name, id, connected, discord_userid FROM player WHERE name = '%e' AND pass = '%e';", name, pass_ex);
-        mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPlayerLoginDiscord);
-    }
-    else DCC_SendChannelMessage(channel, ":x: Datos no encontrados!");
+    ShowDiscordLoginDialog(playerid);
     return 1;
+}
+
+stock UpdatePlayerDiscordName(playerid)
+{
+    if(strlen(PI[playerid][pDISCORD_USERID]) > 0)
+    {
+        new DCC_User:user = DCC_FindUserById(PI[playerid][pDISCORD_USERID]);
+        new NickNameFormat[445]; format(NickNameFormat, 445, "%s | DB-ID: %d", PI[playerid][pNAME], PI[playerid][pID]);
+        DCC_SetGuildMemberNickname(Discord_Servers[0], user, NickNameFormat);
+    }
+    return 1;
+}
+
+hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
+{
+    switch(dialogid)
+    {
+        case DIALOG_LOGIN_DISCORD:
+        {
+            if(response)
+            {
+                if(sscanf(inputtext, "s[33]", inputtext[0])) return SendMessage(playerid, "Parametros incorrectos.");
+                new DCC_User:User = DCC_FindUserByName(inputtext[0], "0");
+
+                new bool:HasUnVerifiedRole, dest[DCC_ID_SIZE];
+                DCC_HasGuildMemberRole(Discord_Servers[0], User, Discord_Roles[0], HasUnVerifiedRole);
+                if(!HasUnVerifiedRole) return SendMessage(playerid, "Error: No se ha encontrado al usuario.");
+
+                if(strlen(PI[playerid][pDISCORD_USERID]) > 0)
+                {
+                    new DCC_User:OldUserID = DCC_FindUserById(PI[playerid][pDISCORD_USERID]);
+                    DCC_AddGuildMemberRole(Discord_Servers[0], OldUserID, Discord_Roles[0]);
+                    DCC_SetGuildMemberNickname(Discord_Servers[0], OldUserID, "");
+                }
+
+                DCC_GetUserId(User, dest);
+                format(PI[playerid][pDISCORD_USERID], DCC_ID_SIZE, "%s", dest);
+                DCC_RemoveGuildMemberRole(Discord_Servers[0], User, Discord_Roles[0]);
+                UpdatePlayerDiscordName(playerid);
+
+                SendMessagef(playerid, "Se ha verificado correctamente al usuario: %s.", inputtext[0]);
+            }
+            return Y_HOOKS_BREAK_RETURN_1;
+        }
+    }
+    return Y_HOOKS_CONTINUE_RETURN_1;
 }
 
 hook OnScriptInit()
@@ -313,7 +329,6 @@ hook OnScriptInit()
     Discord_Channels[7] = DCC_FindChannelById("1222618482152181790");
     Discord_Channels[8] = DCC_FindChannelById("1222618514297323531");
     Discord_Channels[9] = DCC_FindChannelById("1222633114174492742");
-    Discord_Channels[10] = DCC_FindChannelById("1205251137725538355");
 
     Discord_Roles[0] = DCC_FindRoleById("1205249231401779271");
 
