@@ -48,7 +48,7 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.6.1 Alpha"
+#define SERVER_VERSION			"2.7 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -2879,7 +2879,6 @@ enum Temp_Enum
 	pt_INVENTORY_POCKET_EXTRA_2,
 	Float:pt_INVENTORY_POCKET_EXTRA_3,
 	Float:pt_INVENTORY_POCKET_EXTRA_4,
-	pt_MEDICINE_TIMER,
 	pt_ELEVATOR_INDEX,
 	pt_ELEVATOR_OPTION,
 	pt_GIVECASHALL_TIME,
@@ -3931,7 +3930,8 @@ enum enum_PI
 	pCONFIG_GLOBAL,
 	pGLOBAL_MUTE,
 	pBLACK_CASH,
-	pDISCORD_USERID[DCC_ID_SIZE]
+	pDISCORD_USERID[DCC_ID_SIZE],
+	pPHARMACY_TIMER
 };
 new PI[MAX_PLAYERS][enum_PI];
 
@@ -4454,6 +4454,8 @@ public OnPlayerSpawn(playerid)
 
 		SetPlayerNametagInfo(playerid, false);
 		TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
+
+		if(IsPlayerInSafeZone(playerid)) TextDrawShowForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
 
 		if(PI[playerid][pPOLICE_DUTY] != 0)
 		{
@@ -5185,6 +5187,24 @@ public OnPlayerRequestClass(playerid, classid)
 									cache_get_value_name(0, "ip", PI[playerid][pIP], 16);
 									cache_get_value_name(0, "email", PI[playerid][pEMAIL], 32);
 									cache_get_value_name(0, "pass", PI[playerid][pPASS], 65);
+
+									if(strlen(PI[playerid][pPASS]) <= 3)
+									{
+										ShowPlayerDialog(
+											playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, "Aviso", 
+											"\
+												{d1d1d1}\nBienvenido, Lamentamos informarte que tu clave no esta correcta\n\
+												Para corregir este problema, ve a nuestro servidor de Discord, abre un ticket de \"Recuperar cuenta\" en la sección de soporte.\n\n\
+												Servidor de discord: "SERVER_DISCORD".\
+											", "Cerrar", ""
+										);
+
+										mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET connected = 0, playerid = 0 WHERE id = %d;", PI[playerid][pID]);
+										mysql_tquery(handle_db, QUERY_BUFFER);
+
+										KickEx(playerid, 500);
+										return 1;
+									}
 
 									mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET connected = 1, playerid = %d WHERE id = %d;", playerid, PI[playerid][pID]);
 									mysql_tquery(handle_db, QUERY_BUFFER);
@@ -12388,8 +12408,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response)
 			{
-				case 0: ShowDialog(playerid, DIALOG_NOTARY);
-				case 1: ShowDialog(playerid, DIALOG_CRANE_SELECT_VEHICLE);
+				switch(listitem)
+				{
+					case 0: ShowDialog(playerid, DIALOG_NOTARY);
+					case 1: ShowDialog(playerid, DIALOG_CRANE_SELECT_VEHICLE);
+				}
 			}
 		}
 		case DIALOG_NOTARY:
@@ -16937,7 +16960,7 @@ public OnPlayerEnterDynamicArea(playerid, areaid)
 		}
 		case AREA_TYPE_SAFE_ZONE:
 		{
-			TextDrawShowForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
+			if(pTemp(playerid)[pt_USER_LOGGED]) TextDrawShowForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
 		}
 	}
 
@@ -18581,7 +18604,6 @@ public OnPlayerClickTextDraw(playerid, Text:clickedid)
 
         SetPlayerScore(playerid, PI[playerid][pLEVEL]);
         PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();
-		pTemp(playerid)[pt_MEDICINE_TIMER] = gettime();
 		PlayerTemp[playerid][pt_GLOBAL_TIMER] = gettime();
         ResetPlayerWeapons(playerid);
         ResetPlayerMoney(playerid);
@@ -27755,7 +27777,7 @@ CMD:jail(playerid, params[])
     SendClientMessagef(to_playerid, -1, "{"#SILVER_COLOR"}Te quedan %s minutos de sancion, razon: %s.", TimeConvert(time * 60), reason);
     SetPlayerSpecialAction(to_playerid, SPECIAL_ACTION_NONE);
 
-	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' reason: %s, time: %d minutes) sancionado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason, time);
+	new dc_str[445]; format(dc_str, 445, "Jugador (nick: '%s' dbid: '%d', id: '%d' reason: '%s', time: '%d' minutes) sancionado.", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, reason, time);
 	SendJailLogMessage(playerid, dc_str);
 
     new str[445]; format(str, 445, "el %s %s (%d) sanciono a %s (%d): %s.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, PI[to_playerid][pNAME], to_playerid, reason);
@@ -28482,9 +28504,9 @@ CMD:asay(playerid, params[])
 {
 	if(isnull(params)) return ErrorCommandParams(playerid, "/asay <message>");
 
+	SendCmdLogToAdmins(playerid, "asay", params);
 	StrToUpper(params, 445);
 	SendClientMessageToAllf(PRIMARY_COLOR2, "[SERVIDOR]: {ffffff}%s", params);
-	SendCmdLogToAdmins(playerid, "asay", params);
 	return 1;
 }
 
@@ -28519,6 +28541,7 @@ CMD:rep(playerid, params[])
 
 	AddPlayerReputation(to_playerid);
 	SendMessage(to_playerid, "Un administrador te ha regalado Experiencia.");
+	SendCmdLogToAdmins(playerid, "rep", params);
 	return 1;
 }
 
@@ -28531,6 +28554,7 @@ CMD:repall(playerid, params[])
 		AddPlayerReputation(i);
 		SendClientMessagef(i, GOLD_COLOR2, "El %s %s ha regalado +1 de Experiencia a todos los jugadores.", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME]);
 	}
+	SendCmdLogToAdmins(playerid, "repall", params);
 	return 1;
 }
 
@@ -28567,13 +28591,23 @@ CMD:dv(playerid, params[])
 	
 	DestroyVehicleEx(vehicleid);
 	SendClientMessagef(playerid, -1, "Vehículo de prueba destruido.");
+	SendCmdLogToAdmins(playerid, "dv", params);
 	return 1;
 }
 
 CMD:close(playerid, params[])
 {
+	SendCmdLogToAdmins(playerid, "close", params);
 	mysql_tquery(handle_db, "UPDATE player SET connected = 0, playerid = 0;");
-	SendRconCommand("exit");
+	
+	new Complete = 0;
+	LoopEx(i, MAX_PLAYERS, 0)
+	{
+		KickEx(i, 0);
+		Complete ++;
+	}
+
+	if(Complete >= MAX_PLAYERS) SendRconCommand("exit");
 	return 1;
 }
 
@@ -28935,12 +28969,15 @@ SendCmdLogToAdmins(playerid, const cmdtext[], const params[])
 	new message[445];
 	if(isnull(params)) format(message, sizeof message, "[CMD | %s]{ffffff} %s (%d) ha utilizado el comando {"#YELLOW_COLOR"}/%s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, cmdtext);
 	else format(message, sizeof message, "[CMD | %s]{ffffff} %s (%d) ha utilizado el comando {"#YELLOW_COLOR"}/%s %s", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ], PI[playerid][pNAME], playerid, cmdtext, params);
-	
+
 	for(new i = 0; i != MAX_PLAYERS; i++) 
 	    if(IsPlayerConnected(i) && pTemp(i)[pt_USER_LOGGED])
 	        if(PI[i][pADMIN_LEVEL] >= PI[playerid][pADMIN_LEVEL] && pTemp(i)[pt_SEE_ACMD_LOG] /*&& pTemp(i)[pt_ADMIN_SERVICE]*/)
 	            SendClientMessage(i, GOLD_COLOR2, message);
 	
+	if(isnull(params)) format(message, 445, "/%s", cmdtext);
+	else format(message, 445, "/%s %s", cmdtext, params);
+	SendCommandsLogMessage(playerid, message);
 	return 1;
 }
 
@@ -29733,8 +29770,8 @@ RegisterNewCrewRank(index, rank)
 	(
 		handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, 
 		"\
-			INSERT INTO crew_ranks (id_crew, rank_pos, rank_name, permission0, permission1, permission2, permission3, permission4, permission5, permission6)\
-			VALUES (%d, %d, '%e', %d, %d, %d, %d, %d, %d);\
+			INSERT INTO crew_ranks (`id_crew`, `rank_pos`, `rank_name`, `permission0`, `permission1`, `permission2`, `permission3`, `permission4`, `permission5`, `permission6`) \
+			VALUES(%d, %d, '%e', %d, %d, %d, %d, %d, %d, %d);\
 		",
 			CREW_INFO[index][crew_ID], rank, CREW_RANK_INFO[index][rank][crew_rank_NAME], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][0], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][1],
 			CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][2], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][3], CREW_RANK_INFO[index][rank][crew_rank_PERMISSION][4],
@@ -30839,8 +30876,9 @@ CMD:setfstyle(playerid, params[])
 CMD:ls(playerid, params[])
 {
     new to_playerid;
-    if(sscanf(params, "u", to_playerid)) return ErrorCommandParams(playerid, "/sendls <player_id>");
+    if(sscanf(params, "u", to_playerid)) return ErrorCommandParams(playerid, "/ls <player_id>");
     if(!IsPlayerConnected(to_playerid)) return SendClientMessagef(playerid, -1, "Jugador desconectado");
+	if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
 
 	PI[to_playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
 	PI[to_playerid][pLOCAL_INTERIOR] = 0;
@@ -30850,7 +30888,8 @@ CMD:ls(playerid, params[])
     SetPlayerPosEx(to_playerid, 1515.386840, -1666.298339, 14.046875, 270.0, 0, 0, true);
     SetPlayerCityWeather(to_playerid);
 	SendClientMessagef(playerid, -1, "Jugador '%s (%d)' fue llevado a LS.", PI[to_playerid][pNAME], to_playerid);
-    return 1;
+    SendCmdLogToAdmins(playerid, "ls", params);
+	return 1;
 }
 
 CMD:lsdb(playerid, params[])
@@ -30886,6 +30925,7 @@ CMD:lsdb(playerid, params[])
 	}
 	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT id, ip, name, connected, playerid, admin_level FROM player WHERE id = %d;", to_account);
 	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnInfoQueryLoad);
+	SendCmdLogToAdmins(playerid, "lsdb", params);
 	return 1;
 }
 
@@ -30900,6 +30940,7 @@ CMD:vpcar(playerid, params[])
 	
 	new pvehicles = CountPlayerVehicles(to_playerid);
 	if(pvehicles >= MAX_VIP_VEHICLES) return SendClientMessagef(playerid, -1, "El jugador no puede tener más vehículos, su límite es %d.", MAX_VIP_VEHICLES);
+	
 	if(!PI[to_playerid][pVIP])
 	{
 		if(pvehicles >= MAX_NU_VEHICLES)
@@ -32241,7 +32282,8 @@ callbackp:OnPlayerLoginCheckPass(playerid, bool:success)
 					cache_get_value_name_int(0, "global_mute", PI[playerid][pGLOBAL_MUTE]);
 					cache_get_value_name_int(0, "black_cash", PI[playerid][pBLACK_CASH]);
 					cache_get_value_name(0, "discord_userid", PI[playerid][pDISCORD_USERID]);
-					if(strlen(PI[playerid][pDISCORD_USERID]) < DCC_ID_SIZE) format(PI[playerid][pDISCORD_USERID], DCC_ID_SIZE, "");
+					if(strlen(PI[playerid][pDISCORD_USERID]) <= 0) format(PI[playerid][pDISCORD_USERID], DCC_ID_SIZE, "");
+					cache_get_value_name(0, "pharmacy_timer", PI[playerid][pPHARMACY_TIMER]);
 					CallLocalFunction("OnPlayerLogin", "i", playerid);
 				}
 				else Kick(playerid);
@@ -32276,7 +32318,6 @@ public OnPlayerLogin(playerid)
 
 	SetPlayerScore(playerid, PI[playerid][pLEVEL]);
 	PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();
-	pTemp(playerid)[pt_MEDICINE_TIMER] = gettime();
 	PlayerTemp[playerid][pt_GLOBAL_TIMER] = gettime();
 	ResetPlayerWeapons(playerid);
 	ResetPlayerMoney(playerid);
@@ -32301,7 +32342,7 @@ public OnPlayerLogin(playerid)
 	
 	PlayerTemp[playerid][pt_BAD_LOGIN_ATTEMP] = 0;
 	SendClientMessagef(playerid, PRIMARY_COLOR2, "[*]{ffffff} Bienvenido {"#BLUE_COLOR"}%s.{ffffff} Tu ultima conexion fue el {"#GOLD_COLOR"}%s.", PlayerTemp[playerid][pt_NAME], PI[playerid][pLAST_CONNECTION]);
-	if(strlen(PI[playerid][pDISCORD_USERID]) < 0) SendClientMessagef(playerid, PRIMARY_COLOR2, "[*]{ffffff} No tienes una cuenta de discord vinculada, utiliza el comando {"#GOLD_COLOR"}/vincular");
+	if(strlen(PI[playerid][pDISCORD_USERID]) <= 0) SendClientMessagef(playerid, PRIMARY_COLOR2, "[*]{ffffff} No tienes una cuenta de discord vinculada, utiliza el comando {"#GOLD_COLOR"}/vincular");
 
     TogglePlayerSpectatingEx(playerid, false);
 	TogglePlayerControllableEx(playerid, false);
@@ -32563,7 +32604,8 @@ SavePlayerData(playerid)
 					global_channel = %d,\
 					global_mute = %d,\
 					black_cash = %d,\
-					discord_userid = '%e' \
+					discord_userid = '%e',\
+					pharmacy_timer = %d \
 				WHERE id = %d;\
 			",
 				PI[playerid][pNAME], PI[playerid][pIP], PI[playerid][pEMAIL], PI[playerid][pPASS], PI[playerid][pREG_DATE], PI[playerid][pLAST_CONNECTION],
@@ -32577,7 +32619,8 @@ SavePlayerData(playerid)
 				PI[playerid][pFUEL_DRUM], PI[playerid][pSEED_MEDICINE], PI[playerid][pSEED_CANNABIS], PI[playerid][pSEED_CRACK], PI[playerid][pMEDICINE],
 				PI[playerid][pCANNABIS], PI[playerid][pCRACK], PI[playerid][pCONFIG_SOUNDS], PI[playerid][pCONFIG_AUDIO],
 				PI[playerid][pCONFIG_ADMIN], PI[playerid][pMUTE], PI[playerid][pPLACA_PD], tmp_crew, PI[playerid][pCREW_RANK],
-				PI[playerid][pMECHANIC_KITS], PI[playerid][pMEDICAL_KITS], PI[playerid][pCONFIG_GLOBAL], PI[playerid][pGLOBAL_MUTE], PI[playerid][pBLACK_CASH], PI[playerid][pDISCORD_USERID],
+				PI[playerid][pMECHANIC_KITS], PI[playerid][pMEDICAL_KITS], PI[playerid][pCONFIG_GLOBAL], PI[playerid][pGLOBAL_MUTE], 
+				PI[playerid][pBLACK_CASH], PI[playerid][pDISCORD_USERID], PI[playerid][pPHARMACY_TIMER],
 				PI[playerid][pID]
 		);
 		mysql_tquery(handle_db, QUERY_BUFFER);

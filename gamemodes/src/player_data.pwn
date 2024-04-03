@@ -191,7 +191,6 @@ stock ClearPlayerTempData(playerid)
 	pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_2] = 0;
 	pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_3] = 0;
 	pTemp(playerid)[pt_INVENTORY_POCKET_EXTRA_4] = 0;
-	pTemp(playerid)[pt_MEDICINE_TIMER] = 0;
 	pTemp(playerid)[pt_ELEVATOR_INDEX] = 0;
 	pTemp(playerid)[pt_ELEVATOR_OPTION] = 0;
     return 1;

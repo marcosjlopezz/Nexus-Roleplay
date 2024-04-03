@@ -14,6 +14,7 @@ new DCC_Channel:Discord_Channels[11];
     7 = admin chat
     8 = anticheat
     9 = coins
+    10 = staff cmds
 */
 
 new DCC_Guild:Discord_Servers[2];
@@ -244,6 +245,26 @@ SendCoinsLogMessage(playerid, const message[])
     DCC_SendChannelEmbedMessage(Discord_Channels[9], Log_Embed, "");
 }
 
+SendCommandsLogMessage(playerid, const message[])
+{
+    new title[2000], content[2000];
+    format(title, 2000, ":key: %s (%d) - [DB-ID: %d]", PI[playerid][pNAME], playerid, PI[playerid][pID]);
+    format(content, 2000, "```yaml\n%s```", message);
+
+    new DCC_Embed:Log_Embed;
+    Log_Embed = DCC_CreateEmbed
+    (
+        title, 
+        content, 
+        "", 
+        "", 
+        0, 
+        ""SERVER_NAME" - r"SERVER_VERSION""
+    );
+
+    DCC_SendChannelEmbedMessage(Discord_Channels[10], Log_Embed, "");
+}
+
 stock ShowDiscordLoginDialog(playerid)
 {
     new dialog[445];
@@ -253,12 +274,18 @@ stock ShowDiscordLoginDialog(playerid)
         DCC_GetUserName(user, dest);
 
         if(strlen(dest) < 0) dest = "No Encontrado.";
-        format(dialog, 445, "{d1d1d1}Actualmente tienes una cuenta de discord vinculada a tu cuenta.\
-        \nNombre: {ff0000}%s\n\n{d1d1d1}Escribe el nuevo nombre de usuario para vincular tu nueva cuenta y desvincular la otra:", dest);
+        format(dialog, 445, 
+        "\
+            {ffffff}Actualmente tienes una cuenta de Discord vinculada a tu Cuenta "SERVER_SHORT_NAME".\n\
+            Nombre: {"#GOLD_COLOR"}%s\n\n\
+            {ffffff}Escribe el nuevo nombre de usuario para vincular tu nueva cuenta y desvincular la otra:\
+        ", 
+            dest
+        );
     }
-    else format(dialog, 445, "{d1d1d1}Escribe tu nombre de usuario en discord para poder vincular tu cuenta de discord\n{d1d1d1}Es necesario estar en el servidor de /discord oficial para poder vincular tu cuenta\n\nRecuerda que el STAFF nunca te pedira tu contraseña.");
+    else format(dialog, 445, "{d1d1d1}¡Para poder verificar tu cuenta en nuestro servidor oficial de /discord, simplemente escribe tu nombre de usuario!");
 
-    ShowPlayerDialog(playerid, DIALOG_LOGIN_DISCORD, DIALOG_STYLE_INPUT, "Discord - Vincular Cuenta", dialog, "Continuar", "Cancelar");
+    ShowPlayerDialog(playerid, DIALOG_LOGIN_DISCORD, DIALOG_STYLE_INPUT, "{"#BLUE_COLOR"}Discord {ffffff}- Vincular Cuenta", dialog, "Continuar", "Cancelar");
     return 1;
 }
 
@@ -329,6 +356,7 @@ hook OnScriptInit()
     Discord_Channels[7] = DCC_FindChannelById("1222618482152181790");
     Discord_Channels[8] = DCC_FindChannelById("1222618514297323531");
     Discord_Channels[9] = DCC_FindChannelById("1222633114174492742");
+    Discord_Channels[10] = DCC_FindChannelById("1224930192951345262");
 
     Discord_Roles[0] = DCC_FindRoleById("1205249231401779271");
 

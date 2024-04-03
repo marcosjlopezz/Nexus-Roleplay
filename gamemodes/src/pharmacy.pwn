@@ -11,7 +11,7 @@
     PICKUP_TYPE_PHARMACY
 
     -- Timers
-    pt_MEDICINE_TIMER
+    PI[playerid][pPHARMACY_TIMER]
 
     -- Autor
     Discord: MarcosJLopezz
@@ -82,9 +82,9 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 {
                     case 0:
                     {
-                        if(gettime() < PlayerTemp[playerid][pt_MEDICINE_TIMER] + MEDICINE_TIMER)
+                        if(gettime() < PI[playerid][pPHARMACY_TIMER] + MEDICINE_TIMER)
                         {
-                            new time = (MEDICINE_TIMER-(gettime()-PlayerTemp[playerid][pt_MEDICINE_TIMER]));
+                            new time = (MEDICINE_TIMER-(gettime()-PI[playerid][pPHARMACY_TIMER]));
                             SendClientMessagef(playerid, 0xCCCCCCCC, "Tienes que esperar %s minutos para volver a comprar mas medicamentos.", TimeConvert(time));
                             ShowPharmacyDialog(playerid, DIALOG_PHARMACY);
                             return 1;
@@ -131,7 +131,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 {
                     SendInfoMessagef(playerid, "~r~Farmacia~w~~n~~n~Has comprado %d medicamentos~n~~n~Precio: ~g~%s$~w~.", MedicineBuyCount[playerid], number_format_thousand(price));
                     PI[playerid][pMEDICINE] += MedicineBuyCount[playerid];
-                    pTemp(playerid)[pt_MEDICINE_TIMER] = gettime();
+                    PI[playerid][pPHARMACY_TIMER] = gettime();
                     MedicineBuyCount[playerid] = 0;
                 }
                 else SendMessage(playerid, "No tienes el dinero suficiente para comprar estos medicamentos.");

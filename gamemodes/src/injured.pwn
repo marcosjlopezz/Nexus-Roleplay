@@ -11,7 +11,7 @@ stock SpawnPlayerDeath(playerid)
 
         SetPlayerHud(playerid);
         SetPlayerHealthEx(playerid, 100.0);
-        SetCameraBehindPlayer(playerid);
+        //SetCameraBehindPlayer(playerid);
         SendAlertToMedics(playerid);
         TogglePlayerControllableEx(playerid, false);
 
