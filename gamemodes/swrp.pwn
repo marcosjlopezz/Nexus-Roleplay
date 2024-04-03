@@ -48,7 +48,7 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.6 Alpha"
+#define SERVER_VERSION			"2.6.1 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -65,8 +65,8 @@ AntiAmx()
 #define SERVER_COIN				"Yuan"
 
 #define MAX_BAD_LOGIN_ATTEMPS 	3
-#define REP_MULTIPLIER 			8
-#define TIME_FOR_REP 			minutes(45) 
+#define REP_MULTIPLIER 			4
+#define TIME_FOR_REP 			minutes(15) 
 #define REP_FOR_PAYDAY 			3
 #define LOGIN_TIME 				180000
 
@@ -149,7 +149,6 @@ AntiAmx()
 #define pTemp(%0)[%1]				PLAYER_TEMP[%0][%1]
 
 stock
-	bool:server_loaded = false,
 	rcon_pass,
 	MySQL:handle_db,
 	QUERY_BUFFER[6144],
@@ -424,6 +423,7 @@ enum
 	DIALOG_PROPERTY_DESCRIPTION,
 	DIALOG_PROPERTY_BANK_SELL,
 	DIALOG_BUY_VEHICLE,
+	DIALOG_CITYHALL_OPTIONS,
 	DIALOG_NOTARY,
 	DIALOG_NOTARY_SELECT_PROPERTY,
 	DIALOG_PROPERTY_SELL_PRICE,
@@ -3757,8 +3757,7 @@ enum
 	PICKUP_TYPE_BANK,
 	PICKUP_TYPE_BUY_PROPERTY,
 	PICKUP_TYPE_PRODUCT_LIST,
-	PICKUP_TYPE_NOTARY,
-	PICKUP_TYPE_CRANE,
+	PICKUP_TYPE_CITYHALL_OPTIONS,
 	PICKUP_TYPE_POLICE_WORK,
 	PICKUP_TYPE_EQUIPMENT,
 	PICKUP_TYPE_OBTAIN_WORK,
@@ -4096,14 +4095,8 @@ new ADMIN_LEVELS[][] =
 
 public OnIncomingConnection(playerid, ip_address[], port)
 {
-	if(!server_loaded)
-	{
-		BlockIpAddress(ip_address, minutes(1));
-		SendRconCommand("gmx");
-	}
 	return 1;
 }
-
 
 public OnPlayerConnect(playerid)
 {
@@ -4716,6 +4709,160 @@ CMD:cpos(playerid, params[])
 	return 1;
 }
 
+callbackp:OnPlayerSWDeath(playerid, killerid, reason)
+{
+	if(PlayerTemp[playerid][pt_COMBAT]) ResetCombat(playerid);
+	
+	PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
+	PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_NOFUEL][p_ac_info_IMMUNITY] = gettime() + 15;
+	pTemp(playerid)[pt_TASER_GUN] = false;
+
+	for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
+	{
+		if(IsPlayerConnected(i) && pTemp(i)[pt_USER_LOGGED])
+		{
+			if(PI[i][pADMIN_LEVEL] >= CMD_MODERATOR && pTemp(i)[pt_ADMIN_SERVICE])
+			{
+				SendDeathMessageToPlayer(i, killerid, playerid, reason);
+			}
+		}
+	}
+	
+	if(PlayerTemp[playerid][pt_SELECT_TEXTDRAW])
+	{
+		if(PlayerTemp[playerid][pt_CLOTHING_SHOP] != -1) ClosePlayerClothingMenu(playerid);
+		if(PlayerTemp[playerid][pt_TOYS_SHOP]) ClosePlayerToysMenu(playerid);
+	}
+	
+	StopAudioStreamForPlayer(playerid);
+	SetPlayerDrunkLevel(playerid, 0);
+	KillTimer(PlayerTemp[playerid][pt_TIMERS][3]);
+	SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
+	GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
+	GetPlayerFacingAngle(playerid, PI[playerid][pANGLE]);
+	PI[playerid][pINTERIOR] = GetPlayerInterior(playerid);
+	HidePlayerHud(playerid);
+	CancelEdit(playerid);
+	HidePlayerDialog(playerid);
+	SetNormalPlayerMarkers(playerid);
+	if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) CallLocalFunction("EndPlayerJob", "iib", playerid, PlayerTemp[playerid][pt_WORKING_IN], false);
+	PlayerTemp[playerid][pt_HUNGRY_MESSAGE] = false;
+	PlayerTemp[playerid][pt_THIRST_MESSAGE] = false;
+	PlayerTemp[playerid][pt_PLAYER_IN_ATM] = false;
+	PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
+	PlayerTemp[playerid][pt_CUFFED] = false;
+	PlayerTemp[playerid][pt_CUFFING] = false;
+
+	if(PlayerTemp[playerid][pt_WANT_TAXI])
+	{
+		PlayerTemp[playerid][pt_WANT_TAXI] = false;
+		DisablePlayerTaxiMark(playerid);
+	}
+
+	if(PlayerTemp[playerid][pt_PLAYER_IN_CALL]) EndPhoneCall(playerid);
+	if(PI[playerid][pWANTED_LEVEL] > 0) DisablePlayerPoliceMark(playerid);
+
+	if(PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] != INVALID_VEHICLE_ID)
+	{
+		if(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_JOB_STARTED])
+		{
+			if(PlayerTemp[playerid][pt_TRASH_DRIVER])
+			{
+				SendClientMessage(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_PASSENGER_ID], -1, "{"#SILVER_COLOR"}El trabajo se ha cancelado porque tu amigo ha dejado de trabajar.");
+				CancelTrashWork(playerid, TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_PASSENGER_ID], PlayerTemp[playerid][pt_TRASH_VEHICLE_ID]);
+			}
+			if(PlayerTemp[playerid][pt_TRASH_PASSENGER])
+			{
+				SendClientMessage(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_DRIVER_ID], -1, "{"#SILVER_COLOR"}El trabajo se ha cancelado porque tu amigo ha dejado de trabajar.");
+				CancelTrashWork(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_DRIVER_ID], playerid, PlayerTemp[playerid][pt_TRASH_VEHICLE_ID]);
+			}
+		}
+	}
+	
+	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL)
+	{
+		PI[playerid][pPOLICE_JAIL_TIME] -= gettime() - PlayerTemp[playerid][pt_ENTER_JAIL_TIME];
+		if(PI[playerid][pPOLICE_JAIL_TIME] < 5) PI[playerid][pPOLICE_JAIL_TIME] = 5;
+		PlayerTemp[playerid][pt_ENTER_JAIL_TIME] = gettime();
+		PI[playerid][pINTERIOR] = JAIL_POSITIONS[ PI[playerid][pPOLICE_JAIL_ID]  ][jail_INTERIOR];
+		SetPlayerVirtualWorld(playerid, 0);
+	}
+	else
+	{
+		switch(PI[playerid][pSTATE])
+		{
+			case ROLEPLAY_STATE_INTERIOR:
+			{
+				new index = GetEnterExitIndexById(PI[playerid][pLOCAL_INTERIOR]);
+
+				PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
+				PI[playerid][pLOCAL_INTERIOR] = 0;
+				PI[playerid][pPOS_X] = ENTER_EXIT[index][ee_EXT_X];
+				PI[playerid][pPOS_Y] = ENTER_EXIT[index][ee_EXT_Y];
+				PI[playerid][pPOS_Z] = ENTER_EXIT[index][ee_EXT_Z];
+				PI[playerid][pANGLE] = ENTER_EXIT[index][ee_EXT_ANGLE];
+				PI[playerid][pINTERIOR] = ENTER_EXIT[index][ee_EXT_INTERIOR];
+			}
+			case ROLEPLAY_STATE_OWN_PROPERTY:
+			{
+				new index = GetEnterExitIndexById(PI[playerid][pLOCAL_INTERIOR]);
+				if(PROPERTY_INFO[index][property_OWNER_ID] == PI[playerid][pID])
+				{
+					PI[playerid][pPOS_X] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_X];
+					PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
+
+					new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
+					
+					PI[playerid][pPOS_Z] = z_pos;
+
+					PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];
+					PI[playerid][pINTERIOR] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_INTERIOR];
+				}
+				else
+				{
+					PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
+					PI[playerid][pLOCAL_INTERIOR] = 0;
+					PI[playerid][pPOS_X] = PROPERTY_INFO[index][property_EXT_X];
+					PI[playerid][pPOS_Y] = PROPERTY_INFO[index][property_EXT_Y];
+					PI[playerid][pPOS_Z] = PROPERTY_INFO[index][property_EXT_Z];
+					PI[playerid][pANGLE] = PROPERTY_INFO[index][property_EXT_ANGLE];
+					PI[playerid][pINTERIOR] = PROPERTY_INFO[index][property_EXT_INTERIOR];
+				}
+			}
+			case ROLEPLAY_STATE_GUEST_PROPERTY:
+			{
+				new index = GetPropertyIndexByID(PI[playerid][pLOCAL_INTERIOR]);
+				PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
+				PI[playerid][pLOCAL_INTERIOR] = 0;
+				PI[playerid][pPOS_X] = PROPERTY_INFO[index][property_EXT_X];
+				PI[playerid][pPOS_Y] = PROPERTY_INFO[index][property_EXT_Y];
+				PI[playerid][pPOS_Z] = PROPERTY_INFO[index][property_EXT_Z];
+				PI[playerid][pANGLE] = PROPERTY_INFO[index][property_EXT_ANGLE];
+				PI[playerid][pINTERIOR] = PROPERTY_INFO[index][property_EXT_INTERIOR];
+			}
+			default:
+			{
+				GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
+				GetPlayerFacingAngle(playerid, PI[playerid][pANGLE]);
+				PI[playerid][pINTERIOR] = GetPlayerInterior(playerid);
+			}
+		}
+
+		PI[playerid][pSTATE] = ROLEPLAY_STATE_CRACK;
+
+		PlayerTemp[playerid][pt_INJURED_POS][0] = PI[playerid][pPOS_X];
+		PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
+		PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
+		PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
+	}
+
+	if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+	SpawnPlayerDeath(playerid);
+
+	PLAYER_TEMP[playerid][pt_GAME_STATE] = GAME_STATE_NORMAL;
+	return 1;
+}
+
 hook OnPlayerDeath(playerid, killerid, reason)
 {
 	if(PlayerTemp[playerid][pt_KICKED] || !PlayerTemp[playerid][pt_USER_LOGGED]) return 0;
@@ -5081,11 +5228,11 @@ public OnPlayerRequestSpawn(playerid) // Intentar 'spawnear' mediante la selecci
 public OnGameModeInit()
 {
 	AntiAmx();
-	SetGameModeText("-");
-    SendRconCommand("hostname Cargando Informacion... (Puede demorar un poco)");
-    SendRconCommand("language -");
-	SendRconCommand("weburl -");
-	SendRconCommand("mapname -");
+	SetGameModeText(SERVER_GAMEMODE);
+    SendRconCommand("hostname "SERVER_HOSTNAME"");
+    SendRconCommand("language "SERVER_LANGUAGE"");
+	SendRconCommand("weburl "SERVER_WEBSITE"");
+	SendRconCommand("mapname "SERVER_WEBSITE"");
 	SendRconCommand("minconnectiontime 0");
     SendRconCommand("ackslimit 8000");
     SendRconCommand("messageslimit 100");
@@ -5093,7 +5240,7 @@ public OnGameModeInit()
 	SendRconCommand("cookielogging 0");
 	SendRconCommand("chatlogging 0");
 	SendRconCommand("sleep 1");
-	SendRconCommand("query 1");
+	SendRconCommand("query 0");
 	ShowNameTags(0);
 
 	SetDatabaseInfo();
@@ -5126,27 +5273,13 @@ public OnGameModeInit()
 	UsePlayerPedAnims();
 	MapAndreas_Init(MAP_ANDREAS_MODE_FULL);
 
-	FO_SetValue(0);
-	SetTimer("ToggleServerLoaded", seconds(15), false);
-	return 1;
-}
-
-callbackp:ToggleServerLoaded()
-{
-	server_loaded = true;
-	print("EL SERVIDOR SE HA CARGADO CORRECTAMENTE.");
-
-	SetGameModeText(SERVER_GAMEMODE);
-    SendRconCommand("hostname "SERVER_HOSTNAME"");
-    SendRconCommand("language "SERVER_LANGUAGE"");
-	SendRconCommand("weburl "SERVER_WEBSITE"");
-	SendRconCommand("mapname "SERVER_WEBSITE"");
-
 	FO_SetMode(FO_RELATIVE);
-	FO_SetValue((10 + random(9)));
+	FO_SetValue((2 + random(3)));
 	SetTimer("UpdateFOPlayers", 60000, true);
+	SendRconCommand("query 1");
 	return 1;
 }
+
 
 FormatDialogStrings()
 {
@@ -6112,32 +6245,32 @@ ptask AutoSavePlayerData[30000](playerid)
 
 stock SetPlayerNametagInfo(playerid, bool:update)
 {
-	new label_str[1024], extra_str[445] = "", health_str[445] = "", armour_str[445] = "";
+	new label_str[1024], extra_str[1024] = "", health_str[445] = "", armour_str[445] = "";
 	format(label_str, 1024, "%s%s (%d)\n", PlayerTemp[playerid][pt_PLAYER_COLOR], PlayerTemp[playerid][pt_NAME], playerid);
 
 	if(PI[playerid][pWANTED_LEVEL])
 	{
 		switch(PI[playerid][pWANTED_LEVEL])
 		{
-			case 1: format(extra_str, 445, "{FFFED0}[{fffdba}Buscado *%d{FFFED0}]\n", PI[playerid][pWANTED_LEVEL]);
-			case 2: format(extra_str, 445, "{F6F391}[{f7f254}Buscado *%d{F6F391}]\n", PI[playerid][pWANTED_LEVEL]);
-			case 3: format(extra_str, 445, "{D8A144}[{d98900}Buscado *%d{D8A144}]\n", PI[playerid][pWANTED_LEVEL]);
-			case 4: format(extra_str, 445, "{CB724A}[{ce4202}Buscado *%d{CB724A}]\n", PI[playerid][pWANTED_LEVEL]);
-			case 5: format(extra_str, 445, "{FF7DFF}[{ff00ff}Buscado *%d{FF7DFF}]\n", PI[playerid][pWANTED_LEVEL]);
-			case 6: format(extra_str, 445, "{A742C8}[{9900cc}Buscado *%d{A742C8}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 1: format(extra_str, sizeof(extra_str), "{FFFED0}[{fffdba}Buscado *%d{FFFED0}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 2: format(extra_str, sizeof(extra_str), "{F6F391}[{f7f254}Buscado *%d{F6F391}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 3: format(extra_str, sizeof(extra_str), "{D8A144}[{d98900}Buscado *%d{D8A144}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 4: format(extra_str, sizeof(extra_str), "{CB724A}[{ce4202}Buscado *%d{CB724A}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 5: format(extra_str, sizeof(extra_str), "{FF7DFF}[{ff00ff}Buscado *%d{FF7DFF}]\n", PI[playerid][pWANTED_LEVEL]);
+			case 6: format(extra_str, sizeof(extra_str), "{A742C8}[{9900cc}Buscado *%d{A742C8}]\n", PI[playerid][pWANTED_LEVEL]);
 		}
 	}
 
-	if(pTemp(playerid)[pt_CUFFED]) format(extra_str, 445, "{C8FF73}[{"#GREEN_COLOR"}Esposado{C8FF73}]\n");
+	if(pTemp(playerid)[pt_CUFFED]) format(extra_str, sizeof(extra_str), "{C8FF73}[{"#GREEN_COLOR"}Esposado{C8FF73}]\n");
 
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
-		if(pTemp(playerid)[pt_POLICE_SWAT]) format(extra_str, 445, "{"#POLICE_COLOR"}S.W.A.T | N.%d | %c. %s\n", PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
-		else format(extra_str, 445, "{CCCCCC}%s | N.%d | %c. %s\n", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
+		if(pTemp(playerid)[pt_POLICE_SWAT]) format(extra_str, sizeof(extra_str), "{"#POLICE_COLOR"}S.W.A.T | N.%d | %c. %s\n", PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
+		else format(extra_str, sizeof(extra_str), "{CCCCCC}%s | N.%d | %c. %s\n", POLICE_RANKS[ PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] ], PI[playerid][pPLACA_PD], PlayerTemp[playerid][pt_FIRST_NAME][0], PlayerTemp[playerid][pt_SUB_NAME]);
 	}
 
-	if(PlayerTemp[playerid][pt_ADMIN_SERVICE]) format(extra_str, 445, "{"#PRIMARY_COLOR"}[%s]\n", PI[playerid][pADMIN_LEVEL]);
-	if(IsPlayerPaused(playerid)) format(extra_str, 445, "{000000}[{232323}Pausa{000000}]\n");
+	if(PlayerTemp[playerid][pt_ADMIN_SERVICE]) format(extra_str, sizeof(extra_str), "{"#PRIMARY_COLOR"}[%s]\n", ADMIN_LEVELS[ PI[playerid][pADMIN_LEVEL] ]);
+	if(IsPlayerPaused(playerid)) format(extra_str, sizeof(extra_str), "{000000}[{232323}Pausa{000000}]\n");
 	
 	if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK && !IsPlayerInSafeZone(playerid) && PlayerTemp[playerid][pt_COMBAT])
 	{
@@ -8544,6 +8677,7 @@ stock ShowDialog(playerid, dialogid)
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Comprar vehículo", dialog, "Comprar", "Cerrar");
 			return 1;
 		}
+		case DIALOG_CITYHALL_OPTIONS: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Gobierno - Servicios", "{d1d1d1}Vender Propiedad/Auto\n{d1d1d1}Servicios de Grua", "Continuar", "Cerrar");
 		case DIALOG_NOTARY:
 		{
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Notaría", "{"#SILVER_COLOR"}Vender una propiedad al banco\n{"#SILVER_COLOR"}Vender un vehículo al banco\n{"#SILVER_COLOR"}Vender una propiedad a una persona\n{"#SILVER_COLOR"}Vender un vehículo a una persona", "Continuar", "Cerrar");
@@ -12250,6 +12384,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
+		case DIALOG_CITYHALL_OPTIONS:
+		{
+			if(response)
+			{
+				case 0: ShowDialog(playerid, DIALOG_NOTARY);
+				case 1: ShowDialog(playerid, DIALOG_CRANE_SELECT_VEHICLE);
+			}
+		}
 		case DIALOG_NOTARY:
 		{
 			if(response)
@@ -12385,7 +12527,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(PlayerTemp[inputtext[0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "Error, el comprador no está disponible.");
 				
 				if(ENTER_EXIT[ PlayerTemp[inputtext[0]][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] != INTERIOR_CITY_HALL_LS) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
-				if(!IsPlayerInRangeOfPoint(inputtext[0], 3.0, -474.596282, 289.679107, 2004.584960)) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
+				if(!IsPlayerInRangeOfPoint(inputtext[0], 3.0, 943.3202, -1464.3085, 2761.0164)) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
 				if(PI[inputtext[0]][pBANK_ACCOUNT] == 0) return SendClientMessagef(playerid, -1, "El comprador no tiene cuenta bancaria.");
 				
 				new player_properties = CountPlayerProperties(inputtext[0]);
@@ -12568,7 +12710,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(PlayerTemp[inputtext[0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "Error, el comprador no está disponible.");
 				
 				if(PlayerTemp[inputtext[0]][pt_INTERIOR_INDEX] == -1 || ENTER_EXIT[ PlayerTemp[inputtext[0]][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] != INTERIOR_CITY_HALL_LS) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
-				if(!IsPlayerInRangeOfPoint(inputtext[0], 3.0, -474.596282, 289.679107, 2004.584960)) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
+				if(!IsPlayerInRangeOfPoint(inputtext[0], 3.0, 943.3202, -1464.3085, 2761.0164)) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
 				if(PI[inputtext[0]][pBANK_ACCOUNT] == 0) return SendClientMessagef(playerid, -1, "El comprador no tiene cuenta bancaria.");
 				
 				new pvehicles = CountPlayerVehicles(inputtext[0]);
@@ -19442,30 +19584,16 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 				ShowDialog(playerid, DIALOG_247_LIST);
 			}
 		}
-		case PICKUP_TYPE_NOTARY:
+		case PICKUP_TYPE_CITYHALL_OPTIONS:
 		{
 			if(PlayerTemp[playerid][pt_INTERIOR_INDEX] != -1 && ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] == INTERIOR_CITY_HALL_LS)
 			{
 				if(PI[playerid][pLEVEL] >= 3)
 				{
-					if(PI[playerid][pBANK_ACCOUNT] == 0)
-					{
-						SendMessage(playerid, "Necesitas tener una cuenta bancaria para poder realizar estas operaciones.");
-					}
-					else
-					{
-						PlayerTemp[playerid][pt_DIALOG_OPENED] = true;
-						ShowDialog(playerid, DIALOG_NOTARY);
-					}
+					if(PI[playerid][pBANK_ACCOUNT] == 0) SendMessage(playerid, "Necesitas tener una cuenta bancaria para poder realizar estas operaciones.");
+					else ShowDialog(playerid, DIALOG_CITYHALL_OPTIONS);
 				}
 				else SendMessage(playerid, "Debes ser al menos nivel 3.");
-			}
-		}
-		case PICKUP_TYPE_CRANE:
-		{
-			if(PlayerTemp[playerid][pt_INTERIOR_INDEX] != -1 && ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] == INTERIOR_CITY_HALL_LS)
-			{
-				ShowDialog(playerid, DIALOG_CRANE_SELECT_VEHICLE);
 			}
 		}
 		case PICKUP_TYPE_POLICE_WORK:
@@ -24877,7 +25005,7 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 							ApplyAnimation(damagedid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
 
 							KillTimer(pTemp(damagedid)[pt_TASSED]);
-							pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", seconds(1), false, "i", damagedid);
+							pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", 500, false, "i", damagedid);
 						}
 					}
 					else
@@ -24892,7 +25020,7 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 						ApplyAnimation(damagedid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
 
 						KillTimer(pTemp(damagedid)[pt_TASSED]);
-						pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", seconds(1), false, "i", damagedid);
+						pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", 500, false, "i", damagedid);
 					}
 				}
 				else
@@ -24915,31 +25043,6 @@ public OnPlayerGiveDamage(playerid, damagedid, Float:amount, weaponid, bodypart)
 				{
 					PlayerTemp[damagedid][pt_COMBAT_TIMER] = SetTimerEx("ResetCombat", seconds(30), false, "i", damagedid);
 					PlayerTemp[damagedid][pt_COMBAT] = true;
-				}
-			}
-		}
-	}
-	
-	if(!IsPlayerInSafeZone(playerid))
-	{
-		if(!PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET])
-		{
-			if(gettime() > PlayerTemp[playerid][pt_LAST_SAFE_ZONE_WARNING] + 60)
-			{
-				if(IsPlayerInSafeZone(playerid))
-				{
-					SendClientMessagef(playerid, -1, "Estás en una zona segura, la policía ha sido avisada de la agresion.");
-					
-					new city[45], zone[45];
-					GetPlayerZones(playerid, city, zone);
-
-					if(!PI[playerid][pWANTED_LEVEL]) SetPlayerWantedLevelEx(playerid, 1);
-
-					new message[145];
-					format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s está causando disturbios en {"#POLICE_COLOR"}%s, %s.", PlayerTemp[playerid][pt_NAME], city, zone);
-					SendPoliceRadioMessage(-1, -1, message);
-					
-					PlayerTemp[playerid][pt_LAST_SAFE_ZONE_WARNING] = gettime();
 				}
 			}
 		}
@@ -24976,6 +25079,7 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 	else if(IsPlayerInSafeZone(playerid) && !PLAYER_WORKS[issuerid][WORK_POLICE][pwork_SET]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else if(pTemp(playerid)[pt_TASER_GUN]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else if(PlayerTemp[playerid][pt_ADMIN_SERVICE]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
+	else if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else PlayerTemp[playerid][pt_PLAYER_DAMAGE] = true;
 	
 	if(!PlayerTemp[playerid][pt_PLAYER_DAMAGE]) SetPlayerArmourEx(playerid, PI[playerid][pARMOUR]);
@@ -25204,182 +25308,7 @@ stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 	{
 		if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK)
 		{
-			if(PlayerTemp[playerid][pt_COMBAT]) ResetCombat(playerid);
-			
-			PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
-			PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_NOFUEL][p_ac_info_IMMUNITY] = gettime() + 15;
-			pTemp(playerid)[pt_TASER_GUN] = false;
-
-			DropHandWeapon(playerid);
-
-			for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
-			{
-				if(IsPlayerConnected(i) && pTemp(i)[pt_USER_LOGGED])
-				{
-					if(PI[i][pADMIN_LEVEL] >= CMD_MODERATOR && pTemp(i)[pt_ADMIN_SERVICE])
-					{
-						SendDeathMessageToPlayer(i, killerid, playerid, reason);
-					}
-				}
-			}
-
-			if(IsPlayerConnected(killerid) && PI[killerid][pSTATE] == ROLEPLAY_STATE_NORMAL && PI[playerid][pSTATE] == ROLEPLAY_STATE_NORMAL)
-			{
-				if(!PLAYER_WORKS[killerid][WORK_POLICE][pwork_SET])
-				{
-					if(IsPlayerInSafeZone(killerid))
-					{
-						SendClientMessage(killerid, -1, "Estás en una zona segura, la policía ha sido avisada del homicidio.");
-						
-						new level = PI[killerid][pWANTED_LEVEL] + 3;
-						if(level > 6) level = 6;
-
-						SetPlayerWantedLevelEx(killerid, level);
-						
-						new city[45], zone[45];
-						GetPlayerZones(killerid, city, zone);
-
-						new message[145];
-						format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s ha causado un asesinato en {"#POLICE_COLOR"}%s, %s.", pTemp(killerid)[pt_NAME], city, zone);
-						SendPoliceRadioMessage(-1, -1, message);
-						
-						pTemp(killerid)[pt_LAST_SAFE_ZONE_WARNING] = gettime();
-					}
-				}
-			}
-			
-			if(PlayerTemp[playerid][pt_SELECT_TEXTDRAW])
-			{
-				if(PlayerTemp[playerid][pt_CLOTHING_SHOP] != -1) ClosePlayerClothingMenu(playerid);
-				if(PlayerTemp[playerid][pt_TOYS_SHOP]) ClosePlayerToysMenu(playerid);
-			}
-			
-			StopAudioStreamForPlayer(playerid);
-			SetPlayerDrunkLevel(playerid, 0);
-			KillTimer(PlayerTemp[playerid][pt_TIMERS][3]);
-			SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
-			GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
-			GetPlayerFacingAngle(playerid, PI[playerid][pANGLE]);
-			PI[playerid][pINTERIOR] = GetPlayerInterior(playerid);
-			HidePlayerHud(playerid);
-			CancelEdit(playerid);
-			HidePlayerDialog(playerid);
-			SetNormalPlayerMarkers(playerid);
-			if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) CallLocalFunction("EndPlayerJob", "iib", playerid, PlayerTemp[playerid][pt_WORKING_IN], false);
-			PlayerTemp[playerid][pt_HUNGRY_MESSAGE] = false;
-			PlayerTemp[playerid][pt_THIRST_MESSAGE] = false;
-			PlayerTemp[playerid][pt_PLAYER_IN_ATM] = false;
-			PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-			PlayerTemp[playerid][pt_CUFFED] = false;
-			PlayerTemp[playerid][pt_CUFFING] = false;
-
-			if(PlayerTemp[playerid][pt_WANT_TAXI])
-			{
-				PlayerTemp[playerid][pt_WANT_TAXI] = false;
-				DisablePlayerTaxiMark(playerid);
-			}
-
-			if(PlayerTemp[playerid][pt_PLAYER_IN_CALL]) EndPhoneCall(playerid);
-			if(PI[playerid][pWANTED_LEVEL] > 0) DisablePlayerPoliceMark(playerid);
-
-			if(PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] != INVALID_VEHICLE_ID)
-			{
-				if(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_JOB_STARTED])
-				{
-					if(PlayerTemp[playerid][pt_TRASH_DRIVER])
-					{
-						SendClientMessage(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_PASSENGER_ID], -1, "{"#SILVER_COLOR"}El trabajo se ha cancelado porque tu amigo ha dejado de trabajar.");
-						CancelTrashWork(playerid, TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_PASSENGER_ID], PlayerTemp[playerid][pt_TRASH_VEHICLE_ID]);
-					}
-					if(PlayerTemp[playerid][pt_TRASH_PASSENGER])
-					{
-						SendClientMessage(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_DRIVER_ID], -1, "{"#SILVER_COLOR"}El trabajo se ha cancelado porque tu amigo ha dejado de trabajar.");
-						CancelTrashWork(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_DRIVER_ID], playerid, PlayerTemp[playerid][pt_TRASH_VEHICLE_ID]);
-					}
-				}
-			}
-			
-			if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL)
-			{
-				PI[playerid][pPOLICE_JAIL_TIME] -= gettime() - PlayerTemp[playerid][pt_ENTER_JAIL_TIME];
-				if(PI[playerid][pPOLICE_JAIL_TIME] < 5) PI[playerid][pPOLICE_JAIL_TIME] = 5;
-				PlayerTemp[playerid][pt_ENTER_JAIL_TIME] = gettime();
-				PI[playerid][pINTERIOR] = JAIL_POSITIONS[ PI[playerid][pPOLICE_JAIL_ID]  ][jail_INTERIOR];
-				SetPlayerVirtualWorld(playerid, 0);
-			}
-			else
-			{
-				switch(PI[playerid][pSTATE])
-				{
-					case ROLEPLAY_STATE_INTERIOR:
-					{
-						new index = GetEnterExitIndexById(PI[playerid][pLOCAL_INTERIOR]);
-
-						PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
-						PI[playerid][pLOCAL_INTERIOR] = 0;
-						PI[playerid][pPOS_X] = ENTER_EXIT[index][ee_EXT_X];
-						PI[playerid][pPOS_Y] = ENTER_EXIT[index][ee_EXT_Y];
-						PI[playerid][pPOS_Z] = ENTER_EXIT[index][ee_EXT_Z];
-						PI[playerid][pANGLE] = ENTER_EXIT[index][ee_EXT_ANGLE];
-						PI[playerid][pINTERIOR] = ENTER_EXIT[index][ee_EXT_INTERIOR];
-					}
-					case ROLEPLAY_STATE_OWN_PROPERTY:
-					{
-						new index = GetEnterExitIndexById(PI[playerid][pLOCAL_INTERIOR]);
-						if(PROPERTY_INFO[index][property_OWNER_ID] == PI[playerid][pID])
-						{
-							PI[playerid][pPOS_X] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_X];
-							PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
-
-							new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
-							
-							PI[playerid][pPOS_Z] = z_pos;
-
-							PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];
-							PI[playerid][pINTERIOR] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_INTERIOR];
-						}
-						else
-						{
-							PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
-							PI[playerid][pLOCAL_INTERIOR] = 0;
-							PI[playerid][pPOS_X] = PROPERTY_INFO[index][property_EXT_X];
-							PI[playerid][pPOS_Y] = PROPERTY_INFO[index][property_EXT_Y];
-							PI[playerid][pPOS_Z] = PROPERTY_INFO[index][property_EXT_Z];
-							PI[playerid][pANGLE] = PROPERTY_INFO[index][property_EXT_ANGLE];
-							PI[playerid][pINTERIOR] = PROPERTY_INFO[index][property_EXT_INTERIOR];
-						}
-					}
-					case ROLEPLAY_STATE_GUEST_PROPERTY:
-					{
-						new index = GetPropertyIndexByID(PI[playerid][pLOCAL_INTERIOR]);
-						PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
-						PI[playerid][pLOCAL_INTERIOR] = 0;
-						PI[playerid][pPOS_X] = PROPERTY_INFO[index][property_EXT_X];
-						PI[playerid][pPOS_Y] = PROPERTY_INFO[index][property_EXT_Y];
-						PI[playerid][pPOS_Z] = PROPERTY_INFO[index][property_EXT_Z];
-						PI[playerid][pANGLE] = PROPERTY_INFO[index][property_EXT_ANGLE];
-						PI[playerid][pINTERIOR] = PROPERTY_INFO[index][property_EXT_INTERIOR];
-					}
-					default:
-					{
-						GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
-						GetPlayerFacingAngle(playerid, PI[playerid][pANGLE]);
-						PI[playerid][pINTERIOR] = GetPlayerInterior(playerid);
-					}
-				}
-
-				PI[playerid][pSTATE] = ROLEPLAY_STATE_CRACK;
-
-				PlayerTemp[playerid][pt_INJURED_POS][0] = PI[playerid][pPOS_X];
-				PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
-				PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
-				PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
-			}
-
-			if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
-			SpawnPlayerDeath(playerid);
-
-			PLAYER_TEMP[playerid][pt_GAME_STATE] = GAME_STATE_NORMAL;
+			OnPlayerSWDeath(playerid, killerid, reason);
 		}
 	}
 
@@ -26974,6 +26903,8 @@ JailPlayer(playerid, time = 0)
 	DeleteIlegalInv(playerid);
 	HidePlayerDialog(playerid);
 	pTemp(playerid)[pt_TASER_GUN] = false;
+	pTemp(playerid)[pt_CUFFED] = false;
+	pTemp(playerid)[pt_CUFFING] = false;
 	return 1;
 }
 
@@ -30424,21 +30355,11 @@ stock LoadServerInfo()
 		CreateDynamic3DTextLabel("{"#PRIMARY_COLOR"}SALIDA DE VEHICULOS", 0xFFFFFFFF, SELL_VEHICLES_SHOPS_SPAWN[i][0], SELL_VEHICLES_SHOPS_SPAWN[i][1], SELL_VEHICLES_SHOPS_SPAWN[i][2], 10.0, .testlos = true, .worldid = 0, .interiorid = 0);
 	}
 	
-	//Notario
-	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para vender\nalguna propiedad o vehículo", 0xFFFFFFFF, 943.3202, -1464.3085, 2761.0164, 10.0, .testlos = true, .interiorid = 1);
-	new nto_pickup = CreateDynamicPickup(0, 1, 943.3202, -1464.3085, 2761.0164 + 0.10, -1, 1), nto_info[3];
-	nto_info[0] = PICKUP_TYPE_NOTARY;
-	nto_info[1] = 0; // Nada
-	nto_info[2] = 0; // Nada
+	//Notario y Grua
+	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para ver las opciones disponibles", 0xFFFFFFFF, 943.3202, -1464.3085, 2761.0164, 10.0, .testlos = true, .interiorid = 1);
+	new nto_pickup = CreateDynamicPickup(0, 1, 943.3202, -1464.3085, 2761.0164 + 0.10, -1, 1), nto_info[1];
+	nto_info[0] = PICKUP_TYPE_CITYHALL_OPTIONS;
 	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, nto_pickup, E_STREAMER_EXTRA_ID, nto_info);
-
-	//Grua
-	CreateDynamic3DTextLabel(""COME_INTERACTION_MESSAGE"para solicitar\nel servicio de grua a un vehículo", 0xFFFFFFFF, 943.6078, -1467.0909, 2761.0164, 10.0, .testlos = true, .interiorid = 1);
-	new crane_pickup = CreateDynamicPickup(0, 1, 943.6078, -1467.0909, 2761.0164 + 0.10, -1, 20), crn_info[3];
-	crn_info[0] = PICKUP_TYPE_CRANE;
-	crn_info[1] = 0; // Nada
-	crn_info[2] = 0; // Nada
-	Streamer_SetArrayData(STREAMER_TYPE_PICKUP, crane_pickup, E_STREAMER_EXTRA_ID, crn_info);	
 	
 	//San Andreas Vehicles
 	for(new i = 0; i != sizeof San_Andreas_Vehicles; i ++)
@@ -30691,7 +30612,7 @@ stock LoadServerInfo()
 
 callbackp:UpdateFOPlayers()
 {
-	FO_SetValue((20 + random(9)));
+	FO_SetValue((4 + random(7)));
 	return 1;
 }
 	
@@ -32155,14 +32076,14 @@ SetPiDefaultValues(playerid)
 	format(PI[playerid][pLAST_CONNECTION], 24, "%s", date);
 	format(PI[playerid][pREG_DATE], 24, "%s", date);
 	PI[playerid][pLAST_CONNECTION_TIMESTAMP] = gettime();
-	PI[playerid][pLEVEL] = 1;
+	PI[playerid][pLEVEL] = 2;
 	PI[playerid][pREP] = 1;
 	PI[playerid][pCONNECTED] = 1;
 	PI[playerid][pPLAYERID] = playerid;
 	PI[playerid][pTIME_FOR_REP] = TIME_FOR_REP;
 	PI[playerid][pSKIN] = 250;
-	PI[playerid][pCASH] = 1500000;
-	PI[playerid][pCOINS] = 2;
+	PI[playerid][pCASH] = 15000;
+	PI[playerid][pCOINS] = 0;
 	PI[playerid][pPOS_X] = New_User_Pos[0];
 	PI[playerid][pPOS_Y] = New_User_Pos[1];
 	PI[playerid][pPOS_Z] = New_User_Pos[2];

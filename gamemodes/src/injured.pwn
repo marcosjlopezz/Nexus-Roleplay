@@ -16,7 +16,7 @@ stock SpawnPlayerDeath(playerid)
         TogglePlayerControllableEx(playerid, false);
 
         KillTimer(PLAYER_TEMP[playerid][pt_TIMERS][3]);
-        PLAYER_TEMP[playerid][pt_TIMERS][3] = SetTimerEx("TogglePlayerControl", 500, false, "ib", playerid, true);
+        PLAYER_TEMP[playerid][pt_TIMERS][3] = SetTimerEx("TogglePlayerControl", 250, false, "ib", playerid, true);
         
         if(PI[playerid][pWANTED_LEVEL] > 0) SendClientMessagef(playerid, -1, "Estas herido y en búsqueda, espera a que la policia venga a por ti.");
         else SendClientMessagef(playerid, -1, "Estas herido, espera a que venga un medico.");
