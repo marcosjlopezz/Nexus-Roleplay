@@ -22,16 +22,6 @@ hook OnScriptInit()
     DroppedWeapons = list_new();
 }
 
-hook OnPlayerDeath(playerid, killerid, reason) 
-{
-    DropHandWeapon(playerid);
-}
-
-hook OnPlayerSWDeath(playerid, killerid, reason)
-{
-    DropHandWeapon(playerid);
-}
-
 stock DropHandWeapon(playerid)
 {
     new weaponid = GetPlayerWeapon(playerid);

@@ -48,7 +48,7 @@ AntiAmx()
 #include <FakeOnline>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.7 Alpha"
+#define SERVER_VERSION			"2.8 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -4729,6 +4729,8 @@ callbackp:OnPlayerSWDeath(playerid, killerid, reason)
 			}
 		}
 	}
+
+	DropHandWeapon(playerid);
 	
 	if(PlayerTemp[playerid][pt_SELECT_TEXTDRAW])
 	{
@@ -4869,25 +4871,10 @@ hook OnPlayerDeath(playerid, killerid, reason)
 {
 	if(PlayerTemp[playerid][pt_KICKED] || !PlayerTemp[playerid][pt_USER_LOGGED]) return 0;
 
-	if(PlayerTemp[playerid][pt_COMBAT]) ResetCombat(playerid);
-	
 	KillTimer(PlayerTemp[playerid][pt_TIMERS][16]);
 	PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_STATE_SPAMMER][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_VEHICLE_NOFUEL][p_ac_info_IMMUNITY] = gettime() + 15;
-	if(!PI[playerid][pVIP]) SetPlayerArmourEx(playerid, 0.0);
-	pTemp(playerid)[pt_TASER_GUN] = false;
-
-	for(new i = 0, j = GetPlayerPoolSize(); i <= j; i++)
-	{
-		if(IsPlayerConnected(i) && pTemp(i)[pt_USER_LOGGED])
-		{
-			if(PI[i][pADMIN_LEVEL] >= CMD_MODERATOR && pTemp(i)[pt_ADMIN_SERVICE])
-			{
-				SendDeathMessageToPlayer(i, killerid, playerid, reason);
-			}
-		}
-	}
 	
 	if(ac_Info[CHEAT_DEATH_SPAMMER][ac_Enabled])
 	{
@@ -4910,160 +4897,9 @@ hook OnPlayerDeath(playerid, killerid, reason)
 		}
 	}
 	
-	if(IsPlayerConnected(killerid) && PI[killerid][pSTATE] == ROLEPLAY_STATE_NORMAL && PI[playerid][pSTATE] == ROLEPLAY_STATE_NORMAL)
-	{
-		if(!PLAYER_WORKS[killerid][WORK_POLICE][pwork_SET])
-		{
-			if(IsPlayerInSafeZone(killerid))
-			{
-				SendClientMessage(killerid, -1, "Estás en una zona segura, la policía ha sido avisada del homicidio.");
-				
-				new level = PI[killerid][pWANTED_LEVEL] + 3;
-				if(level > 6) level = 6;
-
-				SetPlayerWantedLevelEx(killerid, level);
-				
-				new city[45], zone[45];
-				GetPlayerZones(killerid, city, zone);
-
-				new message[145];
-				format(message, sizeof message, "{"#POLICE_COLOR"}[Central policía] {FFFFFF}%s ha causado un asesinato en {"#POLICE_COLOR"}%s, %s.", pTemp(killerid)[pt_NAME], city, zone);
-				SendPoliceRadioMessage(-1, -1, message);
-				
-				pTemp(killerid)[pt_LAST_SAFE_ZONE_WARNING] = gettime();
-			}
-		}
-	}
-	
-	if(PlayerTemp[playerid][pt_SELECT_TEXTDRAW])
-	{
-		if(PlayerTemp[playerid][pt_CLOTHING_SHOP] != -1) ClosePlayerClothingMenu(playerid);
-		if(PlayerTemp[playerid][pt_TOYS_SHOP]) ClosePlayerToysMenu(playerid);
-	}
-	
-	StopAudioStreamForPlayer(playerid);
-	SetPlayerDrunkLevel(playerid, 0);
-	KillTimer(PlayerTemp[playerid][pt_TIMERS][3]);
-	SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
-	GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
-	GetPlayerFacingAngle(playerid, PI[playerid][pANGLE]);
-	PI[playerid][pINTERIOR] = GetPlayerInterior(playerid);
-	HidePlayerHud(playerid);
-	CancelEdit(playerid);
-	HidePlayerDialog(playerid);
-	SetNormalPlayerMarkers(playerid);
-	if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) CallLocalFunction("EndPlayerJob", "iib", playerid, PlayerTemp[playerid][pt_WORKING_IN], false);
-	PlayerTemp[playerid][pt_HUNGRY_MESSAGE] = false;
-	PlayerTemp[playerid][pt_THIRST_MESSAGE] = false;
-	PlayerTemp[playerid][pt_PLAYER_IN_ATM] = false;
-	PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-	PlayerTemp[playerid][pt_CUFFED] = false;
-	PlayerTemp[playerid][pt_CUFFING] = false;
-	if(PlayerTemp[playerid][pt_WANT_TAXI])
-	{
-		PlayerTemp[playerid][pt_WANT_TAXI] = false;
-		DisablePlayerTaxiMark(playerid);
-	}
-	if(PlayerTemp[playerid][pt_PLAYER_IN_CALL]) EndPhoneCall(playerid);
-	if(PI[playerid][pWANTED_LEVEL] > 0) DisablePlayerPoliceMark(playerid);
-
-	if(PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] != INVALID_VEHICLE_ID)
-	{
-		if(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_JOB_STARTED])
-		{
-			if(PlayerTemp[playerid][pt_TRASH_DRIVER])
-			{
-				SendClientMessage(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_PASSENGER_ID], -1, "{"#SILVER_COLOR"}El trabajo se ha cancelado porque tu amigo ha dejado de trabajar.");
-				CancelTrashWork(playerid, TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_PASSENGER_ID], PlayerTemp[playerid][pt_TRASH_VEHICLE_ID]);
-			}
-			if(PlayerTemp[playerid][pt_TRASH_PASSENGER])
-			{
-				SendClientMessage(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_DRIVER_ID], -1, "{"#SILVER_COLOR"}El trabajo se ha cancelado porque tu amigo ha dejado de trabajar.");
-				CancelTrashWork(TRASH_VEHICLES[ PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] ][trash_vehicle_DRIVER_ID], playerid, PlayerTemp[playerid][pt_TRASH_VEHICLE_ID]);
-			}
-		}
-	}
-	
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL)
-	{
-		KillTimer(PlayerTemp[playerid][pt_TIMERS][15]);
-		PI[playerid][pPOLICE_JAIL_TIME] -= gettime() - PlayerTemp[playerid][pt_ENTER_JAIL_TIME];
-		if(PI[playerid][pPOLICE_JAIL_TIME] < 5) PI[playerid][pPOLICE_JAIL_TIME] = 5;
-		PlayerTemp[playerid][pt_ENTER_JAIL_TIME] = gettime();
-		SetSpawnInfo(playerid, NO_TEAM, PI[playerid][pSKIN], JAIL_POSITIONS[ PI[playerid][pPOLICE_JAIL_ID] ][jail_X], JAIL_POSITIONS[ PI[playerid][pPOLICE_JAIL_ID]  ][jail_Y], JAIL_POSITIONS[ PI[playerid][pPOLICE_JAIL_ID]  ][jail_Z], JAIL_POSITIONS[ PI[playerid][pPOLICE_JAIL_ID]  ][jail_ANGLE], 0, 0, 0, 0, 0, 0);
-		PI[playerid][pINTERIOR] = JAIL_POSITIONS[ PI[playerid][pPOLICE_JAIL_ID]  ][jail_INTERIOR];
-		SetPlayerVirtualWorld(playerid, 0);
-	}
-	else
-	{
-		switch(PI[playerid][pSTATE])
-		{
-			case ROLEPLAY_STATE_INTERIOR:
-			{
-				new index = GetEnterExitIndexById(PI[playerid][pLOCAL_INTERIOR]);
-
-				PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
-				PI[playerid][pLOCAL_INTERIOR] = 0;
-				PI[playerid][pPOS_X] = ENTER_EXIT[index][ee_EXT_X];
-				PI[playerid][pPOS_Y] = ENTER_EXIT[index][ee_EXT_Y];
-				PI[playerid][pPOS_Z] = ENTER_EXIT[index][ee_EXT_Z];
-				PI[playerid][pANGLE] = ENTER_EXIT[index][ee_EXT_ANGLE];
-				PI[playerid][pINTERIOR] = ENTER_EXIT[index][ee_EXT_INTERIOR];
-			}
-			case ROLEPLAY_STATE_OWN_PROPERTY:
-			{
-				new index = GetEnterExitIndexById(PI[playerid][pLOCAL_INTERIOR]);
-				if(PROPERTY_INFO[index][property_OWNER_ID] == PI[playerid][pID])
-				{
-					PI[playerid][pPOS_X] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_X];
-					PI[playerid][pPOS_Y] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Y];
-
-					new Float:z_pos = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_Z];
-					
-					PI[playerid][pPOS_Z] = z_pos;
-
-					PI[playerid][pANGLE] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_ANGLE];
-					PI[playerid][pINTERIOR] = PROPERTY_INTERIORS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_INT_INTERIOR];
-				}
-				else
-				{
-					PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
-					PI[playerid][pLOCAL_INTERIOR] = 0;
-					PI[playerid][pPOS_X] = PROPERTY_INFO[index][property_EXT_X];
-					PI[playerid][pPOS_Y] = PROPERTY_INFO[index][property_EXT_Y];
-					PI[playerid][pPOS_Z] = PROPERTY_INFO[index][property_EXT_Z];
-					PI[playerid][pANGLE] = PROPERTY_INFO[index][property_EXT_ANGLE];
-					PI[playerid][pINTERIOR] = PROPERTY_INFO[index][property_EXT_INTERIOR];
-				}
-			}
-			case ROLEPLAY_STATE_GUEST_PROPERTY:
-			{
-				new index = GetPropertyIndexByID(PI[playerid][pLOCAL_INTERIOR]);
-				PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
-				PI[playerid][pLOCAL_INTERIOR] = 0;
-				PI[playerid][pPOS_X] = PROPERTY_INFO[index][property_EXT_X];
-				PI[playerid][pPOS_Y] = PROPERTY_INFO[index][property_EXT_Y];
-				PI[playerid][pPOS_Z] = PROPERTY_INFO[index][property_EXT_Z];
-				PI[playerid][pANGLE] = PROPERTY_INFO[index][property_EXT_ANGLE];
-				PI[playerid][pINTERIOR] = PROPERTY_INFO[index][property_EXT_INTERIOR];
-			}
-			default:
-			{
-				GetPlayerPos(playerid, PI[playerid][pPOS_X], PI[playerid][pPOS_Y], PI[playerid][pPOS_Z]);
-				GetPlayerFacingAngle(playerid, PI[playerid][pANGLE]);
-				PI[playerid][pINTERIOR] = GetPlayerInterior(playerid);
-			}
-		}
-
-		PI[playerid][pSTATE] = ROLEPLAY_STATE_CRACK;
-
-		PlayerTemp[playerid][pt_INJURED_POS][0] = PI[playerid][pPOS_X];
-		PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
-		PlayerTemp[playerid][pt_INJURED_POS][2] = PI[playerid][pPOS_Z];
-		PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
-	}
-	
 	PlayerTemp[playerid][pt_GAME_STATE] = GAME_STATE_DEAD;
+
+	OnPlayerSWDeath(playerid, killerid, reason);
 	return 1;
 }
 
@@ -6374,7 +6210,6 @@ ptask UpdatePlayerInfo[250](playerid)
 	}
 
 	if(PI[playerid][pWANTED_LEVEL]) SetWantedMarkerToPolice(playerid);
-
 	SetPlayerNametagInfo(playerid, true);
 }
 
@@ -7856,7 +7691,6 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_PLAYER_TOY_DELETE_ALL: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Accesorios - Eliminar todo", "¿Estás seguro de que quiere eliminar todos sus accesorios?\nEsta opción no se puede deshacer.", "Eliminar", "Atrás");		
 		case DIALOG_BUY_PROPERTY:
 		{
-			if(PI[playerid][pBANK_ACCOUNT] == 0) return SendMessage(playerid, "No tienes cuenta bancaria.");
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_INPUT, "Comprar Propiedad", 
 				"{d1d1d1}Escribe la ID de la propiedad para comprarla\nRecuerda tener el dinero, y escribir una ID valida:", 
 			"Continuar", "Cerrar");
@@ -11154,54 +10988,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 		{
 			if(response)
 			{
-				if(PlayerTemp[playerid][pt_INTERIOR_INDEX] == -1)
-				{
-					PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-					return 1;
-				}
-				if(ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] == INTERIOR_NO_INFO)
-				{
-					PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-					return 1;
-				}
+				if(PI[playerid][pBANK_ACCOUNT] == 0) return SendMessage(playerid, "No puedes comprar una casa sin tener cuenta bancaria.");
+				if(sscanf(inputtext, "d", inputtext[0])) return SendMessage(playerid, "Debes escribir el identificador de la propiedad (ID).");
+				if(inputtext[0] <= 0) return SendMessage(playerid, "Esta casa no esta registrada en el sistema.");
 
-				new site_index = GetBuyPropertySiteIndexByIntTyp(ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE]);
-				if(site_index == -1)
-				{
-					PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-					return 1;
-				}
-				if(!IsPlayerInRangeOfPoint(playerid, 1.0, BUY_PROPERTIES_SITES[site_index][site_X], BUY_PROPERTIES_SITES[site_index][site_Y], BUY_PROPERTIES_SITES[site_index][site_Z]))
-				{
-					PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-					return 1;
-				}
-				if(PI[playerid][pBANK_ACCOUNT] == 0)
-				{
-					SendMessage(playerid, "No puedes comprar una casa sin tener cuenta bancaria.");
-					PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-					return 1;
-				}
-				if(sscanf(inputtext, "d", inputtext[0]))
-				{
-					SendMessage(playerid, "Debes escribir el identificador de la propiedad (ID).");
-					PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-					return 1;
-				}
-				if(inputtext[0] <= 0)
-				{
-					SendMessage(playerid, "Esta casa no esta registrada en el sistema.");
-					PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-					return 1;
-				}
-				
 				new player_properties = CountPlayerProperties(playerid);
 				if(PI[playerid][pVIP])
 				{
 					if(player_properties >= MAX_VIP_PROPERTIES)
 					{
 						SendMessage(playerid, "No puedes comprar más propiedades.");
-						PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 						return 1;
 					}
 				}
@@ -11211,7 +11007,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					{
 						SendClientMessagef(playerid, -1, "¡Los jugadores {"#GOLD_COLOR"}VIP{ffffff} pueden tener hasta %d propiedades! Usa {"#PURPLE_COLOR"}/ayuda{ffffff} si quieres ser {"#GOLD_COLOR"}VIP.", MAX_VIP_PROPERTIES);
 						SendMessage(playerid, "No puedes comprar más propiedades.");
-						PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 						return 1;
 					}
 				}
@@ -11220,7 +11015,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(index == -1)
 				{
 					SendMessagef(playerid, "Esta casa no esta registrada en el sistema.");
-					PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 				}
 				
 				if(PROPERTY_INFO[index][property_SOLD]) return SendMessage(playerid, "Está propiedad ya está vendida.");
@@ -11233,10 +11027,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					ShowDialog(playerid, DIALOG_CONFIRM_BUY_PROPERTY);
 				}
 				else SendMessagef(playerid, "te faltan %s dolares para poder comprar esta propiedad.", number_format_thousand(PROPERTY_INFO[index][property_PRICE] - PI[playerid][pBANK_MONEY]));
-			
-				PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 			}
-			else PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 		}
 		case DIALOG_BANK:
 		{
@@ -12549,8 +12340,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(inputtext[0] == playerid) return SendClientMessagef(playerid, -1, "¿Pero como te vas a vender algo a ti mismo?");
 				if(PlayerTemp[inputtext[0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "Error, el comprador no está disponible.");
 				
-				if(ENTER_EXIT[ PlayerTemp[inputtext[0]][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] != INTERIOR_CITY_HALL_LS) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
-				if(!IsPlayerInRangeOfPoint(inputtext[0], 3.0, 943.3202, -1464.3085, 2761.0164)) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
+				new Float:pos[3]; 
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(inputtext[0], 4.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
 				if(PI[inputtext[0]][pBANK_ACCOUNT] == 0) return SendClientMessagef(playerid, -1, "El comprador no tiene cuenta bancaria.");
 				
 				new player_properties = CountPlayerProperties(inputtext[0]);
@@ -12732,8 +12524,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(inputtext[0] == playerid) return SendClientMessagef(playerid, -1, "¿Pero como te vas a vender algo a ti mismo?");
 				if(PlayerTemp[inputtext[0]][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "Error, el comprador no está disponible.");
 				
-				if(PlayerTemp[inputtext[0]][pt_INTERIOR_INDEX] == -1 || ENTER_EXIT[ PlayerTemp[inputtext[0]][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] != INTERIOR_CITY_HALL_LS) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
-				if(!IsPlayerInRangeOfPoint(inputtext[0], 3.0, 943.3202, -1464.3085, 2761.0164)) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
+				new Float:pos[3]; 
+				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
+				if(!IsPlayerInRangeOfPoint(inputtext[0], 4.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El comprador no está en la sala.");
 				if(PI[inputtext[0]][pBANK_ACCOUNT] == 0) return SendClientMessagef(playerid, -1, "El comprador no tiene cuenta bancaria.");
 				
 				new pvehicles = CountPlayerVehicles(inputtext[0]);
@@ -19596,7 +19389,8 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 		case PICKUP_TYPE_BUY_PROPERTY:
 		{
 			PlayerTemp[playerid][pt_DIALOG_OPENED] = true;
-			ShowDialog(playerid, DIALOG_BUY_PROPERTY);
+			if(PI[playerid][pBANK_ACCOUNT] == 0) SendMessage(playerid, "No tienes cuenta bancaria."); 
+			else ShowDialog(playerid, DIALOG_BUY_PROPERTY);
 		}
 		case PICKUP_TYPE_PRODUCT_LIST:
 		{
@@ -20726,36 +20520,6 @@ CreateInteriorActor(interior_type, world, interior)
 	return mainActor;
 }
 
-GetBuyPropertySiteIndexByIntTyp(interior_type)
-{
-	for(new i = 0; i != sizeof BUY_PROPERTIES_SITES; i ++)
-	{
-		if(BUY_PROPERTIES_SITES[i][site_INTERIOR_TYPE] == interior_type) return i;
-	}
-	return -1;
-}
-
-/*GetBankLocalIndexByIntType(interior_type)
-{
-	for(new i = 0; i != sizeof Bank_Interior_Positions; i ++)
-	{
-		if(Bank_Interior_Positions[i][bank_INTERIOR_TYPE] == interior_type) return i;
-	}
-	return -1;
-}*/
-
-/*GetPlayerFastFoodIndex(playerid)
-{
-	for(new i = 0; i != sizeof Fast_Food_Positions; i ++)
-	{
-		if(IsPlayerInRangeOfPoint(playerid, 1.0, Fast_Food_Positions[i][fast_food_X], Fast_Food_Positions[i][fast_food_Y], Fast_Food_Positions[i][fast_food_Z]))
-		{
-			return i;
-		}
-	}
-	return -10;
-}*/
-
 GetClothingShopIndexByIntType(interior_type)
 {
 	for(new i = 0; i != sizeof Clothing_Shop_Positions; i ++)
@@ -20764,7 +20528,6 @@ GetClothingShopIndexByIntType(interior_type)
 	}
 	return -1;
 }
-
 
 ShowToysShopTextdraws(playerid)
 {
@@ -20802,7 +20565,6 @@ ClosePlayerToysMenu(playerid)
 	TogglePlayerControllableEx(playerid, true);
 	
 	HideToysShopTextdraws(playerid);
-	//PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] = 0;
 	PlayerTemp[playerid][pt_TOYS_SHOP] = false;
 	CancelSelectTextDrawEx(playerid);
 	return 1;
@@ -20831,7 +20593,6 @@ RegisterNewPlayerToy(playerid, slot)
 	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPlayerToyInserted);
 	return 1;
 }
-
 
 UpdateToysShop(playerid)
 {
@@ -25287,7 +25048,6 @@ LoadPlayerWeaponsData(playerid)
 SetPlayerHealthEx(playerid, Float:health)
 {
 	PI[playerid][pHEALTH] = health;
-	//SetPlayerHealth(playerid, PI[playerid][pHEALTH]);
 	UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
 	return 1;
 }
@@ -25298,7 +25058,6 @@ SetPlayerArmourEx(playerid, Float:armour)
 	
 	PI[playerid][pARMOUR] = armour;
 	SetPlayerArmour(playerid, PI[playerid][pARMOUR]);
-	//UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
 	return 1;
 }
 
@@ -25306,7 +25065,6 @@ GivePlayerHealthEx(playerid, Float:health)
 {
 	PI[playerid][pHEALTH] += health;
 	if(PI[playerid][pHEALTH] > 100.0) PI[playerid][pHEALTH] = 100.0;
-	//SetPlayerHealth(playerid, PI[playerid][pHEALTH]);
 	UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
 	return 1;
 }
@@ -25318,7 +25076,6 @@ GivePlayerArmourEx(playerid, Float:armour)
 	PI[playerid][pARMOUR] += armour;
 	if(PI[playerid][pARMOUR] > 100.0) PI[playerid][pARMOUR] = 100.0;
 	SetPlayerArmour(playerid, PI[playerid][pARMOUR]);
-	//UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
 	return 1;
 }
 
