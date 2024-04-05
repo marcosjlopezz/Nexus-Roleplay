@@ -46,6 +46,7 @@ AntiAmx()
 #include <discord-connector>
 #include <discord-cmd>
 #include <FakeOnline>
+#include <sampvoice>
 
 /* NOMBRES */
 #define SERVER_VERSION			"2.8 Alpha"
@@ -60,7 +61,7 @@ AntiAmx()
 #define SERVER_LANGUAGE			"Español - Spanish"
 #define SERVER_WEBSITE			"https://discord.gg/Zy4Sc2nhnd"
 #define	SERVER_DISCORD			"https://discord.gg/Zy4Sc2nhnd"
-#define SERVER_HOSTNAME 		"(ESP) • "SERVER_NAME"® • [Android/PC]"
+#define SERVER_HOSTNAME 		"(ESP) • "SERVER_NAME"® • "
 
 #define SERVER_COIN				"Yuan"
 
@@ -2890,7 +2891,10 @@ enum Temp_Enum
 	pt_TASER_TIMER,
 	pt_POLICE_SWAT,
 	Text3D:pt_PLAYER_NAMETAG,
-	bool:pt_PLAYER_DAMAGE
+	bool:pt_PLAYER_DAMAGE,
+	pt_VOICE_PLUGIN,
+	SV_BOOL:pt_VOICE_MICROPHONE,
+	SV_UINT:pt_LOCAL_CHANNEL
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -4093,11 +4097,6 @@ new ADMIN_LEVELS[][] =
 	"Comunity Manager"
 };
 
-public OnIncomingConnection(playerid, ip_address[], port)
-{
-	return 1;
-}
-
 public OnPlayerConnect(playerid)
 {
 	//if(IsPlayerNPC(playerid)) Kick(playerid);
@@ -4134,6 +4133,9 @@ public OnPlayerConnect(playerid)
 	pTemp(playerid)[pt_TASER_GUN] = false;
 	pTemp(playerid)[pt_TASSED] = -1;
 	pTemp(playerid)[pt_TASSED_TIME] = 0;
+	pTemp(playerid)[pt_VOICE_PLUGIN] = SvGetVersion(playerid);
+	pTemp(playerid)[pt_VOICE_MICROPHONE] = SvHasMicro(playerid);
+	pTemp(playerid)[pt_LOCAL_CHANNEL] = SV_NULL;
 	for(new i = 0; i != MAX_OBJECTS_PER_ROUTE; i ++) TRASH_PLAYER_OBJECTS[playerid][i] = INVALID_STREAMER_ID;
 	if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]))
 	{
@@ -4192,6 +4194,33 @@ public OnPlayerConnect(playerid)
 	return 1;
 }
 
+public SV_VOID:OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid)
+{
+	if(keyid == 0x5A && pTemp(playerid)[pt_LOCAL_CHANNEL]) SvAttachSpeakerToStream(pTemp(playerid)[pt_LOCAL_CHANNEL], playerid);
+	return 1;
+}
+
+public SV_VOID:OnPlayerActivationKeyRelease(SV_UINT:playerid, SV_UINT:keyid)
+{
+	if(keyid == 0x5A && pTemp(playerid)[pt_LOCAL_CHANNEL]) SvDetachSpeakerFromStream(pTemp(playerid)[pt_LOCAL_CHANNEL], playerid);
+	return 1;
+}
+
+stock CreatePlayerLocalVoice(playerid)
+{
+	if(pTemp(playerid)[pt_VOICE_PLUGIN] == 0) return SendMessage(playerid, "No se ha encontrado el plugin del chat de voz. /discord");
+	if(pTemp(playerid)[pt_VOICE_MICROPHONE] == SV_FALSE) return SendMessage(playerid, "No se ha encontrado un microfono activo.");
+
+	if((pTemp(playerid)[pt_LOCAL_CHANNEL] = SvCreateDLStreamAtPlayer(40.0, SV_INFINITY, playerid, 0xFFFFFFFF, "")))
+	{
+		if(IsPlayerUsingMobile(playerid)) SendClientMessage(playerid, PRIMARY_COLOR2, "[*] {ffffff}Manten presionado el boton {"#GOLD_COLOR"}Microfono{ffffff} para hablar por el chat de proximidad.");
+		else SendClientMessage(playerid, PRIMARY_COLOR2, "[*] {ffffff}Manten presionada la tecla {"#GOLD_COLOR"}B{ffffff} para hablar por el chat de proximidad.");
+	}
+
+	SvAddKey(playerid, 0x5A);
+	return 1;
+}
+
 stock ErrorCommandParams(playerid, const params[])
 {
 	return SendInfoMessagef(playerid, "Error~n~~n~Te faltan algunos parametros para poder ejecutar este comando.~n~~n~~r~%s~w~~n~~n~", params[0]);
@@ -4210,6 +4239,9 @@ public OnPlayerDisconnect(playerid, reason)
 		KillTimer(PlayerTemp[playerid][pt_LOGIN_KICK_TIMER]);
 		PlayerTemp[playerid][pt_LOGIN_KICK_TIMER] = -1;
 	}
+
+	SvDeleteStream(pTemp(playerid)[pt_LOCAL_CHANNEL]);
+	pTemp(playerid)[pt_LOCAL_CHANNEL] = SV_NULL;
 
 	if(playerid, PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE)
 	{
@@ -4454,6 +4486,7 @@ public OnPlayerSpawn(playerid)
 
 		SetPlayerNametagInfo(playerid, false);
 		TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
+		CreatePlayerLocalVoice(playerid);
 
 		if(IsPlayerInSafeZone(playerid)) TextDrawShowForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
 
@@ -5081,11 +5114,22 @@ public OnPlayerRequestSpawn(playerid) // Intentar 'spawnear' mediante la selecci
     return 0;
 }
 
+new HostNameCount = 0;
+callbackp:UpdateRandomHostName()
+{
+	if(HostNameCount == 0) SendRconCommand("hostname "SERVER_HOSTNAME"[Android/PC]");
+	else if(HostNameCount == 1) SendRconCommand("hostname "SERVER_HOSTNAME"Chat de Voz");
+
+	HostNameCount ++;
+	if(HostNameCount >= 1) HostNameCount = 0;
+	return 1;
+}
+
 public OnGameModeInit()
 {
 	AntiAmx();
 	SetGameModeText(SERVER_GAMEMODE);
-    SendRconCommand("hostname "SERVER_HOSTNAME"");
+    SendRconCommand("hostname "SERVER_HOSTNAME"[Android/PC]");
     SendRconCommand("language "SERVER_LANGUAGE"");
 	SendRconCommand("weburl "SERVER_WEBSITE"");
 	SendRconCommand("mapname "SERVER_WEBSITE"");
@@ -5128,6 +5172,8 @@ public OnGameModeInit()
 	FormatDialogStrings();
 	UsePlayerPedAnims();
 	MapAndreas_Init(MAP_ANDREAS_MODE_FULL);
+
+	SetTimer("UpdateRandomHostName", minutes(5), false);
 
 	FO_SetMode(FO_RELATIVE);
 	FO_SetValue((2 + random(3)));
