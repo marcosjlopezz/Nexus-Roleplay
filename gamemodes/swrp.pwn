@@ -12,9 +12,9 @@ AntiAmx()
 }
 
 #define MYSQL_HOST "23.167.232.40"
-#define MYSQL_USER "u13_v0t8hXdvbj"
+#define MYSQL_USER "u13_33qWkls4Px"
 #define MYSQL_DB "s13_swrp_db"
-#define MYSQL_PASS "3P6svgi+O1dqqq@K8guboeuz"
+#define MYSQL_PASS "eU4=8wmwyO^Knz+stv=8ggbk"
 
 /*#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
@@ -46,10 +46,10 @@ AntiAmx()
 #include <discord-connector>
 #include <discord-cmd>
 #include <FakeOnline>
-#include <sampvoice>
+//#include <sampvoice>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.8 Alpha"
+#define SERVER_VERSION			"2.8.3 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -317,7 +317,7 @@ new ELEVATOR_INFO[][e_ELEVATOR_INFO] =
 
 new Float:POLICE_VEHICLES_SPAWN[][] =
 {
-	{1530.0613, -1677.4598, 5.8906, 89.6164}, // ls
+	{1652.0131, -1618.4984, 6.2887, 182.7377}, // ls
 	{-1606.6038, 677.0859, -5.2422, 179.2077}, // sf
 	{2243.2258, 2434.3228, 3.2734, 126.7643} // lv
 };
@@ -1173,7 +1173,7 @@ new San_Andreas_Barriers[][San_Andreas_Barriers_Info] = // usar VEHICLE_TYPE_NON
 	{VEHICLE_TYPE_NONE, WORK_NONE, WORK_NONE, -495.0410, -562.1307, 24.4932, 180.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,				0.0, 0.0, 0.0}, // barrera camioneros TRUCK
 
 	{VEHICLE_TYPE_NONE, WORK_NONE, WORK_NONE, -82.1645, -1123.0260, 0.0373, 67.1102, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,				0.0, 0.0, 0.0}, // grua
-	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, 1544.69629, -1630.79651, 12.31840, -90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,		0.0, 0.0, 0.0}, // barrera POLICIA LS
+	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, 1540.23718, -1625.16516, 12.37620, 90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,		0.0, 0.0, 0.0}, // barrera POLICIA LS
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, 2238.19897, 2450.41797, 9.80680, -90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0}, // barrera POLICIA LV
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, -1572.20313, 658.83588, 6.07810, -90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0}, // barrera POLICIA SF 1
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, -1701.42969, 687.59381, 23.88280, 90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0}, // barrera POLICIA SF 2
@@ -2248,10 +2248,10 @@ enum enum_POLICE_GARAGE_DOORS
 }
 new POLICE_GARAGE_DOORS[][enum_POLICE_GARAGE_DOORS] =
 {
-	{3055, 1588.48853, -1637.85852, 14.57500, 0.0, 0.0, 0.0, 1588.48853, -1637.85852, 16.45880, 90.0, 0.0, 0.0, 1.3, false, INVALID_STREAMER_ID, -1},
-	{3055, 2294.04102, 2498.81396, 4.47113,   0.00000, 0.00000, 90.00000, 2294.0410, 2498.8140, 9.0059, 0.0, 0.0, 90.0, 1.6, false, INVALID_STREAMER_ID, -1},
-	{3055, 2335.13086, 2443.66895, 6.97370,   0.00000, 0.00000, 60.00000, 2335.1309, 2443.6689, 11.6876, 0.0, 0.0, 60.0, 1.6, false, INVALID_STREAMER_ID, -1},
-	{10184, -1631.69556, 688.56641, 8.70960,   0.00000, 0.00000, 90.00000, -1631.6956, 688.5664, 13.2064, 0.0, 0.0, 90.0, 1.6, false, INVALID_STREAMER_ID, -1}
+	{3055, 1599.427734, -1627.953002, 6.653874, 0.000000, 0.000000, 268.900100, 	1599.427734, -1627.953002, 2.383876, 0.000000, 0.000000, 268.900100, 	1.2, false, INVALID_STREAMER_ID, -1},
+	{3055, 2294.04102, 2498.81396, 4.47113, 0.00000, 0.00000, 90.00000, 			2294.0410, 2498.8140, 9.0059, 0.0, 0.0, 90.0, 							1.6, false, INVALID_STREAMER_ID, -1},
+	{3055, 2335.13086, 2443.66895, 6.97370, 0.00000, 0.00000, 60.00000, 			2335.1309, 2443.6689, 11.6876, 0.0, 0.0, 60.0, 							1.6, false, INVALID_STREAMER_ID, -1},
+	{10184, -1631.69556, 688.56641, 8.70960, 0.00000, 0.00000, 90.00000, 			-1631.6956, 688.5664, 13.2064, 0.0, 0.0, 90.0, 							1.6, false, INVALID_STREAMER_ID, -1}
 };
 
 enum enum_POLICE_DOORS
@@ -2892,9 +2892,9 @@ enum Temp_Enum
 	pt_POLICE_SWAT,
 	Text3D:pt_PLAYER_NAMETAG,
 	bool:pt_PLAYER_DAMAGE,
-	pt_VOICE_PLUGIN,
+	/*pt_VOICE_PLUGIN,
 	SV_BOOL:pt_VOICE_MICROPHONE,
-	SV_UINT:pt_LOCAL_CHANNEL
+	SV_UINT:pt_LOCAL_CHANNEL*/
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3055,14 +3055,14 @@ new ENTER_EXIT[][Enter_Exits] = // EE = EnterExits
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Banco Los Santos", INTERIOR_BANK_LS, -1, true, 5, 5, 1412.077880, 1315.779907, 1501.087890, 90.0,	52, false, 0, 0, 1461.9930, -1021.3185, 24.0042, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Banco San Fierro", INTERIOR_BANK_SF, -1, true, 10, 10, 1104.824462, 1515.503173, 1452.807128, 0.0, 52, false, 0, 0, -1961.384887, 441.804687, 35.171875, 90.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Banco Las Venturas", INTERIOR_BANK_LV, -1, true, 15, 15, 2673.430908, -610.844604, -71.658203, 270.0, 52, false, 0, 0, 2474.557861, 1024.154052, 10.820312, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{1000, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Gobierno San Andreas", INTERIOR_CITY_HALL_LS, -1, true, 1, 1, 920.2025, -1474.7396, 2754.3318, 0.0, 3, false, 0, 0, 1480.966918, -1772.065673, 18.795755, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Gobierno San Andreas", INTERIOR_CITY_HALL_LS, -1, true, 1, 1, 920.2025, -1474.7396, 2754.3318, 0.0, 3, false, 0, 0, 1480.966918, -1772.065673, 18.795755, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Unity Station", INTERIOR_UNITY_STATION, -1, false, 0, 3, 1494.416015, 1303.681884, 1093.289062, 0.0, -1, false, 0, 0, 1752.603881, -1894.155883, 13.557376, 270.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Camioneros", INTERIOR_TRUCK, -1, true, 25, 18, 1297.457031, -61.437820, 1002.498046, 180.0, -1, false, 0, 0, -510.699890, -539.409118, 25.523437, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_LS, -1, false, 0, 6, 246.827011, 62.424068, 1003.640625, 0.0, 30, false, 0, 0, 1555.400390, -1675.611694, 16.195312, 90.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_LS, -1, false, 0, 6, 246.827011, 62.424068, 1003.640625, 0.0, 30, false, 0, 0, 1549.1693, -1674.8617, 16.3154, 89.4187, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía San Fierro", INTERIOR_POLICE_SF, -1, false, 0, 10, 246.425857, 107.400123, 1003.218750, 0.0, 30, false, 0, 0, -1605.511840, 710.382507, 13.867187, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Las Venturas", INTERIOR_POLICE_LV, -1, false, 0, 3, 238.758178, 138.726867, 1003.023437, 0.0, 30, false, 0, 0, 2287.059082, 2432.260742, 10.820312, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Club Alhambra", INTERIOR_ALHAMBRA, -1, false, 0, 17, 493.487731, -24.662528, 1000.679687, 0.0, 48, false, 0, 0, 1836.876586, -1682.407104, 13.329626, 90.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_GARAGE, -1, false, 0, 6, 246.407897, 87.903236, 1003.640625, 180.0, -1, false, 0, 0, 1568.651977, -1690.080688, 6.218750, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_GARAGE, -1, false, 0, 6, 246.407897, 87.903236, 1003.640625, 180.0, -1, false, 0, 0, 1664.8936, -1643.7853, 6.6169, 88.2415, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía San Fierro", INTERIOR_POLICE_GARAGE, -1, false, 0, 10, 278.369232, 117.561325, 1004.617187, 90.0, -1, false, 0, 0, -1594.110107, 716.163024, -4.906250, 270.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Las Venturas", INTERIOR_POLICE_GARAGE, -1, false, 0, 3, 231.671142, 181.048477, 1003.031250, 90.0, -1, false, 0, 0, 2282.221923, 2423.218505, 3.476562, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Hospital", INTERIOR_HOSPITAL, -1, false, 1, 3, -2029.700683, -119.617759, 1035.171875, 0.0, 22, false, 0, 0,	2034.197875, -1403.040039, 17.294845, 180.0	, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
@@ -4133,9 +4133,9 @@ public OnPlayerConnect(playerid)
 	pTemp(playerid)[pt_TASER_GUN] = false;
 	pTemp(playerid)[pt_TASSED] = -1;
 	pTemp(playerid)[pt_TASSED_TIME] = 0;
-	pTemp(playerid)[pt_VOICE_PLUGIN] = SvGetVersion(playerid);
-	pTemp(playerid)[pt_VOICE_MICROPHONE] = SvHasMicro(playerid);
-	pTemp(playerid)[pt_LOCAL_CHANNEL] = SV_NULL;
+	/*pTemp(playerid)[pt_VOICE_PLUGIN] = SvGetVersion(playerid);
+	pTemp(playerid)[pt_VOICE_MICROPHONE] = SvHasMicro(playerid);*/
+	//pTemp(playerid)[pt_LOCAL_CHANNEL] = SV_NULL;
 	for(new i = 0; i != MAX_OBJECTS_PER_ROUTE; i ++) TRASH_PLAYER_OBJECTS[playerid][i] = INVALID_STREAMER_ID;
 	if(IsValidDynamic3DTextLabel(PlayerTemp[playerid][pt_PLAYER_NAMETAG]))
 	{
@@ -4194,7 +4194,7 @@ public OnPlayerConnect(playerid)
 	return 1;
 }
 
-public SV_VOID:OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid)
+/*public SV_VOID:OnPlayerActivationKeyPress(SV_UINT:playerid, SV_UINT:keyid)
 {
 	if(keyid == 0x5A && pTemp(playerid)[pt_LOCAL_CHANNEL]) SvAttachSpeakerToStream(pTemp(playerid)[pt_LOCAL_CHANNEL], playerid);
 	return 1;
@@ -4214,12 +4214,12 @@ stock CreatePlayerLocalVoice(playerid)
 	if((pTemp(playerid)[pt_LOCAL_CHANNEL] = SvCreateDLStreamAtPlayer(40.0, SV_INFINITY, playerid, 0xFFFFFFFF, "")))
 	{
 		if(IsPlayerUsingMobile(playerid)) SendClientMessage(playerid, PRIMARY_COLOR2, "[*] {ffffff}Manten presionado el boton {"#GOLD_COLOR"}Microfono{ffffff} para hablar por el chat de proximidad.");
-		else SendClientMessage(playerid, PRIMARY_COLOR2, "[*] {ffffff}Manten presionada la tecla {"#GOLD_COLOR"}B{ffffff} para hablar por el chat de proximidad.");
+		else SendClientMessage(playerid, PRIMARY_COLOR2, "[*] {ffffff}Manten presionada la tecla {"#GOLD_COLOR"}Z{ffffff} para hablar por el chat de proximidad.");
 	}
 
 	SvAddKey(playerid, 0x5A);
 	return 1;
-}
+}*/
 
 stock ErrorCommandParams(playerid, const params[])
 {
@@ -4240,8 +4240,8 @@ public OnPlayerDisconnect(playerid, reason)
 		PlayerTemp[playerid][pt_LOGIN_KICK_TIMER] = -1;
 	}
 
-	SvDeleteStream(pTemp(playerid)[pt_LOCAL_CHANNEL]);
-	pTemp(playerid)[pt_LOCAL_CHANNEL] = SV_NULL;
+	/*SvDeleteStream(pTemp(playerid)[pt_LOCAL_CHANNEL]);
+	pTemp(playerid)[pt_LOCAL_CHANNEL] = SV_NULL;*/
 
 	if(playerid, PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE)
 	{
@@ -4486,7 +4486,7 @@ public OnPlayerSpawn(playerid)
 
 		SetPlayerNametagInfo(playerid, false);
 		TextDrawShowForPlayer(playerid, Textdraws[textdraw_SERVER_MARK]);
-		CreatePlayerLocalVoice(playerid);
+		//CreatePlayerLocalVoice(playerid);
 
 		if(IsPlayerInSafeZone(playerid)) TextDrawShowForPlayer(playerid, Textdraws[textdraw_SAFE_ZONE]);
 
@@ -4763,7 +4763,7 @@ callbackp:OnPlayerSWDeath(playerid, killerid, reason)
 		}
 	}
 
-	DropHandWeapon(playerid);
+	DropAllPlayerWeapons(playerid);
 	
 	if(PlayerTemp[playerid][pt_SELECT_TEXTDRAW])
 	{
@@ -6206,7 +6206,7 @@ stock SetPlayerNametagInfo(playerid, bool:update)
 	return 1;
 }
 
-ptask UpdatePlayerInfo[250](playerid)
+ptask UpdatePlayerInfo[500](playerid)
 {
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
@@ -25127,7 +25127,9 @@ GivePlayerArmourEx(playerid, Float:armour)
 
 stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 {
-	SetPlayerHealth(playerid, 999999999.9);
+	new Float:sa_health;
+	GetPlayerHealth(playerid, sa_health);
+	if(sa_health < 999999999.8) SetPlayerHealth(playerid, 999999999.9);
 
 	if(PI[playerid][pHEALTH] <= 0.1)
 	{

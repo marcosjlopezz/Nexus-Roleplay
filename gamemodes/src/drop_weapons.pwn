@@ -83,6 +83,17 @@ stock DropWeapon(playerid, slot)
     }   
 }
 
+stock DropAllPlayerWeapons(playerid)
+{
+    for(new i = 0; i != sizeof PLAYER_WEAPONS[]; i ++)
+	{
+		if(PLAYER_WEAPONS[playerid][i][player_weapon_ID] != 0)
+        {
+            DropWeapon(playerid, i);
+        }
+    }
+}
+
 hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys) 
 {
     if(newkeys &  KEY_CROUCH)
