@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-#define MYSQL_HOST "23.167.232.40"
+/*#define MYSQL_HOST "23.167.232.40"
 #define MYSQL_USER "u13_33qWkls4Px"
 #define MYSQL_DB "s13_swrp_db"
-#define MYSQL_PASS "eU4=8wmwyO^Knz+stv=8ggbk"
+#define MYSQL_PASS "eU4=8wmwyO^Knz+stv=8ggbk"*/
 
-/*#define MYSQL_HOST "localhost"
+#define MYSQL_HOST "localhost"
 #define MYSQL_USER "root"
 #define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""*/
+#define MYSQL_PASS ""
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -49,7 +49,7 @@ AntiAmx()
 //#include <sampvoice>
 
 /* NOMBRES */
-#define SERVER_VERSION			"2.8.3 Alpha"
+#define SERVER_VERSION			"3.0 Alpha"
 
 #define SERVER_NAME				"SampWorld Roleplay"
 #define SERVER_SHORT_NAME		"SampWorld"
@@ -61,7 +61,7 @@ AntiAmx()
 #define SERVER_LANGUAGE			"Español - Spanish"
 #define SERVER_WEBSITE			"https://discord.gg/Zy4Sc2nhnd"
 #define	SERVER_DISCORD			"https://discord.gg/Zy4Sc2nhnd"
-#define SERVER_HOSTNAME 		"(ESP) • "SERVER_NAME"® • "
+#define SERVER_HOSTNAME 		"(ESP) • "SERVER_NAME"® • [Android/PC]"
 
 #define SERVER_COIN				"Yuan"
 
@@ -121,12 +121,10 @@ AntiAmx()
 #define MAX_NU_VEHICLES			2
 #define MAX_NU_PROPERTIES		1 
 #define MAX_NU_WORKS			1
-#define MAX_NU_TOYS				3
 
 #define MAX_VIP_VEHICLES  		4
 #define MAX_VIP_PROPERTIES 		3
 #define MAX_VIP_WORKS			3
-#define MAX_VIP_TOYS			6
 
 #define HidePlayerDialog(%1)	ShowPlayerDialog(%1, -1, 0, " ", " ", " ", " ")
 #define callbackp:%0(%1) 		forward %0(%1); public %0(%1)
@@ -365,15 +363,6 @@ enum
 	DIALOG_FOOD_PIZZA,
 	DIALOG_FOOD_CLUCKIN,
 	DIALOG_FOOD_BURGER,
-	DIALOG_PLAYER_TOYS,
-	DIALOG_PLAYER_TOY_MENU,
-	DIALOG_PLAYER_TOY_EDIT_NAME,
-	DIALOG_PLAYER_TOY_CONFIRMDELETE,
-	DIALOG_PLAYER_TOY_EDIT_BONE,
-	DIALOG_PLAYER_TOY_SELECT_BONE,
-	DIALOG_PLAYER_TOY_COLOR_1,
-	DIALOG_PLAYER_TOY_COLOR_2,
-	DIALOG_PLAYER_TOY_DELETE_ALL,
 	DIALOG_BUY_PROPERTY,
 	DIALOG_BANK,
 	DIALOG_BANK_WITHDRAW,
@@ -452,16 +441,7 @@ enum
 	DIALOG_SEED_LIST,
 	DIALOG_SEED_BUY,
 	DIALOG_PLANT_PLANTS,
-	DIALOG_PLAYER_WEAPONS,
-	DIALOG_PLAYER_WEAPONS_OPTIONS,
-	DIALOG_PLAYER_WEAPONS_DELETE_A,
 	DIALOG_ANIMS,
-	DIALOG_TRICKS_FOOD,
-	DIALOG_TRICKS_MEDICINE,
-	DIALOG_TRICKS_CANNABIS,
-	DIALOG_TRICKS_CRACK,
-	DIALOG_TRICKS_COINS,
-	DIALOG_TRICKS_WEAPON,
 	DIALOG_VEHICLE_BOOT,
 	DIALOG_VEHICLE_BOOT_DELETE_ALL,
 	DIALOG_VEHICLE_BOOT_OPTIONS,
@@ -548,15 +528,6 @@ enum
 	DIALOG_FUEL_STATION,
 	DIALOG_FUEL,
 	DIALOG_FUEL_DRUM_CONFIRM,
-	DIALOG_INVENTORY,
-	DIALOG_PLAYER_POCKET,
-	DIALOG_PLAYER_POCKET_OPTIONS,
-	DIALOG_PLAYER_POCKET_DELETE_ALL,
-	DIALOG_PLAYER_POCKETS,
-	DIALOG_PLAYER_POCKETS_OPTION,
-	DIALOG_POCKETS_OPTION,
-	DIALOG_POCKETS_EXTRA,
-	DIALOG_POCKETS_EXTRA_SELL,
 	DIALOG_PHARMACY,
 	DIALOG_PHARMACY_BUY_MEDICINE,
 	DIALOG_PHARMACY_MEDICINE_BUY,
@@ -2134,10 +2105,11 @@ new SAFE_ZONES[][enum_SAFE_ZONES] =
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 493.5, -1325.5, 620.5, -1237.5, 0, 0}, //Conce Grotti
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -2003.5, 219.5, -1877.5, 311.5, 0, 0}, //Conce Wang Cars
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -1701.5, 625.5, -1564.5, 725.5, 0, 0}, //Policia SF
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -1709.5, 936.5, -1562.5, 1008.5, 0, 0}, //Conce Cara
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -1705.5, 1194.5, -1627.5, 1237.5, 0, 0}, //Conce Cara
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -664.5, -231.5, -346.5, 46.5, 0, 0}, //Talador
 	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, -342.5, 1000.5, -282.5, 1067.5, 0, 0}, //HP BlueBerry
-	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 2235.5, 2418.5, 2361.5, 2506.5, 0, 0} //Policia LV
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 2235.5, 2418.5, 2361.5, 2506.5, 0, 0}, //Policia LV
+	{INVALID_STREAMER_ID, INVALID_STREAMER_ID, 1998.5, -1451.5, 2103.5, -1349.5, 0, 0} //HP Glen Park
 };
 
 /* Rangos Policias */
@@ -2709,9 +2681,6 @@ enum Temp_Enum
 	bool:pt_HUD_TEXTDRAWS, // Barra de hambre y sed
 	bool:pt_THIRST_MESSAGE,
 	bool:pt_HUNGRY_MESSAGE,
-	bool:pt_TOYS_SHOP,
-	pt_TOYS_SHOP_TOY_SELECTED,
-	pt_SELECTED_TOY_SLOT,
 	pt_SELECT_BANK_TRANSFER_ACCOUNT,
 	pt_SELECT_BANK_TRANSFER_ID,
 	bool:pt_PLAYER_IN_ATM,
@@ -2870,16 +2839,6 @@ enum Temp_Enum
 	bool:pt_DIALOG_OPENED,
 	pt_LAST_PICKUP_CHECKED,
 	pt_GLOBAL_TIMER,
-	pt_INVENTORY_SELECTED_PLAYER,
-	pt_INVENTORY_PLAYERID,
-	pt_POCKET_SLOT_SELECTED,
-	pt_INVENTORY_POCKET_TYPE,
-	pt_INVENTORY_POCKET_OPTION,
-	pt_INVENTORY_POCKET_EXTRA_0,
-	pt_INVENTORY_POCKET_EXTRA_1,
-	pt_INVENTORY_POCKET_EXTRA_2,
-	Float:pt_INVENTORY_POCKET_EXTRA_3,
-	Float:pt_INVENTORY_POCKET_EXTRA_4,
 	pt_ELEVATOR_INDEX,
 	pt_ELEVATOR_OPTION,
 	pt_GIVECASHALL_TIME,
@@ -3278,230 +3237,6 @@ new CLUCKIN_BELL_FOOD[][Food_Info] =
 	{"Agua mineral", 30, 0.0, 19.0}
 };
 
-enum Player_Toys_Info
-{
-	player_toy_VALID,
-	
-	player_toy_ID,
-	player_toy_NAME[24],
-	player_toy_ATTACHED,
-	player_toy_MODELID,
-	player_toy_BONE,
-	Float:player_toy_OFFSET_X,
-	Float:player_toy_OFFSET_Y,
-	Float:player_toy_OFFSET_Z,
-	Float:player_toy_ROT_X,
-	Float:player_toy_ROT_Y,
-	Float:player_toy_ROT_Z,
-	Float:player_toy_SCALE_X,
-	Float:player_toy_SCALE_Y,
-	Float:player_toy_SCALE_Z,
-	player_toy_COLOR_1,
-	player_toy_COLOR_2,
-}
-new PLAYER_TOYS[MAX_PLAYERS][MAX_VIP_TOYS][Player_Toys_Info]; //PTOYS = PlayerToys
-
-new Toys_Bones[][24] = 
-{
-	{"Espalda"},
-	{"Cabeza"},
-	{"Brazo izquierdo"},
-	{"Brazo derecho"},
-	{"Mano izquierda"},
-	{"Mano derecha"},
-	{"Muslo izquierdo"},
-	{"Muslo derecho"},
-	{"Pie izquierdo"},
-	{"Pie derecho"},
-	{"Pantorrilla derecha"},
-	{"Pantorrilla izquierda"},
-	{"Antebrazo izquierdo"},
-	{"Antebrazo derecho"},
-	{"Hombro izquierdo"},
-	{"Hombro derecho"},
-	{"Cuello"},
-	{"Boca"}
-};
-
-enum Toys_Info
-{
-	shop_toy_model[24],
-	shop_toy_modelid,
-	shop_toy_price_base,
-	shop_toy_price,
-}
-new Toys_Shop[][Toys_Info] =
-{
-	{"motorcyclehelmet2", 18976, 2000, 0},
-	{"motorcyclehelmet3", 18977, 500, 0},
-	{"motorcyclehelmet4", 18978, 500, 0},
-	{"motorcyclehelmet5", 18979, 500, 0},
-	{"sillyhelmet2", 19114, 100, 0},
-	{"sillyhelmet3", 19115, 200, 0},
-	{"plainhelmet1", 19116, 75, 0},
-	{"plainhelmet2", 19117, 75, 0},
-	{"plainhelmet3", 19118, 75, 0},
-	{"plainhelmet4", 19119, 75, 0},
-	{"plainhelmet5", 19120, 75, 0},
-	{"glassestype1", 19006, 2000, 0},
-	{"glassestype2", 19007, 2000, 0},
-	{"glassestype3", 19008, 2000, 0},
-	{"glassestype4", 19009, 2000, 0},
-	{"glassestype5", 19010, 2000, 0},
-	{"glassestype6", 19011, 2000, 0},
-	{"glassestype7", 19012, 2000, 0},
-	{"glassestype8", 19013, 2000, 0},
-	{"glassestype9", 19014, 2000, 0},
-	{"glassestype10", 19015, 2000, 0},
-	{"glassestype11", 19016, 2000, 0},
-	{"glassestype12", 19017, 2000, 0},
-	{"glassestype13", 19018, 2000, 0},
-	{"glassestype14", 19019, 2000, 0},
-	{"glassestype15", 19020, 2000, 0},
-	{"glassestype16", 19021, 2000, 0},
-	{"glassestype17", 19022, 2000, 0},
-	{"glassestype18", 19023, 2000, 0},
-	{"glassestype19", 19024, 2000, 0},
-	{"glassestype20", 19025, 2000, 0},
-	{"glassestype21", 19026, 2000, 0},
-	{"glassestype22", 19027, 2000, 0},
-	{"glassestype23", 19028, 2000, 0},
-	{"glassestype24", 19029, 2000, 0},
-	{"glassestype25", 19030, 2000, 0},
-	{"glassestype26", 19031, 2000, 0},
-	{"glassestype27", 19032, 2000, 0},
-	{"glassestype28", 19033, 2000, 0},
-	{"glassestype29", 19034, 2000, 0},
-	{"glassestype30", 19035, 2000, 0},
-	{"policeglasses1", 19138, 2300, 0},
-	{"policeglasses2", 19139, 2300, 0},
-	{"policeglasses3", 19140, 2300, 0},
-	{"bandana1", 18891, 600, 0},	
-	{"bandana2", 18892, 600, 0},
-	{"bandana3", 18893, 600, 0},
-	{"bandana4", 18894, 600, 0},
-	{"bandana5", 18895, 600, 0},
-	{"bandana6", 18896, 600, 0},
-	{"bandana7", 18897, 600, 0},
-	{"bandana8", 18898, 600, 0},
-	{"bandana9", 18899, 600, 0},
-	{"bandana10", 18900, 600, 0},
-	{"bandana11", 18901, 600, 0},
-	{"bandana12", 18902, 600, 0},
-	{"bandana13", 18903, 600, 0},
-	{"bandana14", 18904, 600, 0},
-	{"bandana15", 18905, 600, 0},
-	{"bandana16", 18906, 600, 0},
-	{"bandana17", 18907, 600, 0},
-	{"bandana18", 18908, 600, 0},
-	{"bandana19", 18909, 600, 0},
-	{"bandana20", 18910, 600, 0},
-	{"mask1", 18911, 500, 0},
-	{"mask2", 18912, 500, 0},
-	{"mask3", 18913, 500, 0},
-	{"mask4", 18914, 500, 0},
-	{"mask5", 18915, 500, 0},
-	{"mask6", 18916, 500, 0},
-	{"mask7", 18917, 500, 0},
-	{"mask8", 18918, 500, 0},
-	{"mask9", 18919, 500, 0},
-	{"mask10", 18920, 500, 0},
-	{"watchtype1", 19039, 3000, 0},
-	{"watchtype2", 19040, 3000, 0},
-	{"watchtype3", 19041, 3000, 0},
-	{"watchtype4", 19042, 3000, 0},
-	{"watchtype5", 19043, 3000, 0},
-	{"watchtype6", 19044, 3000, 0},
-	{"watchtype7", 19045, 3000, 0},
-	{"watchtype8", 19046, 3000, 0},
-	{"watchtype9", 19047, 3000, 0},
-	{"watchtype10", 19048, 3000, 0},
-	{"watchtype11", 19049, 3000, 0},
-	{"watchtype12", 19050, 3000, 0},
-	{"watchtype13", 19051, 3000, 0},
-	{"watchtype14", 19052, 3000, 0},
-	{"watchtype15", 19053, 3000, 0},
-	{"beret1", 18921, 1150, 0},
-	{"beret2", 18922, 1150, 0},
-	{"beret3", 18923, 1150, 0},
-	{"beret4", 18924, 1150, 0},
-	{"beret5", 18925, 1150, 0},
-	{"cj_tommy_hat", 2052, 200, 0},
-	{"cj_jerry_hat", 2053, 200, 0},
-	{"cj_capt_hat", 2054, 2000, 0},
-	{"hardhat1", 18638, 300, 0},
-	{"hardhat2", 19093, 450, 0},
-	{"hardhat3", 19160, 450, 0},
-	{"blackhat1", 18639, 600, 0},
-	{"hat1", 18926, 650, 0},
-	{"hat2", 18927, 650, 0},
-	{"hat3", 18928, 650, 0},
-	{"hat4", 18929, 650, 0},
-	{"hat5", 18930, 650, 0},
-	{"hat6", 18931, 650, 0},
-	{"hat7", 18932, 650, 0},
-	{"hat8", 18933, 650, 0},
-	{"hat9", 18934, 650, 0},
-	{"hat10", 18935, 650, 0},
-	{"hatboater1", 18944, 800, 0},
-	{"hatboater2", 18945, 800, 0},
-	{"hatboater3", 18946, 800, 0},
-	{"hatbowler1", 18947, 1200, 0},
-	{"hatbowler2", 18948, 1200, 0},
-	{"hatbowler3", 18949, 1200, 0},
-	{"hatbowler4", 18950, 1200, 0},
-	{"hatbowler5", 18951, 1200, 0},
-	{"hatbowler6", 19488, 1200, 0},
-	{"cowboyhat1", 19095, 1150, 0},
-	{"cowboyhat2", 18962, 1150, 0},
-	{"cowboyhat3", 19096, 1150, 0},
-	{"cowboyhat4", 19097, 1150, 0},
-	{"cowboyhat5", 19098, 1150, 0},
-	{"hatman1", 18967, 650, 0},
-	{"hatman2", 18968, 650, 0},
-	{"hatman3", 18969, 650, 0},
-	{"hatman3", 18969, 650, 0},
-	{"hattiger1", 18970, 1500, 0},
-	{"hatcool1", 18971, 1500, 0},
-	{"hatcool2", 18972, 1500, 0},
-	{"hatcool3", 18973, 1500, 0},
-	{"santahat1", 19064, 100, 0},
-	{"santahat2", 19065, 100, 0},
-	{"santahat3", 19066, 100, 0},
-	{"hoodyhat1", 19067, 500, 0},
-	{"hoodyhat2", 19068, 500, 0},
-	{"hoodyhat3", 19069, 500, 0},
-	{"policehat1", 19161, 2500, 0},
-	{"policehat2", 19162, 2500, 0},
-	{"tophat01", 19352, 700, 0},
-	{"tophat02", 19487, 700, 0},
-	{"pilothat01", 19520, 3000, 0},
-	{"policehat01", 19521, 3000, 0},
-	{"witcheshat1", 19528, 150, 0},
-	{"strawhat1", 19553, 450, 0},
-	{"pizzahat1", 19558, 100, 0},
-	{"hikerbackpack1", 19559, 600, 0},
-	{"hair1", 19517, 1000, 0},
-    {"hair2", 19516, 1000, 0},
-    {"hair3", 19077, 1000, 0},
-    {"hair4", 18975, 1000, 0},
-    {"cluckinbellhat", 19137, 2500, 0},
-    {"firehat01", 19330, 3000, 0},
-    {"firehat02", 19331, 3000, 0},
-    {"burgershothat1", 19094, 2000, 0},
-    {"captruker1", 18961, 1000, 0},
-    {"bassguitar01", 19317, 2100, 0},
-    {"bassguitar02", 19318, 2100, 0},
-    {"boxinghelmet01", 18952, 1500, 0},
-    {"hockeymas1", 19036, 1700, 0},
-    {"theparrot1", 19078, 7500, 0},
-    {"armour", 19515, 7000, 0},
-    {"bdupsmask1", 11704, 3500, 0},
-    {"glimpmask1", 19163, 2500, 0},
-    {"headphones02", 19422, 1500, 0},
-    {"parachute", 371, 2200, 0}
-};
-
 new 
 Binco_Shop_Male_Skins[][] =  
 {
@@ -3826,7 +3561,6 @@ new Hospital_Spawn_Positions[][E_HOSPITAL_SPAWN_INFO] =
 enum Player_Textdraws_Enum
 {
 	PlayerText:ptextdraw_CLOTHING_SHOP[6],
-	PlayerText:ptextdraw_TOYS_SHOP[10],
 	PlayerText:ptextdraw_PROPERTY_CONSTRUCTOR[6],
 	PlayerText:ptextdraw_TRUCK_LOAD[4],
 	PlayerText:ptextdraw_RECYCLE_TRASH[3],
@@ -3941,18 +3675,6 @@ new PI[MAX_PLAYERS][enum_PI];
 
 forward OnPlayerRegister(playerid);
 forward OnPlayerLogin(playerid);
-
-#define MAX_PLAYER_POCKET_OBJECTS 10
-enum Player_Pocket_Enum
-{
-	bool:player_pocket_VALID,
-	player_pocket_object_ID,
-	player_pocket_object_NAME[24],
-	Float:player_pocket_object_HUNGRY,
-	Float:player_pocket_object_THIRST,
-	player_pocket_object_DRUNK,
-}
-new PLAYER_POCKET[MAX_PLAYERS][MAX_PLAYER_POCKET_OBJECTS][Player_Pocket_Enum]; // PP (PlayerPocket)
 
 new 
 	DIALOG_FOOD_PIZZA_String[800],
@@ -4309,7 +4031,6 @@ public OnPlayerDisconnect(playerid, reason)
 			getDateTime(PI[playerid][pLAST_CONNECTION]);
 			SavePlayerData(playerid);
 			SavePlayerVehicles(playerid, true);
-			SavePlayerToys(playerid);
 			SavePlayerWeaponsData(playerid);
 			SavePlayerWorkLevels(playerid);
 			
@@ -4340,12 +4061,6 @@ ResetPlayerVariables(playerid)
 
 	static const temp_PLAYER_TEMP[Temp_Enum]; PlayerTemp[playerid] = temp_PLAYER_TEMP;
 
-	static const temp_PLAYER_POCKET[Player_Pocket_Enum];
-	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++) PLAYER_POCKET[playerid][i] = temp_PLAYER_POCKET;
-
-	static const temp_PLAYER_TOYS[Player_Toys_Info];
-	for(new i = 0; i != MAX_VIP_TOYS; i ++) PLAYER_TOYS[playerid][i] = temp_PLAYER_TOYS;
-	
 	static const temp_PLAYER_PHONE_BOOK[Phone_Book_Enum]; 
 	for(new i = 0; i != MAX_PHONE_CONTACTS; i ++) PLAYER_PHONE_BOOK[playerid][i] = temp_PLAYER_PHONE_BOOK;
 	
@@ -4641,7 +4356,6 @@ public OnPlayerSpawn(playerid)
 	else SetPlayerSkin(playerid, PI[playerid][pPOLICE_DUTY]);
 
 	PlayerTemp[playerid][pt_GAME_STATE] = GAME_STATE_NORMAL;
-	SetPlayerToys(playerid);
 	if(PI[playerid][pSTATE] != ROLEPLAY_STATE_JAIL && PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK) SetWeaponsForPlayer(playerid);
 	SetPlayerWantedLevelEx(playerid, PI[playerid][pWANTED_LEVEL]);
 	SetPlayerArmedWeapon(playerid, 0);
@@ -4763,12 +4477,14 @@ callbackp:OnPlayerSWDeath(playerid, killerid, reason)
 		}
 	}
 
-	DropAllPlayerWeapons(playerid);
+	if(!PI[playerid][pVIP])
+	{
+		DropAllPlayerWeapons(playerid);
+	}
 	
 	if(PlayerTemp[playerid][pt_SELECT_TEXTDRAW])
 	{
 		if(PlayerTemp[playerid][pt_CLOTHING_SHOP] != -1) ClosePlayerClothingMenu(playerid);
-		if(PlayerTemp[playerid][pt_TOYS_SHOP]) ClosePlayerToysMenu(playerid);
 	}
 	
 	StopAudioStreamForPlayer(playerid);
@@ -5114,22 +4830,11 @@ public OnPlayerRequestSpawn(playerid) // Intentar 'spawnear' mediante la selecci
     return 0;
 }
 
-new HostNameCount = 0;
-callbackp:UpdateRandomHostName()
-{
-	if(HostNameCount == 0) SendRconCommand("hostname "SERVER_HOSTNAME"[Android/PC]");
-	else if(HostNameCount == 1) SendRconCommand("hostname "SERVER_HOSTNAME"Chat de Voz");
-
-	HostNameCount ++;
-	if(HostNameCount >= 1) HostNameCount = 0;
-	return 1;
-}
-
 public OnGameModeInit()
 {
 	AntiAmx();
 	SetGameModeText(SERVER_GAMEMODE);
-    SendRconCommand("hostname "SERVER_HOSTNAME"[Android/PC]");
+    SendRconCommand("hostname "SERVER_HOSTNAME"");
     SendRconCommand("language "SERVER_LANGUAGE"");
 	SendRconCommand("weburl "SERVER_WEBSITE"");
 	SendRconCommand("mapname "SERVER_WEBSITE"");
@@ -5172,8 +4877,6 @@ public OnGameModeInit()
 	FormatDialogStrings();
 	UsePlayerPedAnims();
 	MapAndreas_Init(MAP_ANDREAS_MODE_FULL);
-
-	SetTimer("UpdateRandomHostName", minutes(5), false);
 
 	FO_SetMode(FO_RELATIVE);
 	FO_SetValue((2 + random(3)));
@@ -5731,7 +5434,6 @@ public OnGameModeExit()
 			SavePlayerVehicles(i, false);
 			SavePlayerWeaponsData(i);
 			SavePlayerWorkLevels(i);
-			SavePlayerToys(i);
 		}
 	}
 	mysql_close(handle_db);
@@ -6114,7 +5816,7 @@ alias:est("estadisticas", "cuenta");
 
 CMD:inv(playerid, params[])
 {
-	ShowPlayerInventoryMenu(playerid, playerid);
+	ShowPlayerInventory(playerid, playerid);
 }
 alias:inv("inventario");
 
@@ -6140,7 +5842,6 @@ ptask AutoSavePlayerData[30000](playerid)
 			SavePlayerVehicles(playerid, false);
 			SavePlayerWeaponsData(playerid);
 			SavePlayerWorkLevels(playerid);
-			SavePlayerToys(playerid);
 		}
 	}
 }
@@ -6275,29 +5976,6 @@ CMD:ayuda(playerid, params[])
 
 		default: ShowDialog(playerid, DIALOG_HELP);
 	}
-	return 1;
-}
-
-CMD:toys(playerid, params[])
-{
-	if(PlayerTemp[playerid][pt_INTERIOR_INDEX] == -1) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	if(ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE] == INTERIOR_NO_INFO) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	
-	new shop = GetClothingShopIndexByIntType(ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INTERIOR_TYPE]);
-	if(shop == -1) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-
-	if(!IsPlayerInRangeOfPoint(playerid, 1.0, Clothing_Shop_Positions[shop][clothing_shop_X], Clothing_Shop_Positions[shop][clothing_shop_Y], Clothing_Shop_Positions[shop][clothing_shop_Z])) return SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	
-	PlayerTemp[playerid][pt_TOYS_SHOP] = true;
-	
-	SetPlayerVirtualWorld(playerid, playerid + MAX_PLAYERS);
-	TogglePlayerControllableEx(playerid, false);
-	
-	UpdateToysShop(playerid);
-	ShowToysShopTextdraws(playerid);
-	
-	SendClientMessagef(playerid, -1, "Pulsa 'ESCAPE' para salir del menú.");
-	SelectTextDrawEx(playerid, 0xe8d08fFF);
 	return 1;
 }
 
@@ -6750,465 +6428,6 @@ GetPropertyIndexByID(id)
 	return -1;
 }
 
-#define TIME_BETWEEN_GIVE_CASH	30 // segundos
-CMD:dar(playerid, params[])
-{
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
-	if(PI[playerid][pLEVEL] < 3) return SendMessage(playerid, "Debes ser al menos nivel 3 para usar este comando.");
-	
-	new option[24], to_playerid, extra;
-	if(sscanf(params, "s[24]ud", option, to_playerid, extra)) return SendMessage(playerid, "Error en los parámetros, utilice {"#SILVER_COLOR"}/man dar.");
-	
-	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "El jugador no está conectado.");
-	new Float:pos[3]; GetPlayerPos(to_playerid, pos[0], pos[1], pos[2]);
-	if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
-	if(PLAYER_TEMP[to_playerid][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes darle nada a este jugador ahora.");
-	
-	switch(YHash(option, false))
-	{
-		case _I<dinero>:
-		{
-			if(gettime() < PLAYER_TEMP[playerid][pt_LAST_GIVE_MONEY_TIME] + TIME_BETWEEN_GIVE_CASH)
-			{
-				new time = TIME_BETWEEN_GIVE_CASH - (gettime() - PLAYER_TEMP[playerid][pt_LAST_GIVE_MONEY_TIME]);
-				SendMessagef(playerid, "Debes de esperar %s minutos para volver a dar dinero.", TimeConvert(time));
-				return 1;
-			}
-			
-			if(extra < 0 || extra > PI[playerid][pCASH]) return SendMessage(playerid, "Cantidad de dinero incorrecta.");
-			if(extra > 30000000) return SendMessage(playerid, "Para dar tanto dinero tienes que hacerlo a través de transferencias bancarias.");
-			
-			if(GivePlayerCash(playerid, -extra, true, true) && GivePlayerCash(to_playerid, extra, true, false)) {
-				SendMessagef(playerid, "Le has dado ~g~%s dólares~w~ a %s.", number_format_thousand(extra), PLAYER_TEMP[to_playerid][pt_NAME]);
-				SendMessagef(to_playerid, "%s te ha dado ~g~%s dólares~w~.", PLAYER_TEMP[playerid][pt_NAME], number_format_thousand(extra));
-				
-				new action[64];
-				format(action, sizeof action, "le da dinero a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
-				Auto_SendPlayerAction(playerid, action);
-				PLAYER_TEMP[playerid][pt_LAST_GIVE_MONEY_TIME] = gettime();
-			}
-		}
-		case _I<alimento>:
-		{
-			if(extra < 1 || extra > MAX_PLAYER_POCKET_OBJECTS) return SendMessage(playerid, "~r~Modo de uso: ~w~/dar alimento [ID o Nombre] [Slot /n]");
-		
-			extra --;
-			
-			if(!PLAYER_POCKET[playerid][extra][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
-			
-			new to_player_slot = GetEmptyPlayerPocketSlot(to_playerid);
-			if(to_player_slot == -1)
-			{
-				PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-				SendMessage(playerid, "El jugador no tiene más espacio entre sus alimentos.");
-				return 1;
-			}
-			
-			new action[64];
-			format(action, sizeof action, "le da su %s a %s.", PLAYER_POCKET[playerid][extra][player_pocket_object_NAME], PLAYER_TEMP[to_playerid][pt_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-			
-			TransferPlayerPocketObject(playerid, extra, to_playerid, to_player_slot);
-		}
-		case _I<medicamentos>:
-		{
-			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pMEDICINE]) return SendMessage(playerid, "No tienes esa cantidad.");
-			
-			PI[playerid][pMEDICINE] -= extra;
-			PI[to_playerid][pMEDICINE] += extra;
-			
-			SendMessagef(playerid, "Le has dado ~g~%d gramos~w~ de medicamentos a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado ~g~%d gramos~w~ de medicamentos.", PLAYER_TEMP[playerid][pt_NAME], extra);
-	
-			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-		}
-		case _I<marihuana>:
-		{
-			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pCANNABIS]) return SendMessage(playerid, "No tienes esa cantidad.");
-			
-			PI[playerid][pCANNABIS] -= extra;
-			PI[to_playerid][pCANNABIS] += extra;
-			
-			SendMessagef(playerid, "Le has dado %dg de marihuana a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado %dg de marihuana.", PLAYER_TEMP[playerid][pt_NAME], extra);
-			
-			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-		}
-		case _I<crack>:
-		{
-			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pCRACK]) return SendMessage(playerid, "No tienes esa cantidad.");
-			
-			PI[playerid][pCRACK] -= extra;
-			PI[to_playerid][pCRACK] += extra;
-			
-			SendMessagef(playerid, "Le has dado ~g~%d gramos~w~ de crack a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado ~g~%d gramos~w~ de crack.", PLAYER_TEMP[playerid][pt_NAME], extra);
-			
-			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-		}
-		case _I<arma>:
-		{
-			if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "Los policías no pueden dar armas.");
-			if(extra < 0 || extra >= sizeof PLAYER_WEAPONS[]) return SendMessage(playerid, "~r~Modo de uso: ~w~/dar arma [ID o Nombre] [Slot /armas]");
-		
-			if(!PLAYER_WEAPONS[playerid][extra][player_weapon_VALID]) return SendMessage(playerid, "No tienes nigún arma en ese slot.");
-			
-			if(PI[to_playerid][pLEVEL] < 2) return SendMessage(playerid, "La otra persona tiene que ser al menos nivel 2.");
-			if(PLAYER_WEAPONS[to_playerid][extra][player_weapon_VALID])
-			{
-				PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-				SendMessage(playerid, "El jugador ya tiene un arma en ese slot.");
-				return 1;
-			}
-			
-			SendMessagef(playerid, "~w~Le has dado tu ~g~'%s'~w~ a %s.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME], PLAYER_TEMP[to_playerid][pt_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado su ~g~'%s'~w~.", PLAYER_TEMP[playerid][pt_NAME], WEAPON_INFO[ PLAYER_WEAPONS[playerid][extra][player_weapon_ID] ][weapon_info_NAME]);
-			
-			new action[64];
-			format(action, sizeof action, "le da un arma a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-			
-			TransferPlayerWeapon(playerid, extra, to_playerid);
-		}
-		case _I<kit>:
-		{
-			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pMECHANIC_KITS]) return SendMessage(playerid, "No tienes esa cantidad.");
-			
-			PI[playerid][pMECHANIC_KITS] -= extra;
-			PI[to_playerid][pMECHANIC_KITS] += extra;
-			
-			SendMessagef(playerid, "Le has dado %d kits de reparación a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado %d kits de reparación.", PLAYER_TEMP[playerid][pt_NAME], extra);
-			
-			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-		}
-		case _I<botiquin>:
-		{
-			if(extra <= 0 || extra > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(extra > PI[playerid][pMEDICAL_KITS]) return SendMessage(playerid, "No tienes esa cantidad.");
-			
-			PI[playerid][pMEDICAL_KITS] -= extra;
-			PI[to_playerid][pMEDICAL_KITS] += extra;
-			
-			SendMessagef(playerid, "Le has dado %d botiquines a %s.", extra, PLAYER_TEMP[to_playerid][pt_NAME]);
-			SendMessagef(to_playerid, "%s te ha dado %d botiquines.", PLAYER_TEMP[playerid][pt_NAME], extra);
-			
-			new action[64];
-			format(action, sizeof action, "le da algo a %s.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-		}
-		default: SendMessage(playerid, "Error en los parámetros, utilice ~r~/man dar~w~.");
-	}
-	return 1;
-}
-
-CMD:vender(playerid, params[])
-{
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
-	if(PI[playerid][pLEVEL] < 3) return SendMessage(playerid, "Debes ser al menos nivel 3 para usar este comando.");
-	
-	new option[24], to_playerid, extra, price;
-	if(sscanf(params, "s[24]udd", option, to_playerid, extra, price)) return SendMessage(playerid, "Error en los parámetros, utilice ~r~/man vender~w~.");
-	
-	if(price <= 0 || price > 10000000) return SendMessage(playerid, "El precio no es válido.");
-	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "El jugador no está conectado.");
-	new Float:pos[3]; GetPlayerPos(to_playerid, pos[0], pos[1], pos[2]);
-	if(!IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, pos[0], pos[1], pos[2])) return SendMessage(playerid, "Este jugador no está cerca tuya.");
-	if(PLAYER_TEMP[to_playerid][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "No puedes venderle nada a este jugador ahora.");
-	
-	if(price > PI[to_playerid][pCASH])
-	{
-		SendMessage(playerid, "Esta persona no tiene el dinero que pides.");
-		return 1;
-	}
-	
-	PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_PID] = playerid;
-	PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_AID] = PI[playerid][pID];
-	PLAYER_TEMP[to_playerid][pt_TRICK_PRICE] = price;
-	PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] = extra;
-	PLAYER_TEMP[to_playerid][pt_TRICK_TIME] = gettime();
-
-	switch(YHash(option, false))
-	{
-		case _I<alimento>:
-		{
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] < 1 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > MAX_PLAYER_POCKET_OBJECTS) return SendMessage(playerid, "~r~Modo de uso: ~w~/vender alimento [ID o Nombre] [Slot /n] [precio]");
-			PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] --;
-			
-			if(!PLAYER_POCKET[playerid][ PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] ][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
-			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			ShowDialog(to_playerid, DIALOG_TRICKS_FOOD);
-		}
-		case _I<medicamentos>:
-		{
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pMEDICINE]) return SendMessage(playerid, "No tienes esa cantidad.");
-			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			ShowDialog(to_playerid, DIALOG_TRICKS_MEDICINE);
-		}
-		case _I<marihuana>:
-		{
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCANNABIS]) return SendMessage(playerid, "No tienes esa cantidad.");
-			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			ShowDialog(to_playerid, DIALOG_TRICKS_CANNABIS);
-		}
-		case _I<crack>:
-		{
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCRACK]) return SendMessage(playerid, "No tienes esa cantidad.");
-			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			ShowDialog(to_playerid, DIALOG_TRICKS_CRACK);
-		}
-		case _I<arma>:
-		{
-			if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET]) return SendMessage(playerid, "Los policías no pueden vender armas.");
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] < 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] >= sizeof PLAYER_WEAPONS[]) return SendMessage(playerid, "Error en slot de /armas.");
-		
-			if(!PLAYER_WEAPONS[playerid][ PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] ][player_weapon_VALID]) return SendMessage(playerid, "No tienes nigún arma en ese slot.");
-			
-			if(PI[to_playerid][pLEVEL] < 2) return SendMessage(playerid, "La otra persona tiene que ser al menos nivel 2.");
-			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			ShowDialog(to_playerid, DIALOG_TRICKS_WEAPON);
-		}
-		case _I<coins>:
-		{
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] <= 0 || PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > 10000000) return SendMessage(playerid, "Cantidad incorrecta.");
-			if(PLAYER_TEMP[to_playerid][pt_TRICK_SELLER_EXTRA] > PI[playerid][pCOINS]) return SendMessage(playerid, "No tienes esa cantidad de "SERVER_COIN".");
-			
-			SendMessagef(playerid, "Le has ofrecido una venta a ~g~%s~w~, espera a ver si la acepta.", PLAYER_TEMP[to_playerid][pt_NAME]);
-			ShowDialog(to_playerid, DIALOG_TRICKS_COINS);
-		}
-		default: SendMessage(playerid, "Error en los parámetros, utilice ~r~/man vender~w~.");
-	}
-	return 1;
-}
-
-CMD:consumir(playerid, params[])
-{
-	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK || PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendMessage(playerid, "Ahora no puedes usar este comando.");
-	new option[24], slot;
-	if(!sscanf(params, "s[24]d", option, slot))	
-	{
-		if(!strcmp(option, "alimento", true))
-		{
-			if(slot < 1 || slot > MAX_PLAYER_POCKET_OBJECTS) return SendMessagef(playerid, "~r~Modo de uso: ~w~/consumir alimento [SLOT 1-%d]", MAX_PLAYER_POCKET_OBJECTS);
-		
-			slot --;
-			
-			if(!PLAYER_POCKET[playerid][slot][player_pocket_VALID]) return SendMessage(playerid, "No tienes nada en ese slot.");
-			if(PI[playerid][pHUNGRY] >= 99.0 && PI[playerid][pTHIRST] >= 99.0) return SendMessage(playerid, "¿Es que quieres reventar?");
-
-			Add_Hungry_Thirst(playerid, PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST]);
-			GivePlayerDrunkLevel(playerid, PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK]);
-			
-			new action[64];
-			format(action, sizeof action, "consume %s.", PLAYER_POCKET[playerid][slot][player_pocket_object_NAME]);
-			Auto_SendPlayerAction(playerid, action);
-			
-			DeletePlayerPocketObject(playerid, slot);
-
-			ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 0, 0, 0, 0, 0, 0);
-			ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 4.1, false, true, true, false, 1000);
-		}
-		else SendMessage(playerid, "~r~Modo de uso: ~w~/consumir [medicamento - marihuana - crack - alimento]");
-	}
-	else if(!sscanf(params, "s[24]", option))
-	{
-		switch(YHash(option, false))
-		{
-			case _I<medicamento>:
-			{
-				if(PLAYER_TEMP[playerid][pt_COOLDOWN_MEDICINE] > gettime()) return SendMessagef(playerid, "Debes esperar %d segundos para volver a poder consumir medicamentos", PLAYER_TEMP[playerid][pt_COOLDOWN_MEDICINE] - gettime());
-
-				if(PI[playerid][pMEDICINE] <= 0) return SendMessage(playerid, "No tienes medicamentos.");
-				
-				PLAYER_TEMP[playerid][pt_COOLDOWN_MEDICINE] = gettime() + 30;
-				PI[playerid][pMEDICINE] --;
-				GivePlayerHealthEx(playerid, 25.0);
-				Auto_SendPlayerAction(playerid, "se toma un medicamento.");
-			}
-			case _I<marihuana>:
-			{
-				if(PLAYER_TEMP[playerid][pt_COOLDOWN_WEED] > gettime()) return SendMessagef(playerid, "Debes esperar %d segundos para volver a poder consumir marihuana", PLAYER_TEMP[playerid][pt_COOLDOWN_WEED] - gettime());
-
-				if(PI[playerid][pCANNABIS] <= 0) return SendMessage(playerid, "No tienes marihuana.");
-
-				PLAYER_TEMP[playerid][pt_COOLDOWN_WEED] = gettime() + 30;
-				
-				PI[playerid][pCANNABIS] --;
-				GivePlayerHealthEx(playerid, 30.0);
-				Auto_SendPlayerAction(playerid, "consume marihuana.");
-				GivePlayerDrunkLevel(playerid, 1000);
-			}
-			case _I<crack>:
-			{
-				if(PLAYER_TEMP[playerid][pt_COOLDOWN_CRACK] > gettime()) return SendMessagef(playerid, "Debes esperar %d segundos para volver a poder consumir crack", PLAYER_TEMP[playerid][pt_COOLDOWN_CRACK] - gettime());
-
-				if(PI[playerid][pCRACK] <= 0) return SendMessage(playerid, "No tienes crack.");
-
-				PLAYER_TEMP[playerid][pt_COOLDOWN_CRACK] = gettime() + 30;
-				PI[playerid][pCRACK] --;
-				GivePlayerArmourEx(playerid, 20.0);
-				Auto_SendPlayerAction(playerid, "consume crack.");
-				GivePlayerDrunkLevel(playerid, 2000);
-			}
-			case _I<alimento>: SendMessagef(playerid, "~r~Modo de uso: ~w~/consumir alimento [SLOT 1-%d]", MAX_PLAYER_POCKET_OBJECTS);
-			
-			default: SendMessage(playerid, "~r~Modo de uso: ~w~/consumir [medicamento - marihuana - crack - alimento]");
-		}
-	}
-	else SendMessage(playerid, "~r~Modo de uso: ~w~/consumir [medicamento - marihuana - crack - alimento]");
-	return 1;
-}
-
-CMD:man(playerid, params[])
-{
-	switch(YHash(params, false))
-	{
-		case _I<dar>:
-		{
-			ShowPlayerDialog
-			(
-				playerid,
-				DIALOG_INFO,
-				DIALOG_STYLE_MSGBOX,
-				
-					"Manual",
-						"\
-							Comando: dar\n\
-							Sintaxis: dar <opcion> <playerid o nombre> <extra>\n\
-							\n\
-							Este comando sirve para dar algo a otro jugador cercano.\n\
-							Para comprobar que tiene el objeto y la cantidad utilice /inv.\n\
-							\n\
-							Esta es la lista de opciones:\n\
-							    - arma <playerid o nombre> <slot de /armas>\n\
-							    - dinero <playerid o nombre> <cantidad>\n\
-							    - medicamentos <playerid o nombre> <cantidad>\n\
-							    - marihuana <playerid o nombre> <cantidad>\n\
-							    - crack <playerid o nombre> <cantidad>\n\
-							    - kit <playerid o nombre> <cantidad>\n\
-							\n\
-							Para obtener ayuda diferente use /ayuda.\
-						",
-					"Cerrar", ""
-					
-			);
-			return 1;
-		}
-		case _I<tirar>:
-		{
-			ShowPlayerDialog
-			(
-				playerid,
-				DIALOG_INFO,
-				DIALOG_STYLE_MSGBOX,
-				
-					"Manual",
-						"\
-							Comando: tirar\n\
-							Sintaxis: tirar <opcion> <extra>\n\
-							\n\
-							Este comando sirve para deshacerte de algun objeto.\n\
-							\n\
-							Esta es la lista de opciones:\n\
-							    - arma <slot de /armas>\n\
-							    - dinero <cantidad>\n\
-							    - medicamentos <cantidad>\n\
-							    - marihuana <cantidad>\n\
-							    - crack <cantidad>\n\
-							    - kit <cantidad>\n\
-							\n\
-							Para obtener ayuda diferente use /ayuda.\
-						",
-					"Cerrar", ""
-					
-			);
-			return 1;
-		}
-		case _I<vender>:
-		{
-			ShowPlayerDialog
-			(
-				playerid,
-				DIALOG_INFO,
-				DIALOG_STYLE_MSGBOX,
-				
-					"Manual",
-						"\
-							Comando: vender\n\
-							Sintaxis: vender <opcion> <playerid o nombre> <extra> <precio>\n\
-							\n\
-							Este comando sirve para vender algo a otro jugador cercano.\n\
-							Para comprobar que tiene el objeto y la cantidad utilice /inv.\n\
-							\n\
-							Esta es la lista de opciones:\n\
-							    - arma <playerid o nombre> <slot de /armas> <precio>\n\
-							    - alimento <playerid o nombre> <slot de /n> <precio>\n\
-							    - medicamentos <playerid o nombre> <cantidad> <precio>\n\
-							    - marihuana <playerid o nombre> <cantidad> <precio>\n\
-							    - crack <playerid o nombre> <cantidad> <precio>\n\
-							    - coins <playerid o nombre> <cantidad> <precio>\n\
-							\n\
-							Para obtener ayuda diferente use /ayuda.\
-						",
-					"Cerrar", ""
-					
-			);
-			return 1;
-		}
-		case _I<guardar>:
-		{
-			ShowPlayerDialog
-			(
-				playerid,
-				DIALOG_INFO,
-				DIALOG_STYLE_MSGBOX,
-				
-					"Manual",
-						"\
-							Comando: guardar\n\
-							Sintaxis: dar <opcion> <extra>\n\
-							\n\
-							Este comando sirve para dar algo a otro jugador cercano.\n\
-							Para comprobar que tiene el objeto y la cantidad utilice /inv.\n\
-							\n\
-							Esta es la lista de opciones:\n\
-							    - arma <slot de /armas>\n\
-							    - medicamentos <cantidad>\n\
-							    - marihuana <cantidad>\n\
-							    - crack <cantidad>\n\
-							\n\
-							Para obtener ayuda diferente use /ayuda.\
-						",
-					"Cerrar", ""
-					
-			);
-			return 1;
-		}
-		default: ErrorCommandParams(playerid, "/man [dar-tirar-vender-guardar]");
-	}
-	return 1;
-}
-
 CMD:puerta(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_OWN_PROPERTY)
@@ -7613,128 +6832,6 @@ stock ShowDialog(playerid, dialogid)
 		case DIALOG_FOOD_PIZZA: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Comida rápida", DIALOG_FOOD_PIZZA_String, "Pedir", "Cerrar");
 		case DIALOG_FOOD_CLUCKIN: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Comida rápida", DIALOG_FOOD_CLUCKIN_String, "Pedir", "Cerrar");
 		case DIALOG_FOOD_BURGER: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Comida rápida", DIALOG_FOOD_BURGER_String, "Pedir", "Cerrar");
-		case DIALOG_PLAYER_TOYS:
-		{
-			new dialog[96 * (MAX_VIP_TOYS + 2)], line_str[64];
-			new caption[445]; format(caption, 445, "Accesorios de %s.", pTemp( pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] )[pt_NAME]);
-
-			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Accesorio\t{"#BLUE_COLOR"}Colocado\n");
-			for(new i; i != MAX_VIP_TOYS; i ++)
-			{
-				if(PI[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pVIP])
-				{
-					if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_VALID])
-					{
-						if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_ATTACHED]) format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}Sí\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
-						else format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
-					}
-					else format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
-				}
-				else
-				{
-					if(i >= MAX_NU_TOYS)
-					{
-						if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_VALID]) format(line_str, sizeof line_str, "{666666}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
-						else format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
-					}
-					else
-					{
-						if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_VALID])
-						{
-							if(PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_ATTACHED]) format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}Sí\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
-							else format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\t{"#BLUE_COLOR"}No\n", i + 1, PLAYER_TOYS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_toy_NAME]);
-						}
-						else format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
-					}
-				}
-				strcat(dialog, line_str);
-			}
-			strcat(dialog, "{c4290d}- Eliminar todo\n");
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, caption, dialog, "Continuar", "Atras");
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_MENU:
-		{
-			if(!PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_VALID])
-			{
-				SendClientMessagef(playerid, -1, "Este slot está vacío, puedes comprar accesorios en cualquier tienda de ropa.");
-				return 1;
-			}
-			
-			new caption[48];
-			format(caption, sizeof caption, "{"#SILVER_COLOR"}Accesorio '%s'", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-			
-			new dialog[256];
-			if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED]) format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Guardar este accesorio\n{"#SILVER_COLOR"}Cambiar el nombre del accesorio\n{"#SILVER_COLOR"}Configurar el accesorio\n{"#SILVER_COLOR"}Color primario\n{"#SILVER_COLOR"}Color secundario\n{"#SILVER_COLOR"}Eliminar este accesorio");
-			else
-			{
-				if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE] == -1)
-				{
-					SendClientMessagef(playerid, -1, "Este accesorio es nuevo y aún no ha sido configurado, configuralo desde 'Configurar el accesorio'.");
-					format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Colocarte el accesorio\n{"#SILVER_COLOR"}Cambiar el nombre del accesorio\n{"#SILVER_COLOR"}Configurar el accesorio\n{"#SILVER_COLOR"}Color primario\n{"#SILVER_COLOR"}Color secundario\n{"#SILVER_COLOR"}Eliminar este accesorio");
-				}
-				else format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Colocarte el accesorio\n{"#SILVER_COLOR"}Cambiar el nombre del accesorio\n{"#SILVER_COLOR"}Configurar el accesorio\n{"#SILVER_COLOR"}Color primario\n{"#SILVER_COLOR"}Color secundario\n{"#SILVER_COLOR"}Eliminar este accesorio");
-			}
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Cerrar");
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_EDIT_NAME:
-		{		
-			new dialog[145];
-			format(dialog, sizeof dialog, "Nombre actual: \"%s\"\nIndica el nuevo nombre:", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_INPUT, "{"#SILVER_COLOR"}Accesorio - Modificar nombre", dialog, "Continuar", "Atrás");
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_CONFIRMDELETE:
-		{
-			new dialog[145];
-			format(dialog, sizeof dialog, "¿Estás seguro que quieres borrar el siguiente accesorio?\n\t\"%s\"", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "{"#SILVER_COLOR"}Accesorio - Eliminar accesorio", dialog, "Eliminar", "Atrás");
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_SELECT_BONE:
-		{
-			SendClientMessagef(playerid, -1, "Selecciona en que parte del cuerpo quieres colocar este accesorio.");
-			
-			new caption[48];
-			format(caption, sizeof caption, "{"#SILVER_COLOR"}Accesorio '%s'", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-			
-			new dialog[45 * sizeof Toys_Bones], line_str[45];
-			for(new i = 0; i != sizeof Toys_Bones; i ++)
-			{
-				format(line_str, sizeof(line_str), "{"#BLUE_COLOR"}%d. %s\n", i + 1, Toys_Bones[i]);
-				strcat(dialog, line_str);
-			}
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Atrás");
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_EDIT_BONE:
-		{
-			new caption[48];
-			format(caption, sizeof caption, "{"#SILVER_COLOR"}Accesorio '%s'", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-			
-			new dialog[145];
-			format(dialog, sizeof(dialog), "¿Quieres cambiar la parte del cuerpo donde se coloca este accesorio?\nActualmente está colocado en: %s", Toys_Bones[ PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE] - 1 ]);
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, caption, dialog, "Sí", "No");
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_COLOR_1:
-		{
-			SendClientMessagef(playerid, -1, "Selecciona el color 0 para poner el color original del accesorio.");
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Selecciona color", DIALOG_CREATE_CREW_COLOR_String, "Continuar", "Atrás");
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_COLOR_2:
-		{
-			SendClientMessagef(playerid, -1, "Selecciona el color 0 para poner el color original del accesorio.");
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Selecciona color", DIALOG_CREATE_CREW_COLOR_String, "Continuar", "Atrás");
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_DELETE_ALL: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Accesorios - Eliminar todo", "¿Estás seguro de que quiere eliminar todos sus accesorios?\nEsta opción no se puede deshacer.", "Eliminar", "Atrás");		
 		case DIALOG_BUY_PROPERTY:
 		{
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_INPUT, "Comprar Propiedad", 
@@ -7864,65 +6961,6 @@ stock ShowDialog(playerid, dialogid)
 			return 1;
 		}
 		case DIALOG_247_LIST: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "24/7", DIALOG_247_LIST_String, "Continuar", "Cerrar");
-		case DIALOG_PLAYER_POCKET:
-		{
-			new dialog[50 * (MAX_PLAYER_POCKET_OBJECTS + 2)], line_str[50];
-			new caption[445]; format(caption, 445, "Alimentos de %s.", pTemp( pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] )[pt_NAME]);
-
-			for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
-			{
-				if(PLAYER_POCKET[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_pocket_VALID])
-				{
-					format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%d. %s\n", i + 1, PLAYER_POCKET[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_pocket_object_NAME]);
-					strcat(dialog, line_str);
-				}
-				else
-				{
-					format(line_str, sizeof line_str, "{666666}%d. Slot vacío\n", i + 1);
-					strcat(dialog, line_str);
-				}
-			}
-			strcat(dialog, "{c4290d}- Eliminar todo\n");
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Atras");
-			return 1;
-		}
-		case DIALOG_PLAYER_POCKET_OPTIONS:
-		{
-			new caption[64];
-			format(caption, sizeof caption, "Alimento - %s", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, "- Consumir\n- Dar\n- Vender\n- Eliminar", "Continuar", "Cerrar");
-			return 1;
-		}		
-		case DIALOG_PLAYER_WEAPONS_OPTIONS:
-		{
-			new caption[64];
-			format(caption, sizeof caption, "Arma - %s", WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PlayerTemp[playerid][pt_SELECTED_DIALOG_WEAPON_SLOT] ][player_weapon_ID] ][weapon_info_NAME]);
-
-			new dialog_body[1024] = "- Dar\n- Vender\n- Tirar\n";
-
-			if(PI[playerid][pSTATE] == ROLEPLAY_STATE_NORMAL || PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) {
-				new vehicleid = GetNearVehicle(playerid);
-				if(vehicleid != INVALID_VEHICLE_ID && PLAYER_VEHICLES[vehicleid][player_vehicle_VALID] && PLAYER_VEHICLES[vehicleid][player_vehicle_OWNER_ID] == PI[playerid][pID]) {
-					strcat(dialog_body, "- Guardar en el maletero");
-				}
-			}
-			else if(PI[playerid][pSTATE] == ROLEPLAY_STATE_OWN_PROPERTY) {
-				new index = GetPropertyIndexByID(PI[playerid][pLOCAL_INTERIOR]);
-
-				if(index != -1) {
-					new Float:z_pos = PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Z];
-					
-					if(PROPERTY_INFO[index][property_OWNER_ID] == PI[playerid][pID] && IsPlayerInRangeOfPoint(playerid, NEARS_PLAYERS_DISTANCE, PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_X], PROPERTY_CLOSET_POS[ PROPERTY_INFO[index][property_ID_INTERIOR] ][property_closet_Y], z_pos)) {
-						strcat(dialog_body, "- Guardar en el armario");
-					}
-				}
-			}
-
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, caption, dialog_body, "Continuar", "Cerrar");
-			return 1;
-		}
-		case DIALOG_PLAYER_POCKET_DELETE_ALL: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Alimentos - Eliminar todo", "¿Estás seguro de que quiere eliminar todos sus alimentos?\nEsta opción no se puede deshacer y perderás todos lo que haya.", "Eliminar", "Atrás");
 		case DIALOG_PHONE:
 		{
 			new caption[50];
@@ -9110,110 +8148,7 @@ stock ShowDialog(playerid, dialogid)
 			
 			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, "Plantar", dialog, "Continuar", "Cerrar");
 		}
-		case DIALOG_PLAYER_WEAPONS:
-		{
-			LoopEx(i, MAX_LISTITEMS, 0) PlayerTemp[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pt_PLAYER_LISTITEM][i] = -1;
-			
-			new dialog[95 * 15], line_str[95], listitem;
-			new caption[445]; format(caption, 445, "Armas de %s.", pTemp( pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] )[pt_NAME]);
-
-			format(dialog, sizeof dialog, "{"#SILVER_COLOR"}Arma\t{"#BLUE_COLOR"}Municion\t{"#SILVER_COLOR"}Slot\n");
-			
-			for(new i = 0; i < sizeof PLAYER_WEAPONS[]; i ++)
-			{
-				if(!PLAYER_WEAPONS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_weapon_VALID]) continue;
-				
-				format(line_str, sizeof line_str, "{"#SILVER_COLOR"}%s\t{"#BLUE_COLOR"}%s\t{"#SILVER_COLOR"}%d\n", WEAPON_INFO[ PLAYER_WEAPONS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_weapon_ID] ][weapon_info_NAME], number_format_thousand(PLAYER_WEAPONS[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][i][player_weapon_AMMO]), i);
-				strcat(dialog, line_str);
-				
-				PlayerTemp[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pt_PLAYER_LISTITEM][listitem] = i; 
-				listitem ++;
-			}
-			strcat(dialog, "{c4290d}- Eliminar todo\n");
-			PlayerTemp[ pTemp(playerid)[pt_INVENTORY_SELECTED_PLAYER] ][pt_PLAYER_LISTITEM][listitem] = 13 + 20;
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_TABLIST_HEADERS, caption, dialog, "Continuar", "Atras");
-			return 1;
-		}
-		case DIALOG_PLAYER_WEAPONS_DELETE_A:
-		{
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Mis armas - Eliminar todo", "¿Estás seguro de que quiere eliminar todas sus armas?\nEsta opcion no se puede deshacer.", "Eliminar", "Atrás");	
-			return 1;
-		}
-		case DIALOG_ANIMS: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Animaciones", DIALOG_ANIMS_String, "Continuar", "X");
-		case DIALOG_TRICKS_FOOD:
-		{	
-			new dialog[150];
-			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: alimento\nNombre: %s\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PLAYER_TEMP[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
-									PLAYER_POCKET[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][ PLAYER_TEMP[playerid][pt_TRICK_SELLER_EXTRA] ][player_pocket_object_NAME],
-									number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE])
-								);
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
-			return 1;
-		}		
-		case DIALOG_TRICKS_MEDICINE:
-		{	
-			new dialog[150];
-			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: medicamento\nCantidad: %dg\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
-									PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA],
-									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
-								);
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
-			return 1;
-		}
-		case DIALOG_TRICKS_CANNABIS:
-		{	
-			new dialog[150];
-			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: marihuana\nCantidad: %dg\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
-									PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA],
-									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
-								);
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
-			return 1;
-		}
-		case DIALOG_TRICKS_CRACK:
-		{	
-			new dialog[150];
-			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: crack\nCantidad: %dg\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
-									PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA],
-									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
-								);
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
-			return 1;
-		}
-		case DIALOG_TRICKS_COINS:
-		{	
-			new dialog[150];
-			format(dialog, sizeof dialog, "%s te quiere vender %d "SERVER_COIN"\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
-									PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA],
-									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
-								);
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
-			return 1;
-		}
-		case DIALOG_TRICKS_WEAPON:
-		{	
-			new dialog[180];
-			format(dialog, sizeof dialog, "%s te quiere vender algo.\n\nTipo: arma\nNombre: %s\nMunicion: %s\nPrecio: %s$\n\n¿Quieres comprárselo?",
-									PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_NAME],
-									WEAPON_INFO[ PLAYER_WEAPONS[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][ PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA] ][player_weapon_ID] ][weapon_info_NAME],
-									number_format_thousand(PLAYER_WEAPONS[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][ PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA] ][player_weapon_AMMO]),
-									number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE])
-								);
-			
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_MSGBOX, "Ventas", dialog, "Aceptar", "Cancelar");	
-			return 1;
-		}
+		case DIALOG_ANIMS: return ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_LIST, "Animaciones", DIALOG_ANIMS_String, "Continuar", "X");	
 		case DIALOG_VEHICLE_BOOT:
 		{
 			for(new i = 0; i != MAX_LISTITEMS; i++ ) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
@@ -9657,15 +8592,12 @@ stock ShowDialog(playerid, dialogid)
 					\n\
 					{"#PRIMARY_COLOR"}Ventajas\n\
 					{"#SILVER_COLOR"}- Tener "#MAX_VIP_WORKS" trabajos.\n\
-					{"#SILVER_COLOR"}- Tener "#MAX_VIP_TOYS" accesorios.\n\
 					{"#SILVER_COLOR"}- Tener "#MAX_VIP_VEHICLES" vehículos.\n\
 					{"#SILVER_COLOR"}- Tener "#MAX_VIP_PROPERTIES" propiedades.\n\
 					{"#SILVER_COLOR"}- No pagas seguro de propiedades ni vehículos en el Payday.\n\
-					{"#SILVER_COLOR"}- No pierdes chaleco al morir.\n\
 					{"#SILVER_COLOR"}- Al vender un vehículo o propiedad al banco recibes un 50%%.\n\
 					{"#SILVER_COLOR"}- Reduccion de la condena a la mitad.\n\
 					{"#SILVER_COLOR"}- Cuando un médico te cura vida al 50%%.\n\
-					{"#SILVER_COLOR"}- Comprar armas sin esperar 5 minutos por cada compra.\n\
 					\n\
 					{"#SILVER_COLOR"}Visita {"#PRIMARY_COLOR"}"SERVER_WEBSITE" {"#SILVER_COLOR"}para más informacion.\n\
 					\n\
@@ -10750,10 +9682,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SendMessage(playerid, "Pulsa 'ESCAPE' para dejar de probarte ropa.");
 						SelectTextDrawEx(playerid, PRIMARY_COLOR2);
 					}
-					case 1:
-					{
-						PC_EmulateCommand(playerid, "/toys");
-					}
 				}
 			}
 			return 1;
@@ -10852,182 +9780,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 			}
 			else SendClientMessagef(playerid, -1, "Gracias por su visita a %s vuelva pronto.", ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_NAME]);
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_MENU:
-		{
-			if(response)
-			{
-				switch(listitem)
-				{
-					case 0: //colocar / quitar
-					{
-						if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED]) // tiene accesorio puesto
-						{
-							PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED] = false;
-							RemovePlayerAttachedObject(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-							
-							new action[45]; format(action, sizeof action, "se quita su \"%s\"", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-							Auto_SendPlayerAction(playerid, action);
-						}
-						else // No lo tiene puesto
-						{
-							if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE] == -1) return ShowDialog(playerid, DIALOG_PLAYER_TOY_MENU);
-							
-							PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED] = true;
-							RemovePlayerAttachedObject(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-							
-							SetPlayerAttachedObject
-							(
-								playerid, 
-								PlayerTemp[playerid][pt_SELECTED_TOY_SLOT],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_MODELID],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_X],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Y],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Z],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_X],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Y],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Z],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_X],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Y],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Z],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_1],
-								PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_2]
-							);
-							
-							new action[45]; format(action, sizeof action, "se coloca su \"%s\"", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-							Auto_SendPlayerAction(playerid, action);
-						}
-					}
-					case 1: ShowDialog(playerid, DIALOG_PLAYER_TOY_EDIT_NAME);
-					case 2: //Configurar
-					{
-						if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE] == -1)
-						{
-							ShowDialog(playerid, DIALOG_PLAYER_TOY_SELECT_BONE);
-							return 1;
-						}
-						ShowDialog(playerid, DIALOG_PLAYER_TOY_EDIT_BONE);
-					}
-					case 3: ShowDialog(playerid, DIALOG_PLAYER_TOY_COLOR_1);
-					case 4: ShowDialog(playerid, DIALOG_PLAYER_TOY_COLOR_2);
-					case 5: ShowDialog(playerid, DIALOG_PLAYER_TOY_CONFIRMDELETE);
-				}
-			}
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_EDIT_NAME:
-		{
-			if(response)
-			{
-				if(!strlen(inputtext) || strlen(inputtext) > 24)
-				{
-					SendClientMessagef(playerid, -1, "El nombre del accesorio debe contener de 1 a 24 caracteres.");
-					ShowDialog(playerid, dialogid);
-					return 1;
-				}
-				
-				format(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME], 24, "%s", inputtext);
-				ShowDialog(playerid, DIALOG_PLAYER_TOY_MENU);
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_TOY_MENU);
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_CONFIRMDELETE:
-		{
-			if(response)
-			{
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM ptoys WHERE id = %d;", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ID]);
-				mysql_tquery(handle_db, QUERY_BUFFER);
-				
-				if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED]) RemovePlayerAttachedObject(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-				
-				SendClientMessagef(playerid, -1, "Accesorio \"%s\" eliminado.", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-				
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_VALID] = false;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ID] = 0;
-				format(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME], 24, "");
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED] = false;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_MODELID] = 0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE] = 0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_X] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Y] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Z] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_X] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Y] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Z] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_X] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Y] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Z] = 0.0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_1] = 0;
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_2] = 0;
-				PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] = 0;
-				
-				ShowDialog(playerid, DIALOG_PLAYER_TOYS);
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_TOY_MENU);
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_SELECT_BONE:
-		{
-			if(response)
-			{
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE] = listitem + 1;
-				EditPlayerToy(playerid);
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_TOY_MENU);
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_EDIT_BONE:
-		{
-			if(response) ShowDialog(playerid, DIALOG_PLAYER_TOY_SELECT_BONE);
-			else EditPlayerToy(playerid);
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_COLOR_1:
-		{
-			if(response)
-			{
-				if(listitem == 0) PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_1] = 0;
-				else PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_1] = RGBAToARGB(RandomColors[listitem]);
-				
-				if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED]) UpdatePlayerToy(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-				SendClientMessagef(playerid, -1, "Color del accesorio actualizado.");
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_TOY_MENU);
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_COLOR_2:
-		{
-			if(response)
-			{
-				if(listitem == 0) PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_2] = 0;
-				else PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_2] = RGBAToARGB(RandomColors[listitem]);
-				
-				if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED]) UpdatePlayerToy(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-				SendClientMessagef(playerid, -1, "Color del accesorio actualizado.");
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_TOY_MENU);
-			return 1;
-		}
-		case DIALOG_PLAYER_TOY_DELETE_ALL:
-		{
-			if(response)
-			{
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM ptoys WHERE id_player = %d;", PI[playerid][pID]);
-				mysql_tquery(handle_db, QUERY_BUFFER);
-				
-				new temp_PLAYER_TOYS[Player_Toys_Info];
-				for(new i = 0; i != MAX_VIP_TOYS; i ++)
-				{
-					RemovePlayerAttachedObject(playerid, i);
-					PLAYER_TOYS[playerid][i] = temp_PLAYER_TOYS;
-				}
-		
-				SendClientMessagef(playerid, -1, "Has eliminado todos tus accesorios.");
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_TOYS);
 			return 1;
 		}
 		case DIALOG_BUY_PROPERTY:
@@ -11369,36 +10121,18 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				switch(Supermarket_Product_List[listitem][product_TYPE])
 				{
-					case PRODUCT_TYPE_FOOD, PRODUCT_TYPE_DRINK:
+					/*case PRODUCT_TYPE_FOOD, PRODUCT_TYPE_DRINK:
 					{
 						if(PI[playerid][pCASH] >= Supermarket_Product_List[listitem][product_PRICE])
 						{
-							new slot = GetEmptyPlayerPocketSlot(playerid);
-							if(slot == -1)
-							{
-								PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-								SendMessage(playerid, "No tienes más espacio entre tus alimentos, elimina algo con ~g~/n~w~.");
-								return 1;
-							}
-							
-							if(GivePlayerCash(playerid, -Supermarket_Product_List[listitem][product_PRICE], true, true)) {
-								PLAYER_POCKET[playerid][slot][player_pocket_VALID] = true;
-								format(PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], 24, "%s", Supermarket_Product_List[listitem][product_NAME]);
-								PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY] = Supermarket_Product_List[listitem][product_HUNGRY];
-								PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST] = Supermarket_Product_List[listitem][product_THIRST];
-								PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK] = Supermarket_Product_List[listitem][product_DRUNK];
-								RegisterNewPlayerPocketObject(playerid, slot);
-								
-								SendMessagef(playerid, "Has comprado ~b~%s ~w~por ~g~%d$~w~, para consumirlo usa ~y~/n~w~.", Supermarket_Product_List[listitem][product_NAME], Supermarket_Product_List[listitem][product_PRICE]);
-								PlayerPlaySoundEx(playerid, 1058, 0.0, 0.0, 0.0);
-							}
+
 						}
 						else
 						{
 							PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
 							SendMessagef(playerid, "No tienes dinero suficiente, te faltan ~r~%s$~w~ para poder comprar este producto.", number_format_thousand(Supermarket_Product_List[listitem][product_PRICE] - PI[playerid][pCASH]));
 						}
-					}
+					}*/
 					case PRODUCT_TYPE_PHONE:
 					{						
 						if(PI[playerid][pCASH] >= Supermarket_Product_List[listitem][product_PRICE])
@@ -11492,61 +10226,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
 			}
 			else PlayerTemp[playerid][pt_DIALOG_OPENED] = false;
-			return 1;
-		}
-		case DIALOG_PLAYER_POCKET_OPTIONS:
-		{
-			if(response)
-			{
-				switch(listitem)
-				{
-					case 0: //Consumir
-					{
-						if(PI[playerid][pHUNGRY] >= 99.0 && PI[playerid][pTHIRST] >= 99.0) 
-						{
-							PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
-							SendMessage(playerid, "¿Es que quieres reventar?");
-							return 1;
-						}
-					
-						Add_Hungry_Thirst(playerid, PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_THIRST]);
-						GivePlayerDrunkLevel(playerid, PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_DRUNK]);
-						
-						new action[64];
-						format(action, sizeof action, "consume %s.", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
-						Auto_SendPlayerAction(playerid, action);
-						
-						DeletePlayerPocketObject(playerid, PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]);
-						PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
-					
-						ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 0, 0, 0, 0, 0, 0);
-						ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 4.1, false, true, true, false, 1000);
-					}
-					case 1: return 1;  //ShowNearsPlayersToPlayer(playerid, NEAR_PLAYERS_POCKET_GIVE);
-					case 2: return 1; //ShowNearsPlayersToPlayer(playerid, NEAR_PLAYERS_POCKET_SELL);
-					case 3: //Eliminar
-					{
-						SendMessagef(playerid, "Has eliminado \"%s\" de tus alimentos.", PLAYER_POCKET[playerid][PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]][player_pocket_object_NAME]);
-						DeletePlayerPocketObject(playerid, PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED]);
-						PLAYER_TEMP[playerid][pt_POCKET_SLOT_SELECTED] = 0;
-					}
-				}
-			}
-			return 1;
-		}
-		case DIALOG_PLAYER_POCKET_DELETE_ALL:
-		{
-			if(response)
-			{
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pfoods WHERE id_player = %d;", PI[playerid][pID]);
-				mysql_query(handle_db, QUERY_BUFFER);
-				
-				new temp_PLAYER_POCKET[Player_Pocket_Enum];
-				for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++) PLAYER_POCKET[playerid][i] = temp_PLAYER_POCKET;
-				
-				SendMessage(playerid, "Has eliminado todo lo que tenías en tus alimentos.");
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_POCKET);
 			return 1;
 		}
 		case DIALOG_PHONE:
@@ -13565,21 +12244,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			return 1;
 		}
-		case DIALOG_PLAYER_WEAPONS_DELETE_A:
-		{
-			if(response)
-			{
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pweapons WHERE id_player = %d;", PI[playerid][pID]);
-				mysql_tquery(handle_db, QUERY_BUFFER);
-				
-				ResetPlayerWeaponsEx(playerid);
-		
-				SendClientMessagef(playerid, -1, "Has eliminado todas tus armas.");
-				Auto_SendPlayerAction(playerid, "tira todas sus armas al suelo");
-			}
-			else ShowDialog(playerid, DIALOG_PLAYER_WEAPONS);
-			return 1;
-		}
 		case DIALOG_ANIMS:
 		{
 		    if(response)
@@ -13624,248 +12288,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 35: ApplyAnimation(playerid, "ped", "SEAT_down", 4.000000, 0, 1, 1, 1, 0);//asiento
 		        }
 				SendClientMessagef(playerid, -1, "Para detener la animacion utiliza /parar.");
-			}
-			return 1;
-		}
-		case DIALOG_TRICKS_FOOD:
-		{
-			if(response)
-			{
-				if(gettime() > PLAYER_TEMP[playerid][pt_TRICK_TIME] + 20) return SendMessage(playerid, "Has tardado mucho en aceptarlo.");
-				if(!IsPlayerConnected(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID])) return SendMessage(playerid, "El vendedor ya no está en el servidor.");
-				if(PI[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pID] != PLAYER_TEMP[playerid][pt_TRICK_SELLER_AID]) return SendMessage(playerid, "El vendedor ya no está en el servidor.");
-
-				new Float:pos[3]; GetPlayerPos(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendMessage(playerid, "El vendedor está demasiado lejos.");
-				if(PLAYER_TEMP[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendMessage(playerid, "El vendedor no está disponible.");
-				
-
-				new to_player_slot = GetEmptyPlayerPocketSlot(playerid);
-				if(to_player_slot == -1)
-				{
-					PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-					SendMessage(playerid, "No tienes espacio en tus ~r~/n~w~ para comprar esto.");
-					return 1;
-				}
-				
-				if(GivePlayerCash(playerid, -PLAYER_TEMP[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], PLAYER_TEMP[playerid][pt_TRICK_PRICE], true, false)) {
-					TransferPlayerPocketObject(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], PLAYER_TEMP[playerid][pt_TRICK_SELLER_EXTRA], playerid, to_player_slot);
-					SendMessagef(playerid, "Te has gastado ~g~%s$~w~ con esta compra.", number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE]));
-					SendMessagef(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], "Has ganado ~g~%s$~w~ con esta venta.", number_format_thousand(PLAYER_TEMP[playerid][pt_TRICK_PRICE]));
-					
-					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PLAYER_TEMP[playerid][pt_NAME]);
-					Auto_SendPlayerAction(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], action);
-				}
-			}
-			else
-			{
-				if(gettime() > PLAYER_TEMP[playerid][pt_TRICK_TIME] + 20) return 1;
-				if(!IsPlayerConnected(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID])) return 1;
-				if(PI[ PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID] ][pID] != PLAYER_TEMP[playerid][pt_TRICK_SELLER_AID]) return 1;
-
-				SendMessage(PLAYER_TEMP[playerid][pt_TRICK_SELLER_PID], "El comprador no ha aceptado tu trato.");
-			}
-			return 1;
-		}
-		case DIALOG_TRICKS_MEDICINE:
-		{
-			if(response)
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return SendClientMessagef(playerid, -1, "Has tardardo mucho en aceptarlo.");
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-
-				new Float:pos[3]; GetPlayerPos(PlayerTemp[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El vendedor está demasiado lejos.");
-				if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "El vendedor no está disponible.");
-
-				
-				if(GivePlayerCash(playerid, -PlayerTemp[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PlayerTemp[playerid][pt_TRICK_SELLER_PID], PlayerTemp[playerid][pt_TRICK_PRICE], true, false)) {
-					PI[playerid][pMEDICINE] += PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
-					PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pMEDICINE] -= PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
-				
-					SendClientMessagef(playerid, -1, "Has gastado %s$ con esta compra.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					
-					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
-					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
-				}
-			}
-			else
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return 1;
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return 1;
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return 1;
-
-				SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "El comprador no ha aceptado tu trato.");
-			}
-			return 1;
-		}
-		case DIALOG_TRICKS_CANNABIS:
-		{
-			if(response)
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return SendClientMessagef(playerid, -1, "Has tardardo mucho en aceptarlo.");
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-
-				new Float:pos[3]; GetPlayerPos(PlayerTemp[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El vendedor está demasiado lejos.");
-				if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "El vendedor no está disponible.");				
-				
-				if(GivePlayerCash(playerid, -PlayerTemp[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PlayerTemp[playerid][pt_TRICK_SELLER_PID], PlayerTemp[playerid][pt_TRICK_PRICE], true, false)) {
-					PI[playerid][pCANNABIS] += PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
-					PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCANNABIS] -= PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
-				
-					SendClientMessagef(playerid, -1, "Has gastado %s$ con esta compra.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					
-					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
-					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
-				}
-			}
-			else
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return 1;
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return 1;
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return 1;
-
-				SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "El comprador no ha aceptado tu trato.");
-			}
-			return 1;
-		}
-		case DIALOG_TRICKS_CRACK:
-		{
-			if(response)
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return SendClientMessagef(playerid, -1, "Has tardardo mucho en aceptarlo.");
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-
-				new Float:pos[3]; GetPlayerPos(PlayerTemp[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El vendedor está demasiado lejos.");
-				if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "El vendedor no está disponible.");
-				
-				if(GivePlayerCash(playerid, -PlayerTemp[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PlayerTemp[playerid][pt_TRICK_SELLER_PID], PlayerTemp[playerid][pt_TRICK_PRICE], true, false)) {
-					PI[playerid][pCRACK] += PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
-					PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCRACK] -= PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
-				
-					SendClientMessagef(playerid, -1, "Has gastado %s$ con esta compra.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					
-					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
-					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
-				}
-			}
-			else
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return 1;
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return 1;
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return 1;
-
-				SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "El comprador no ha aceptado tu trato.");
-			}
-			return 1;
-		}
-		case DIALOG_TRICKS_COINS:
-		{
-			new dc_message[445];
-			if(response)
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return SendClientMessagef(playerid, -1, "Has tardardo mucho en aceptarlo.");
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-
-				new Float:pos[3]; GetPlayerPos(PlayerTemp[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El vendedor está demasiado lejos.");
-				if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "El vendedor no está disponible.");
-				
-				format(dc_message, 445, "Realizando Compra/Venta (Buyer Coins: '%d' Seller Coins: '%d')", PI[playerid][pCOINS], PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS]);
-				SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
-
-				PI[playerid][pCOINS] += PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
-				PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS] -= PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA];
-
-				if(GivePlayerCash(playerid, -PlayerTemp[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PlayerTemp[playerid][pt_TRICK_SELLER_PID], PlayerTemp[playerid][pt_TRICK_PRICE], true, false)) 
-				{
-					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET coins = %d WHERE id = %d;", PI[playerid][pCOINS], PI[playerid][pID]);
-					mysql_tquery(handle_db, QUERY_BUFFER);
-
-					format(dc_message, 445, QUERY_BUFFER);
-					SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
-
-					mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET coins = %d WHERE id = %d;", PI[PlayerTemp[playerid][pt_TRICK_SELLER_PID]][pCOINS], PI[PlayerTemp[playerid][pt_TRICK_SELLER_PID]][pID]);
-					mysql_tquery(handle_db, QUERY_BUFFER);
-
-					format(dc_message, 445, QUERY_BUFFER);
-					SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
-
-					SendClientMessagef(playerid, -1, "Has gastado %s$ con esta compra.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					
-					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
-					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
-
-					format(dc_message, 445, "Compra/Venta procesada (nick: '%s' pid: '%d' to buyer: '%s' spid: '%d') Monto Total: (buyer: %d, seller: %d)", PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pNAME], PlayerTemp[playerid][pt_TRICK_SELLER_PID], PI[playerid][pNAME], playerid, PI[playerid][pCOINS], PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pCOINS]);
-					SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
-				}
-			}
-			else
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return 1;
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return 1;
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return 1;
-
-				SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "El comprador no ha aceptado tu trato.");
-
-				format(dc_message, 445, "Compra/Venta rechazada (nick: '%s' pid: '%d' to buyer: '%s' spid: '%d')", PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pNAME], PlayerTemp[playerid][pt_TRICK_SELLER_PID], PI[playerid][pNAME], playerid);
-				SendCoinsLogMessage(PlayerTemp[playerid][pt_TRICK_SELLER_PID], dc_message);
-			}
-			return 1;
-		}
-		case DIALOG_TRICKS_WEAPON:
-		{
-			if(response)
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return SendClientMessagef(playerid, -1, "Has tardardo mucho en aceptarlo.");
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return SendClientMessagef(playerid, -1, "El vendedor ya no está en el servidor.");
-
-				new Float:pos[3]; GetPlayerPos(PlayerTemp[playerid][pt_TRICK_SELLER_PID], pos[0], pos[1], pos[2]);
-				if(!IsPlayerInRangeOfPoint(playerid, 2.0, pos[0], pos[1], pos[2])) return SendClientMessagef(playerid, -1, "El vendedor está demasiado lejos.");
-				if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pt_GAME_STATE] != GAME_STATE_NORMAL) return SendClientMessagef(playerid, -1, "El vendedor no está disponible.");
-
-				
-				if(PLAYER_WEAPONS[playerid][ PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA] ][player_weapon_VALID])
-				{
-					PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-					SendClientMessagef(playerid, -1, "Para comprar esta arma tienes que deshacerte de tu '%s' (%d) para tener espacio.", WEAPON_INFO[ PLAYER_WEAPONS[playerid][ PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA] ][player_weapon_ID] ][weapon_info_NAME], PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA]);
-					return 1;
-				}
-				
-				if(GivePlayerCash(playerid, -PlayerTemp[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PlayerTemp[playerid][pt_TRICK_SELLER_PID], PlayerTemp[playerid][pt_TRICK_PRICE], true, false)) {
-					TransferPlayerWeapon(PlayerTemp[playerid][pt_TRICK_SELLER_PID], PlayerTemp[playerid][pt_TRICK_SELLER_EXTRA], playerid);
-
-					SendClientMessagef(playerid, -1, "Has gastado %s$ con esta compra.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "Has ganado %s$ con esta venta.", number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-					
-					new action[64];
-					format(action, sizeof action, "y %s llegan a un acuerdo.", PlayerTemp[playerid][pt_NAME]);
-					Auto_SendPlayerAction(PlayerTemp[playerid][pt_TRICK_SELLER_PID], action);
-				}
-			}
-			else
-			{
-				if(gettime() > PlayerTemp[playerid][pt_TRICK_TIME] + 20) return 1;
-				if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_SELLER_PID])) return 1;
-				if(PI[ PlayerTemp[playerid][pt_TRICK_SELLER_PID] ][pID] != PlayerTemp[playerid][pt_TRICK_SELLER_AID]) return 1;
-
-				SendClientMessagef(PlayerTemp[playerid][pt_TRICK_SELLER_PID], -1, "El comprador no ha aceptado tu trato.");
 			}
 			return 1;
 		}
@@ -17090,204 +15512,6 @@ RegisterNewPlayer_GPS_Site(playerid, slot)
 	return 1;
 }
 
-
-SetPlayerToys(playerid)
-{
-	for(new i = 0; i != MAX_VIP_TOYS; i ++) RemovePlayerAttachedObject(playerid, i);
-		
-	for(new i = 0; i != MAX_VIP_TOYS; i ++)
-	{
-		if(i >= MAX_NU_TOYS && !PI[playerid][pVIP]) break;
-
-		if(PLAYER_TOYS[playerid][i][player_toy_VALID])
-		{
-			if(PLAYER_TOYS[playerid][i][player_toy_ATTACHED])
-			{
-				SetPlayerAttachedObject
-				(
-					playerid, 
-					i,
-					PLAYER_TOYS[playerid][ i ][player_toy_MODELID],
-					PLAYER_TOYS[playerid][ i ][player_toy_BONE],
-					PLAYER_TOYS[playerid][ i ][player_toy_OFFSET_X],
-					PLAYER_TOYS[playerid][ i ][player_toy_OFFSET_Y],
-					PLAYER_TOYS[playerid][ i ][player_toy_OFFSET_Z],
-					PLAYER_TOYS[playerid][ i ][player_toy_ROT_X],
-					PLAYER_TOYS[playerid][ i ][player_toy_ROT_Y],
-					PLAYER_TOYS[playerid][ i ][player_toy_ROT_Z],
-					PLAYER_TOYS[playerid][ i ][player_toy_SCALE_X],
-					PLAYER_TOYS[playerid][ i ][player_toy_SCALE_Y],
-					PLAYER_TOYS[playerid][ i ][player_toy_SCALE_Z],
-					PLAYER_TOYS[playerid][ i ][player_toy_COLOR_1],
-					PLAYER_TOYS[playerid][ i ][player_toy_COLOR_2]
-				);
-			}
-		}
-	}
-	
-	return 1;
-}
-
-UpdatePlayerToy(playerid, index)
-{
-	RemovePlayerAttachedObject(playerid, index);
-	SetPlayerAttachedObject
-	(
-		playerid, 
-		index,
-		PLAYER_TOYS[playerid][ index ][player_toy_MODELID],
-		PLAYER_TOYS[playerid][ index ][player_toy_BONE],
-		PLAYER_TOYS[playerid][ index ][player_toy_OFFSET_X],
-		PLAYER_TOYS[playerid][ index ][player_toy_OFFSET_Y],
-		PLAYER_TOYS[playerid][ index ][player_toy_OFFSET_Z],
-		PLAYER_TOYS[playerid][ index ][player_toy_ROT_X],
-		PLAYER_TOYS[playerid][ index ][player_toy_ROT_Y],
-		PLAYER_TOYS[playerid][ index ][player_toy_ROT_Z],
-		PLAYER_TOYS[playerid][ index ][player_toy_SCALE_X],
-		PLAYER_TOYS[playerid][ index ][player_toy_SCALE_Y],
-		PLAYER_TOYS[playerid][ index ][player_toy_SCALE_Z],
-		PLAYER_TOYS[playerid][ index ][player_toy_COLOR_1],
-		PLAYER_TOYS[playerid][ index ][player_toy_COLOR_2]
-	);
-	return 1;
-}
-
-EditPlayerToy(playerid)
-{
-	if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED]) RemovePlayerAttachedObject(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-				
-	SetPlayerAttachedObject
-	(
-		playerid, 
-		PlayerTemp[playerid][pt_SELECTED_TOY_SLOT],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_MODELID],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_X],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Y],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Z],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_X],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Y],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Z],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_X],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Y],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Z],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_1],
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_2]
-	);
-	
-	SendClientMessagef(playerid, -1, "Ajusta el accesorio y haz clic en el icono de guardar, si pulsas 'ESCAPE' no se guardará la configuración.");
-	SendClientMessagef(playerid, -1, "Mantén presionado 'ESPACIO' para mover la cámara.");
-	EditAttachedObject(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-	return 1;
-}
-
-public OnPlayerEditAttachedObject(playerid, response, index, modelid, boneid, Float:fOffsetX, Float:fOffsetY, Float:fOffsetZ, Float:fRotX, Float:fRotY, Float:fRotZ, Float:fScaleX, Float:fScaleY, Float:fScaleZ)
-{
-	if(index != PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]) return 0;
-	
-    if(response)
-    {
-        if(fScaleX >= 1.5 || fScaleY >= 1.5 || fScaleZ >= 1.5)
-	    {
-	        SendClientMessagef(playerid, -1, "El tamaño del accesorio es demasiado grande.");
-			
-			RemovePlayerAttachedObject(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-			if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED])
-			{
-				SetPlayerAttachedObject
-				(
-					playerid, 
-					PlayerTemp[playerid][pt_SELECTED_TOY_SLOT],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_MODELID],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_X],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Y],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Z],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_X],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Y],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Z],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_X],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Y],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Z],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_1],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_2]
-				);
-			}
-			return 1;
-	    }
-        if((fOffsetX >= 0.6 || -0.6 >= fOffsetX) || (fOffsetY >= 0.6 || -0.6 >= fOffsetY) || (fOffsetZ >= 0.6 || -0.6 >= fOffsetZ))
-        {
-            SendClientMessagef(playerid, -1, "La posición del objeto está demasiado lejos de ti.");
-			
-			RemovePlayerAttachedObject(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-			if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED])
-			{
-				SetPlayerAttachedObject
-				(
-					playerid, 
-					PlayerTemp[playerid][pt_SELECTED_TOY_SLOT],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_MODELID],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_X],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Y],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Z],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_X],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Y],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Z],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_X],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Y],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Z],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_1],
-					PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_2]
-				);
-			}
-			return 1;
-        }
-        
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_X] = fOffsetX;
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Y] = fOffsetY;
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Z] = fOffsetZ;
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_X] = fRotX;
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Y] = fRotY;
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Z] = fRotZ;
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_X] = fScaleX;
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Y] = fScaleY;
-		PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Z] = fScaleZ;
-		
-		if(!PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED]) PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED] = true;
-		
-        SendClientMessagef(playerid, -1, "Accesorio '%s' actualizado.", PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_NAME]);
-    }
-    else
-    {
-        RemovePlayerAttachedObject(playerid, PlayerTemp[playerid][pt_SELECTED_TOY_SLOT]);
-		if(PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ATTACHED])
-		{
-			SetPlayerAttachedObject
-			(
-				playerid, 
-				PlayerTemp[playerid][pt_SELECTED_TOY_SLOT],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_MODELID],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_BONE],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_X],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Y],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_OFFSET_Z],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_X],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Y],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_ROT_Z],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_X],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Y],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_SCALE_Z],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_1],
-				PLAYER_TOYS[playerid][ PlayerTemp[playerid][pt_SELECTED_TOY_SLOT] ][player_toy_COLOR_2]
-			);
-		}
-		
-        SendClientMessagef(playerid, -1, "Has cancelado la edición.");
-    }
-    return 1;
-}
-
 public OnQueryError(errorid, const error[], const callback[], const query[], MySQL:handle)
 {
 	switch(errorid) 
@@ -17744,87 +15968,6 @@ GetEmptyPlayerPhoneBookSlot(playerid)
 	return -1;
 }
 
-
-RegisterNewPlayerPocketObject(playerid, slot)
-{
-	inline OnPfoodInserted()
-	{
-		PLAYER_POCKET[playerid][slot][player_pocket_object_ID] = cache_insert_id();
-	}
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "INSERT INTO pfoods (id_player, name, hungry, thirst, drunk) VALUES (%d, '%e', %f, %f, %d);", PI[playerid][pID], PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY], PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST], PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK]);
-	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPfoodInserted);
-	return 1;
-}
-
-LoadPlayerPocketData(playerid)
-{
-	if(PI[playerid][pID] == 0) return 0;
-	
-	inline OnPfoodsLoad()
-	{
-		new rows;
-		if(cache_get_row_count(rows))
-		{
-			for(new i = 0; i != rows; i ++)
-			{
-				PLAYER_POCKET[playerid][i][player_pocket_VALID] = true;
-				cache_get_value_name_int(i, "id", PLAYER_POCKET[playerid][i][player_pocket_object_ID]);
-				cache_get_value_name(i, "name", PLAYER_POCKET[playerid][i][player_pocket_object_NAME]);
-				cache_get_value_name_float(i, "hungry", PLAYER_POCKET[playerid][i][player_pocket_object_HUNGRY]);
-				cache_get_value_name_float(i, "thirst", PLAYER_POCKET[playerid][i][player_pocket_object_THIRST]);
-				cache_get_value_name_int(i, "drunk", PLAYER_POCKET[playerid][i][player_pocket_object_DRUNK]);
-			}
-		}
-	}
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM pfoods WHERE id_player = %d;", PI[playerid][pID]);
-	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPfoodsLoad);
-	return 1;
-}
-
-TransferPlayerPocketObject(from_playerid, from_slot, to_playerid, to_slot)
-{
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pfoods SET id_player = %d WHERE id = %d;", PI[to_playerid][pID], PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID]);
-	mysql_tquery(handle_db, QUERY_BUFFER);
-	
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_VALID] = true;
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_ID] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID];
-	format(PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_NAME], 24, "%s", PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_NAME]);
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_HUNGRY] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_HUNGRY];
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_THIRST] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_THIRST];
-	PLAYER_POCKET[to_playerid][to_slot][player_pocket_object_DRUNK] = PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_DRUNK];
-	
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_VALID] = false;
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_ID] = 0;
-	format(PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_NAME], 24, "");
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_HUNGRY] = 0.0;
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_THIRST] = 0.0;
-	PLAYER_POCKET[from_playerid][from_slot][player_pocket_object_DRUNK] = 0;
-	return 1;
-}
-
-DeletePlayerPocketObject(playerid, slot)
-{
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pfoods WHERE id = %d;", PLAYER_POCKET[playerid][slot][player_pocket_object_ID]);
-	mysql_tquery(handle_db, QUERY_BUFFER);
-	
-	PLAYER_POCKET[playerid][slot][player_pocket_VALID] = false;
-	PLAYER_POCKET[playerid][slot][player_pocket_object_ID] = 0;
-	format(PLAYER_POCKET[playerid][slot][player_pocket_object_NAME], 24, "");
-	PLAYER_POCKET[playerid][slot][player_pocket_object_HUNGRY] = 0.0;
-	PLAYER_POCKET[playerid][slot][player_pocket_object_THIRST] = 0.0;
-	PLAYER_POCKET[playerid][slot][player_pocket_object_DRUNK] = 0;
-	return 1;
-}
-
-GetEmptyPlayerPocketSlot(playerid)
-{
-	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
-	{
-		if(!PLAYER_POCKET[playerid][i][player_pocket_VALID]) return i;
-	}
-	return -1;
-}
-
 LoadPlayerGPSData(playerid)
 {
 	if(PI[playerid][pID] == 0) return 0;
@@ -17851,93 +15994,6 @@ LoadPlayerGPSData(playerid)
 	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM pgps WHERE id_player = %d;", PI[playerid][pID]);
 	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPgpsLoad);
 	return 1;
-}
-
-
-LoadPlayerToys(playerid)
-{
-	if(PI[playerid][pID] == 0) return 0;
-	
-	inline OnPlayerToysLoad()
-	{
-		new rows;
-		if(cache_get_row_count(rows))
-		{
-			for(new i = 0; i != rows; i ++)
-			{
-				PLAYER_TOYS[playerid][i][player_toy_VALID] = true;
-				cache_get_value_name_int(i, "id", PLAYER_TOYS[playerid][i][player_toy_ID]);
-				cache_get_value_name(i, "name", PLAYER_TOYS[playerid][i][player_toy_NAME]);
-				cache_get_value_name_int(i, "attached", PLAYER_TOYS[playerid][i][player_toy_ATTACHED]);
-				cache_get_value_name_int(i, "modelid", PLAYER_TOYS[playerid][i][player_toy_MODELID]);
-				cache_get_value_name_int(i, "bone", PLAYER_TOYS[playerid][i][player_toy_BONE]);
-				cache_get_value_name_float(i, "offset_x", PLAYER_TOYS[playerid][i][player_toy_OFFSET_X]);
-				cache_get_value_name_float(i, "offset_y", PLAYER_TOYS[playerid][i][player_toy_OFFSET_Y]);
-				cache_get_value_name_float(i, "offset_z", PLAYER_TOYS[playerid][i][player_toy_OFFSET_Z]);
-				cache_get_value_name_float(i, "rot_x", PLAYER_TOYS[playerid][i][player_toy_ROT_X]);
-				cache_get_value_name_float(i, "rot_y", PLAYER_TOYS[playerid][i][player_toy_ROT_Y]);
-				cache_get_value_name_float(i, "rot_z", PLAYER_TOYS[playerid][i][player_toy_ROT_Z]);
-				cache_get_value_name_float(i, "scale_x", PLAYER_TOYS[playerid][i][player_toy_SCALE_X]);
-				cache_get_value_name_float(i, "scale_y", PLAYER_TOYS[playerid][i][player_toy_SCALE_Y]);
-				cache_get_value_name_float(i, "scale_z", PLAYER_TOYS[playerid][i][player_toy_SCALE_Z]);
-				cache_get_value_name_int(i, "color1", PLAYER_TOYS[playerid][i][player_toy_COLOR_1]);
-				cache_get_value_name_int(i, "color2", PLAYER_TOYS[playerid][i][player_toy_COLOR_2]);
-			}
-		}
-	}
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM ptoys WHERE id_player = %d;", PI[playerid][pID]);
-	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPlayerToysLoad);
-	return 1;
-}
-
-SavePlayerToys(playerid)
-{
-	if(!PI[playerid][pID]) return 0;
-	
-	for(new i = 0; i != MAX_VIP_TOYS; i ++)
-	{
-		if(!PLAYER_TOYS[playerid][i][player_toy_VALID]) continue;
-		mysql_format
-		(
-			handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, 
-			"\
-				UPDATE ptoys SET \
-					name = '%e',\
-					attached = %d,\
-					modelid = %d,\
-					bone = %d,\
-					offset_x = %f,\
-					offset_y = %f,\
-					offset_z = %f,\
-					rot_x = %f,\
-					rot_y = %f,\
-					rot_z = %f,\
-					scale_x = %f,\
-					scale_y = %f,\
-					scale_z = %f,\
-					color1 = %d,\
-					color2 = %d \
-				WHERE id = %d;\
-			",
-			PLAYER_TOYS[playerid][i][player_toy_NAME], PLAYER_TOYS[playerid][i][player_toy_ATTACHED], PLAYER_TOYS[playerid][i][player_toy_MODELID],
-			PLAYER_TOYS[playerid][i][player_toy_BONE], PLAYER_TOYS[playerid][i][player_toy_OFFSET_X], PLAYER_TOYS[playerid][i][player_toy_OFFSET_Y],
-			PLAYER_TOYS[playerid][i][player_toy_OFFSET_Z], PLAYER_TOYS[playerid][i][player_toy_ROT_X], PLAYER_TOYS[playerid][i][player_toy_ROT_Y],
-			PLAYER_TOYS[playerid][i][player_toy_ROT_Z], PLAYER_TOYS[playerid][i][player_toy_SCALE_X], PLAYER_TOYS[playerid][i][player_toy_SCALE_Y],
-			PLAYER_TOYS[playerid][i][player_toy_SCALE_Z], PLAYER_TOYS[playerid][i][player_toy_COLOR_1], PLAYER_TOYS[playerid][i][player_toy_COLOR_2],
-			PLAYER_TOYS[playerid][i][player_toy_ID]
-		);
-		mysql_tquery(handle_db, QUERY_BUFFER);
-	}
-	return 1;
-}
-
-GetEmptyPlayerToySlot(playerid)
-{
-	for(new i = 0; i != MAX_VIP_TOYS; i ++)
-	{
-		if(!PLAYER_TOYS[playerid][i][player_toy_VALID]) return i;
-	}
-	return -1;
 }
 
 stock minrand(min, max) //By Alex "Y_Less" Cole
@@ -18043,143 +16099,6 @@ CreatePlayerTextDraws(playerid)
 	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_CLOTHING_SHOP][5], 1);
 	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_CLOTHING_SHOP][5], 1);
 	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_CLOTHING_SHOP][5], 0);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0] = CreatePlayerTextDraw(playerid, 320.000000, 159.000000, "box");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 0.000000, 15.033352);
-	PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 0.000000, 240.000000);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 2);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], -1);
-	PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 1);
-	PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 1869574143);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 255);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 1);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0], 0);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1] = CreatePlayerTextDraw(playerid, 320.000000, 156.000000, "Tienda");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 0.400000, 1.600000);
-	PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 0.000000, 240.000000);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 2);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], -1);
-	PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 1);
-	PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], -1633916417);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 255);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 0);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], 0);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2] = CreatePlayerTextDraw(playerid, 215.000000, 184.000000, "");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 0.000000, 0.000000);
-	PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 80.000000, 85.000000);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 1);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], -1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], -19201);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 5);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 0);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 0);
-	PlayerTextDrawSetPreviewModel(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 18864);
-	PlayerTextDrawSetPreviewRot(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2], 344.000000, 0.000000, 109.000000, 1.000000);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3] = CreatePlayerTextDraw(playerid, 217.000000, 186.000000, "");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 0.000000, 0.000000);
-	PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 76.000000, 81.000000);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 1);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], -1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], -926365441);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 5);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 0);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 0);
-	PlayerTextDrawSetPreviewModel(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], Toys_Shop[0][shop_toy_model]);
-	PlayerTextDrawSetPreviewRot(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], 344.000000, 0.000000, 109.000000, 1.000000);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4] = CreatePlayerTextDraw(playerid, 311.000000, 207.000000, "Modelo:__ Precio:__$");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], 0.219000, 1.081481);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], 1);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], -1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], 255);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], 1);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], 1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], 0);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5] = CreatePlayerTextDraw(playerid, 363.000000, 233.000000, "Comprar");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 0.188333, 1.189333);
-	PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 13.000000, 50.000000);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 2);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], -1);
-	PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 1);
-	PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 1855979775); // sin dinero color = -900267777
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 255);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 2);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 0);
-	PlayerTextDrawSetSelectable(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], true);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6] = CreatePlayerTextDraw(playerid, 404.000000, 233.000000, ">>");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 0.188333, 1.189333);
-	PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 13.000000, 20.000000);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 2);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], -1);
-	PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 1);
-	PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], -1094795521);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 255);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 2);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], 0);
-	PlayerTextDrawSetSelectable(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6], true);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7] = CreatePlayerTextDraw(playerid, 322.000000, 233.000000, "<<");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 0.188333, 1.189333);
-	PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 13.000000, 20.000000);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 2);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], -1);
-	PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 1);
-	PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], -1094795521);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 255);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 2);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], 0);
-	PlayerTextDrawSetSelectable(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7], true);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8] = CreatePlayerTextDraw(playerid, 255.000000, 271.000000, "0/0");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], 0.163666, 0.832593);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], 2);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], -66);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], 255);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], 1);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], 1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], 0);
-
-	PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9] = CreatePlayerTextDraw(playerid, 320.000000, 284.000000, "Accesorios");
-	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 0.400000, 1.600000);
-	PlayerTextDrawTextSize(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 0.000000, 240.000000);
-	PlayerTextDrawAlignment(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 2);
-	PlayerTextDrawColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], -1);
-	PlayerTextDrawUseBox(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 1);
-	PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], -1633916417);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 0);
-	PlayerTextDrawSetOutline(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 0);
-	PlayerTextDrawBackgroundColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 255);
-	PlayerTextDrawFont(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 0);
-	PlayerTextDrawSetProportional(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 1);
-	PlayerTextDrawSetShadow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9], 0);
 
 	PlayerTextdraws[playerid][ptextdraw_PROPERTY_CONSTRUCTOR][0] = CreatePlayerTextDraw(playerid, 553.000000, 176.000000, "box");
 	PlayerTextDrawLetterSize(playerid, PlayerTextdraws[playerid][ptextdraw_PROPERTY_CONSTRUCTOR][0], 0.000000, 8.766664);
@@ -18420,7 +16339,6 @@ public OnPlayerClickTextDraw(playerid, Text:clickedid)
 			ExitPlayerWardrobe(playerid);
 		}
 		
-		if(PlayerTemp[playerid][pt_TOYS_SHOP]) ClosePlayerToysMenu(playerid);
 		if(IsPlayerInGenderSelector(playerid)) KickEx(playerid, 500);
 		if(IsPlayerInPlayButton(playerid)) KickEx(playerid, 500);
 		return 1;
@@ -18813,81 +16731,6 @@ public OnPlayerClickPlayerTextDraw(playerid, PlayerText:playertextid)
 			UpdateClothingShop(playerid);
 			return 1;
 		}
-	}
-
-	if(PlayerTemp[playerid][pt_TOYS_SHOP])
-	{
-		if(playertextid == PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5]) //Comprar
-		{		
-			if(PI[playerid][pCASH] >= Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_price])
-			{
-				new slot = GetEmptyPlayerToySlot(playerid);
-				if(!PI[playerid][pVIP] && slot >= MAX_NU_TOYS)
-				{
-					PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-					SendClientMessagef(playerid, -1, "¡Los jugadores VIP pueden tener hasta %d accesorios! Usa /ayuda si quieres ser VIP.", MAX_VIP_TOYS);
-					return 1;
-				}
-				if(slot == -1)
-				{
-					PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-					SendClientMessagef(playerid, -1, "No tienes más espacio para accesorios, elimina alguno si quieres comprar otro.");
-					ClosePlayerToysMenu(playerid);
-					return 1;
-				}
-				
-				if(GivePlayerCash(playerid, -Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_price], true, true)) 
-				{
-					PLAYER_TOYS[playerid][slot][player_toy_VALID] = true;
-					format(PLAYER_TOYS[playerid][slot][player_toy_NAME], 24, "%s", Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_model]);
-					PLAYER_TOYS[playerid][slot][player_toy_ATTACHED] = false;
-					PLAYER_TOYS[playerid][slot][player_toy_MODELID] = Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_modelid];
-					PLAYER_TOYS[playerid][slot][player_toy_BONE] = -1; // Sin utilizar aún
-					PLAYER_TOYS[playerid][slot][player_toy_OFFSET_X] = 0.0;
-					PLAYER_TOYS[playerid][slot][player_toy_OFFSET_Y] = 0.0;
-					PLAYER_TOYS[playerid][slot][player_toy_OFFSET_Z] = 0.0;
-					PLAYER_TOYS[playerid][slot][player_toy_ROT_X] = 0.0;
-					PLAYER_TOYS[playerid][slot][player_toy_ROT_Y] = 0.0;
-					PLAYER_TOYS[playerid][slot][player_toy_ROT_Z] = 0.0;
-					PLAYER_TOYS[playerid][slot][player_toy_SCALE_X] = 1.0;
-					PLAYER_TOYS[playerid][slot][player_toy_SCALE_Y] = 1.0;
-					PLAYER_TOYS[playerid][slot][player_toy_SCALE_Z] = 1.0;
-					PLAYER_TOYS[playerid][slot][player_toy_COLOR_1] = 0;
-					PLAYER_TOYS[playerid][slot][player_toy_COLOR_2] = 0;
-					RegisterNewPlayerToy(playerid, slot);
-
-					PlayerPlaySoundEx(playerid, 1058, 0.0, 0.0, 0.0);
-					SendClientMessagef(playerid, -1, "Gracias por comprar accesorios en %s, para ponertelo usa /accesorios.", ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_NAME]);
-					
-					ClosePlayerToysMenu(playerid);
-				}
-			}
-			else
-			{
-				PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
-				SendClientMessagef(playerid, -1, "No tienes dinero suficiente, te faltan %s$ para poder comprar esta ropa.", number_format_thousand(Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_price] - PI[playerid][pCASH]));
-			}
-			
-		}
-		else if(playertextid == PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6]) // Siguiente
-		{
-			PlayerPlaySoundEx(playerid, 1052, 0.0, 0.0, 0.0);
-			
-			if(PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] == (sizeof(Toys_Shop) - 1)) PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] = 0;
-			else PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ++;
-			
-			UpdateToysShop(playerid);
-		}
-		else if(playertextid == PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7]) // Anterior
-		{
-			PlayerPlaySoundEx(playerid, 1053, 0.0, 0.0, 0.0);
-			
-			if(PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] == 0) PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] = sizeof(Toys_Shop) - 1;
-			else PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] --;
-			
-			UpdateToysShop(playerid);
-		}
-		
 	}
     return 1;
 }
@@ -20573,92 +18416,6 @@ GetClothingShopIndexByIntType(interior_type)
 		if(Clothing_Shop_Positions[i][clothing_shop_INTERIOR_TYPE] == interior_type) return i;
 	}
 	return -1;
-}
-
-ShowToysShopTextdraws(playerid)
-{
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9]);
-	return 1;
-}
-
-HideToysShopTextdraws(playerid)
-{
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][0]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][2]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][6]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][7]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8]);
-	PlayerTextDrawHide(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][9]);
-	return 1;
-}
-
-ClosePlayerToysMenu(playerid)
-{
-	SetPlayerVirtualWorld(playerid, ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_INT_WORLD] );
-	TogglePlayerControllableEx(playerid, true);
-	
-	HideToysShopTextdraws(playerid);
-	PlayerTemp[playerid][pt_TOYS_SHOP] = false;
-	CancelSelectTextDrawEx(playerid);
-	return 1;
-}
-
-RegisterNewPlayerToy(playerid, slot)
-{
-	inline OnPlayerToyInserted()
-	{
-		PLAYER_TOYS[playerid][slot][player_toy_ID] = cache_insert_id();
-	}
-
-	mysql_format
-	(
-		handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER,
-		"\
-			INSERT INTO ptoys(id_player, name, attached, modelid, bone, offset_x, offset_y, offset_z, rot_x, rot_y, rot_z, scale_x, scale_y, scale_z, color1, color2)\
-			VALUES(%d, '%e', %d, %d, %d, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d);\
-		",
-			PI[playerid][pID], PLAYER_TOYS[playerid][slot][player_toy_NAME], PLAYER_TOYS[playerid][slot][player_toy_ATTACHED], PLAYER_TOYS[playerid][slot][player_toy_MODELID],
-			PLAYER_TOYS[playerid][slot][player_toy_BONE], PLAYER_TOYS[playerid][slot][player_toy_OFFSET_X], PLAYER_TOYS[playerid][slot][player_toy_OFFSET_Y],
-			PLAYER_TOYS[playerid][slot][player_toy_OFFSET_Z], PLAYER_TOYS[playerid][slot][player_toy_ROT_X], PLAYER_TOYS[playerid][slot][player_toy_ROT_Y],
-			PLAYER_TOYS[playerid][slot][player_toy_ROT_Z], PLAYER_TOYS[playerid][slot][player_toy_SCALE_X], PLAYER_TOYS[playerid][slot][player_toy_SCALE_Y],
-			PLAYER_TOYS[playerid][slot][player_toy_SCALE_Z], PLAYER_TOYS[playerid][slot][player_toy_COLOR_1], PLAYER_TOYS[playerid][slot][player_toy_COLOR_2]
-	);
-	mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPlayerToyInserted);
-	return 1;
-}
-
-UpdateToysShop(playerid)
-{
-	if(!PlayerTemp[playerid][pt_TOYS_SHOP]) return 0;
-	
-	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][1], ENTER_EXIT[ PlayerTemp[playerid][pt_INTERIOR_INDEX] ][ee_NAME]);
-	PlayerTextDrawSetPreviewModel(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3], Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_modelid]);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][3]);
-	
-	new td_str[128]; format(td_str, sizeof td_str, "Modelo:_%s Precio:_%s$", Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_model], number_format_thousand( Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_price] ));
-	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][4], td_str);
-	
-	
-	if(PI[playerid][pCASH] < Toys_Shop[ PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] ][shop_toy_price]) PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], -900267777);
-	else PlayerTextDrawBoxColor(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5], 1855979775);
-	PlayerTextDrawShow(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][5]);
-	
-	format(td_str, sizeof td_str, "%d/%d", PlayerTemp[playerid][pt_TOYS_SHOP_TOY_SELECTED] + 1, sizeof(Toys_Shop));
-	PlayerTextDrawSetString(playerid, PlayerTextdraws[playerid][ptextdraw_TOYS_SHOP][8], td_str);
-	return 1;
 }
 
 ShowClothingShopTextdraws(playerid)
@@ -24056,7 +21813,6 @@ CancelLumberjackWork(playerid)
 	PlayerTemp[playerid][pt_PLAYER_CARRYING_TREE] = false;
 	PlayerTemp[playerid][pt_PLAYER_LUMBERJACK_TREE] = -1;
 	DestroyPlayerKeyPress(playerid);
-	SetPlayerToys(playerid);
 	return 1;
 }
 
@@ -24293,50 +22049,8 @@ ShowPlayerInventory(playerid, pid)
 	}
 	else strcat(dialog, "{666666}Dinero Negro (0$)\n");
 	
-	ShowPlayerDialog(playerid, DIALOG_PLAYER_POCKETS, DIALOG_STYLE_TABLIST, caption, dialog, "Seleccionar", "Atras");	
+	ShowPlayerDialog(playerid, DIALOG_INFO, DIALOG_STYLE_TABLIST, caption, dialog, "Cerrar", "");	
 	return 1;
-}
-
-stock CountPlayerToys(playerid)
-{
-	new toys;
-	
-	for(new i = 0; i != MAX_VIP_TOYS; i ++)
-	{
-		if(PLAYER_TOYS[playerid][i][player_toy_VALID])
-		{
-			toys ++;
-		}
-	}
-	return toys;
-}
-
-stock CountPlayerPocketObjects(playerid)
-{
-	new objects;
-	
-	for(new i = 0; i != MAX_PLAYER_POCKET_OBJECTS; i ++)
-	{
-		if(PLAYER_POCKET[playerid][i][player_pocket_VALID])
-		{
-			objects ++;
-		}
-	}
-	return objects;
-}
-
-stock CountPlayerWeapons(playerid)
-{
-	new weapons;
-	
-	for(new i = 0; i != sizeof PLAYER_WEAPONS[]; i ++)
-	{
-		if(PLAYER_WEAPONS[playerid][i][player_weapon_VALID])
-		{
-			weapons ++;
-		}
-	}
-	return weapons;
 }
 
 ShowPlayerSkills(playerid, pid)
@@ -25091,14 +22805,14 @@ LoadPlayerWeaponsData(playerid)
 	return 1;
 }
 
-SetPlayerHealthEx(playerid, Float:health)
+stock SetPlayerHealthEx(playerid, Float:health)
 {
 	PI[playerid][pHEALTH] = health;
 	UpdatePlayerHealthInfo(playerid, INVALID_PLAYER_ID, 0);
 	return 1;
 }
 
-SetPlayerArmourEx(playerid, Float:armour)
+stock SetPlayerArmourEx(playerid, Float:armour)
 {
 	PLAYER_AC_INFO[playerid][CHEAT_PLAYER_ARMOUR][p_ac_info_IMMUNITY] = gettime() + 3;
 	
@@ -25107,7 +22821,7 @@ SetPlayerArmourEx(playerid, Float:armour)
 	return 1;
 }
 
-GivePlayerHealthEx(playerid, Float:health)
+stock GivePlayerHealthEx(playerid, Float:health)
 {
 	PI[playerid][pHEALTH] += health;
 	if(PI[playerid][pHEALTH] > 100.0) PI[playerid][pHEALTH] = 100.0;
@@ -25115,7 +22829,7 @@ GivePlayerHealthEx(playerid, Float:health)
 	return 1;
 }
 
-GivePlayerArmourEx(playerid, Float:armour)
+stock GivePlayerArmourEx(playerid, Float:armour)
 {
 	PLAYER_AC_INFO[playerid][CHEAT_PLAYER_ARMOUR][p_ac_info_IMMUNITY] = gettime() + 3;
 	
@@ -25140,21 +22854,6 @@ stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 	}
 
 	SetPlayerProgressBarValue(playerid, PlayerBars[playerid][pbHEALTH], PI[playerid][pHEALTH]);
-	return 1;
-}
-
-TransferPlayerWeapon(from_playerid, slot, to_playerid)
-{
-	mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pweapons SET id_player = %d WHERE id = %d;", PI[to_playerid][pID], PLAYER_WEAPONS[from_playerid][slot][player_weapon_DB_ID]);
-	mysql_tquery(handle_db, QUERY_BUFFER);
-	
-	PLAYER_WEAPONS[to_playerid][slot][player_weapon_VALID] = true;
-	PLAYER_WEAPONS[to_playerid][slot][player_weapon_DB_ID] = PLAYER_WEAPONS[from_playerid][slot][player_weapon_DB_ID];
-	PLAYER_WEAPONS[to_playerid][slot][player_weapon_ID] = PLAYER_WEAPONS[from_playerid][slot][player_weapon_ID];
-	PLAYER_WEAPONS[to_playerid][slot][player_weapon_AMMO] = PLAYER_WEAPONS[from_playerid][slot][player_weapon_AMMO];
-	SetWeaponsForPlayer(to_playerid);
-	
-	RemovePlayerSlotWeapon(from_playerid, slot);
 	return 1;
 }
 
@@ -25993,7 +23692,7 @@ CMD:revisar(playerid, params[])
 	if(PI[params[0]][pWANTED_LEVEL] == 0) return SendClientMessagef(playerid, -1, "Esta persona no tiene nivel de busqueda.");
 	if(!pTemp(params[0])[pt_CUFFED]) return SendClientMessagef(playerid, -1, "Para revisar a esta persona tiene que estar esposada.");
 	
-	ShowPlayerInventoryMenu(playerid, params[0]);
+	ShowPlayerInventory(playerid, params[0]);
 	
 	new action[64];
 	format(action, sizeof action, "revisa a %s.", pTemp(params[0])[pt_NAME]);
@@ -27341,7 +25040,7 @@ CMD:pinv(playerid, params[])
 	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado");
 	if(PI[to_playerid][pADMIN_LEVEL] > PI[playerid][pADMIN_LEVEL]) return SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
 	
-	ShowPlayerInventoryMenu(playerid, to_playerid);
+	ShowPlayerInventory(playerid, to_playerid);
 	return 1;
 }
 
@@ -28930,7 +26629,6 @@ public StartPlayerJob(playerid, work, vehicleid)
 		{
 			if(PI[playerid][pGENDER] == SEX_MALE)
 			{
-				for(new i = 0; i != MAX_VIP_TOYS; i ++) RemovePlayerAttachedObject(playerid, i);
 				SetPlayerSkin(playerid, 16);
 			}
 		}
@@ -28938,7 +26636,6 @@ public StartPlayerJob(playerid, work, vehicleid)
 		{
 			if(PI[playerid][pGENDER] == SEX_MALE)
 			{
-				for(new i = 0; i != MAX_VIP_TOYS; i ++) RemovePlayerAttachedObject(playerid, i);
 				SetPlayerSkin(playerid, 50);
 			}
 		}
@@ -28948,7 +26645,6 @@ public StartPlayerJob(playerid, work, vehicleid)
 
 			SetWantedPlayerMarkers(playerid);
 			SetPlayerDynamicGangZones(playerid);
-			for(new i = 0; i != MAX_VIP_TOYS; i ++) RemovePlayerAttachedObject(playerid, i);
 			SetPlayerSkin(playerid, PI[playerid][pPOLICE_DUTY]);
 		}
 		case WORK_PIZZA:
@@ -28956,7 +26652,6 @@ public StartPlayerJob(playerid, work, vehicleid)
 			if(PI[playerid][pGENDER] == SEX_MALE)
 			{
 				SetPlayerSkin(playerid, 155);
-				for(new i = 0; i != MAX_VIP_TOYS; i ++) RemovePlayerAttachedObject(playerid, i);
 				DisablePlayerArmedWeapons(playerid);
 			}
 			PlayerTemp[playerid][pt_PIZZA_PROCCESS] = 0;
@@ -28967,7 +26662,6 @@ public StartPlayerJob(playerid, work, vehicleid)
 		{
 			if(PI[playerid][pGENDER] == SEX_MALE) SetPlayerSkin(playerid, male_medic_skins[ random(sizeof(male_medic_skins)) ]);
 			else SetPlayerSkin(playerid, 308);
-			for(new i = 0; i != MAX_VIP_TOYS; i ++) RemovePlayerAttachedObject(playerid, i);
 			SetInjuredPlayerMarkers(playerid);
 		}
 	}
@@ -29041,7 +26735,6 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 			if(changeskin)
 			{
 				SetPlayerSkin(playerid, PI[playerid][pSKIN]);
-				SetPlayerToys(playerid);
 			}
 			
 			if(PlayerTemp[playerid][pt_TRASH_VEHICLE_ID] != INVALID_VEHICLE_ID)
@@ -29069,7 +26762,6 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 
 			if(changeskin)
 			{
-				SetPlayerToys(playerid);
 				SetPlayerSkin(playerid, PI[playerid][pSKIN]);
 				PI[playerid][pPOLICE_DUTY] = 0;
 			}
@@ -29081,7 +26773,6 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 		{
 			if(changeskin)
 			{
-				SetPlayerToys(playerid);
 				SetPlayerSkin(playerid, PI[playerid][pSKIN]);
 			}
 			SetNormalPlayerMarkers(playerid);
@@ -29104,7 +26795,6 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 			}
 			if(changeskin)
 			{
-				SetPlayerToys(playerid);
 				SetPlayerSkin(playerid, PI[playerid][pSKIN]);
 			}
 		}
@@ -29112,7 +26802,6 @@ public EndPlayerJob(playerid, work, bool:changeskin)
 		{
 			if(changeskin)
 			{
-				SetPlayerToys(playerid);
 				SetPlayerSkin(playerid, PI[playerid][pSKIN]);
 			}
 			SetNormalPlayerMarkers(playerid);
@@ -30921,7 +28610,6 @@ SetPlayerVip(playerid, vip_level, price_coin = 0, days = 30)
 		PI[playerid][pVIP] = false;
 		PI[playerid][pVIP_EXPIRE_DATE][0] = EOS;
 		SendClientMessagef(playerid, -1, "¡Tu VIP ha expirado! Usa /vip para comprar de nuevo.");
-		if(GetPlayerSkin(playerid) == PI[playerid][pSKIN]) SetPlayerToys(playerid);
 		ReLockPlayerVehicles(playerid, true);
 		return 1;
 	}
@@ -30942,7 +28630,6 @@ SetPlayerVip(playerid, vip_level, price_coin = 0, days = 30)
 					cache_get_value_index(0, 0, PI[playerid][pVIP_EXPIRE_DATE]);
 					SendClientMessagef(playerid, PRIMARY_COLOR2, "¡Felicidades! {FFFFFF}Has comprado membresia {"#GOLD_COLOR"}VIP{ffffff} por %d días, fecha de caducidad: {"#YELLOW_COLOR"}%s.", days, PI[playerid][pVIP_EXPIRE_DATE]);
 					SendClientMessage(playerid, PRIMARY_COLOR2, "[*] {ffffff}Puedes utilizar {"#PURPLE_COLOR"}/vip {FFFFFF}para ver el tiempo restante o renovar.");
-					if(GetPlayerSkin(playerid) == PI[playerid][pSKIN]) SetPlayerToys(playerid);
 					UnlockPlayerVehicles(playerid);
 				}
 			}
@@ -32114,8 +29801,6 @@ public OnPlayerLogin(playerid)
 
 	LoadPlayerVehicles(playerid);
 	LoadPlayerPhoneBook(playerid);
-	LoadPlayerToys(playerid);
-	LoadPlayerPocketData(playerid);
 	LoadPlayerGPSData(playerid);
 	LoadPlayerWeaponsData(playerid);
 	LoadPlayerWorks(playerid);

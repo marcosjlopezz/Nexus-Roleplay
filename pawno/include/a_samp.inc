@@ -82,7 +82,7 @@ native GetVehiclePoolSize();
 native GetActorPoolSize();
 
 // Hash
-native SHA256_PassHash(password[], salt[], ret_hash[], ret_hash_len); // SHA256 for password hashing
+native SHA256_PassHash(const password[], const salt[], const ret_hash[], ret_hash_len); // SHA256 for password hashing
 
 // Server wide persistent variable system (SVars)
 native SetSVarInt(varname[], int_value);

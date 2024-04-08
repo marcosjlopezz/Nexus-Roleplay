@@ -722,7 +722,6 @@ public OnFilterScriptInit()
 	SetDynamicObjectMaterial(CreateDynamicObject(18980, 1603.25342, -1683.94995, 12.76620,   0.0, 90.0, 90.0,-1,-1,-1,125.0,125.0), 0, 18202, "w_towncs_t", "plaintarmac1", 0xFFFFFFFF); // Mauern rechts und hinten
 	SetDynamicObjectMaterial(CreateDynamicObject(18980, 1603.25342, -1658.95532, 12.76620,   0.0, 90.0, 90.0,-1,-1,-1,125.0,125.0), 0, 18202, "w_towncs_t", "plaintarmac1", 0xFFFFFFFF); // Mauern rechts und hinten
 	SetDynamicObjectMaterial(CreateDynamicObject(18980, 1603.25342, -1633.95923, 12.76620,   0.0, 90.0, 90.0,-1,-1,-1,125.0,125.0), 0, 18202, "w_towncs_t", "plaintarmac1", 0xFFFFFFFF); // Mauern rechts und hinten
-	// Dach
 	SetDynamicObjectMaterial(CreateDynamicObject(19365, 1564.91089, -1683.59607, 27.16050,   0.0, 0.0, 0.0,-1,-1,-1,75.0,75.0), 0, 8399, "vgs_shops", "vgsclubwall08_256", 0xFFFFFFFF);
 	SetDynamicObjectMaterial(CreateDynamicObject(19438, 1564.91089, -1677.44287, 27.16050,   0.0, 0.0, 0.0,-1,-1,-1,75.0,75.0), 0, 8399, "vgs_shops", "vgsclubwall08_256", 0xFFFFFFFF);
 	SetDynamicObjectMaterial(CreateDynamicObject(19435, 1564.92639, -1681.87976, 29.53940,   90.0, 90.0, 90.0,-1,-1,-1,75.0,75.0), 0, 8399, "vgs_shops", "vgsclubwall08_256", 0xFFFFFFFF);
