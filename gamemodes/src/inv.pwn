@@ -17,28 +17,45 @@
 
 */
 
-enum
+new Empty_InventoryData[] =
 {
-    INVENTORY_HEAD,
-    INVENTORY_BACK,
-    INVENTORY_HAND,
-    INVENTORY_SLOT_0,
-    INVENTORY_SLOT_1,
-    INVENTORY_SLOT_2,
-    INVENTORY_SLOT_3,
-    INVENTORY_SLOT_4,
-    INVENTORY_SLOT_5,
-    INVENTORY_SLOT_6,
-    INVENTORY_SLOT_7,
+    "{ff0000}Vacio{ffffff}[] | Cabeza\n",
+    "{ff0000}Vacio{ffffff}[] | Espalda\n",
+    "{ff0000}Vacio{ffffff}[] | Mano\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
+    "{ff0000}Vacio{ffffff}[] | Bolsillo\n",
 };
 
 enum E_INVENTORY_DATA
 {
+    bool:inventory_VALID,
     inventory_TYPE,
     inventory_EXTRA
 };
 new INVENTORY_DATA[MAX_PLAYERS][MAX_INVENTORY_SLOTS][E_INVENTORY_DATA];
-#define pInv(%0)[%1][%2]    INVENTORY_DATA[%0][%1][%2]
+
+enum
+{
+    INVENTORY_TYPE_NONE = -1
+}
+
+enum E_INVENTORY_ITEMS_DATA
+{
+    inv_type,
+    inv_name[32]
+};
+new INVENTORY_ITEMS_DATA[][E_INVENTORY_ITEMS_DATA] =
+{
+    {INVENTORY_TYPE_NONE, "Nada XD"}
+};
 
 /* 
 
@@ -48,9 +65,21 @@ new INVENTORY_DATA[MAX_PLAYERS][MAX_INVENTORY_SLOTS][E_INVENTORY_DATA];
 
 stock ShowPlayerPockets(playerid, pid)
 {
-    for(new i = 0; i != MAX_LISTITEMS; i++ ) PlayerTemp[playerid][pt_PLAYER_LISTITEM][i] = -1;
+    new caption[(64 + 48)], dialog[(64 * 32 * 10)];
+    for(new i = 0; i != MAX_INVENTORY_SLOTS; i++)
+    {
+        if(INVENTORY_DATA[pid][i][inventory_VALID])
+        {
+            new line_str[445];
+            format(line_str, sizeof(line_str), "{"#GREEN_COLOR"}[%d] {FFFFFF}| %s\n", INVENTORY_DATA[pid][i][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][i][inventory_TYPE] ][inv_name]);
+        }
+        else strcat(dialog, Empty_InventoryData[i]);
+    }
 
-    new caption[(64 + 48)], dialog[(64 * 32 * 10)], listitem;
+    new crew_str[445];
+    if(PI[playerid][pCREW]) format(crew_str, 445, "");
+    else crew_str = "{ffffff}Banda: Ninguna\n";
+    strcat(dialog, crew_str);
 
     ShowPlayerDialog(playerid, DIALOG_INVENTORY, DIALOG_STYLE_TABLIST, caption, dialog, "Continuar", "Cerrar");
 
@@ -65,4 +94,5 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
     {
         ShowPlayerPockets(playerid, playerid);
     }
+    return Y_HOOKS_CONTINUE_RETURN_1;
 }

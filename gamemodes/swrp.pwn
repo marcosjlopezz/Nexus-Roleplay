@@ -315,7 +315,7 @@ new ELEVATOR_INFO[][e_ELEVATOR_INFO] =
 
 new Float:POLICE_VEHICLES_SPAWN[][] =
 {
-	{1652.0131, -1618.4984, 6.2887, 182.7377}, // ls
+	{1633.7942, -1613.4928, 3.8353, 180.8391}, // ls
 	{-1606.6038, 677.0859, -5.2422, 179.2077}, // sf
 	{2243.2258, 2434.3228, 3.2734, 126.7643} // lv
 };
@@ -1147,7 +1147,7 @@ new San_Andreas_Barriers[][San_Andreas_Barriers_Info] = // usar VEHICLE_TYPE_NON
 	{VEHICLE_TYPE_NONE, WORK_NONE, WORK_NONE, -495.0410, -562.1307, 24.4932, 180.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,				0.0, 0.0, 0.0}, // barrera camioneros TRUCK
 
 	{VEHICLE_TYPE_NONE, WORK_NONE, WORK_NONE, -82.1645, -1123.0260, 0.0373, 67.1102, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,				0.0, 0.0, 0.0}, // grua
-	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, 1540.23718, -1625.16516, 12.37620, 90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,		0.0, 0.0, 0.0}, // barrera POLICIA LS
+	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, 1539.792236, -1632.638916, 12.542699, 270.000000, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,		0.0, 0.0, 0.0}, // barrera POLICIA LS
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, 2238.19897, 2450.41797, 9.80680, -90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0}, // barrera POLICIA LV
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, -1572.20313, 658.83588, 6.07810, -90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0}, // barrera POLICIA SF 1
 	{VEHICLE_TYPE_WORK, WORK_POLICE, WORK_NONE, -1701.42969, 687.59381, 23.88280, 90.0, 0, 0, INVALID_STREAMER_ID, -1, false, 15.0, 0,			0.0, 0.0, 0.0}, // barrera POLICIA SF 2
@@ -2223,10 +2223,10 @@ enum enum_POLICE_GARAGE_DOORS
 }
 new POLICE_GARAGE_DOORS[][enum_POLICE_GARAGE_DOORS] =
 {
-	{3055, 1599.427734, -1627.953002, 6.653874, 0.000000, 0.000000, 268.900100, 	1599.427734, -1627.953002, 2.383876, 0.000000, 0.000000, 268.900100, 	1.2, false, INVALID_STREAMER_ID, -1},
-	{3055, 2294.04102, 2498.81396, 4.47113, 0.00000, 0.00000, 90.00000, 			2294.0410, 2498.8140, 9.0059, 0.0, 0.0, 90.0, 							1.6, false, INVALID_STREAMER_ID, -1},
-	{3055, 2335.13086, 2443.66895, 6.97370, 0.00000, 0.00000, 60.00000, 			2335.1309, 2443.6689, 11.6876, 0.0, 0.0, 60.0, 							1.6, false, INVALID_STREAMER_ID, -1},
-	{10184, -1631.69556, 688.56641, 8.70960, 0.00000, 0.00000, 90.00000, 			-1631.6956, 688.5664, 13.2064, 0.0, 0.0, 90.0, 							1.6, false, INVALID_STREAMER_ID, -1}
+	{3055, 1607.911743, -1666.967651, 6.050696, 0.000000, 0.000000, 179.999984, 1607.911743, -1666.967651, 1.660699, 0.000000, 0.000000, 179.999984,		1.3, false, INVALID_STREAMER_ID, -1},
+	{3055, 2294.04102, 2498.81396, 4.47113, 0.00000, 0.00000, 90.00000, 2294.0410, 2498.8140, 9.0059, 0.0, 0.0, 90.0, 										1.6, false, INVALID_STREAMER_ID, -1},
+	{3055, 2335.13086, 2443.66895, 6.97370, 0.00000, 0.00000, 60.00000, 2335.1309, 2443.6689, 11.6876, 0.0, 0.0, 60.0, 										1.6, false, INVALID_STREAMER_ID, -1},
+	{10184, -1631.69556, 688.56641, 8.70960, 0.00000, 0.00000, 90.00000, -1631.6956, 688.5664, 13.2064, 0.0, 0.0, 90.0, 									1.6, false, INVALID_STREAMER_ID, -1}
 };
 
 enum enum_POLICE_DOORS
@@ -2244,11 +2244,6 @@ enum enum_POLICE_DOORS
 }
 new POLICE_DOORS[][enum_POLICE_DOORS] =
 {
-	{1495, 1582.6055, -1638.0713, 12.3384, 0.0, 0, 0, true, INVALID_STREAMER_ID, -1},//lspd
-	{1495, 245.62910, 72.53300, 1002.54999, 0.0, 6, 0, true, INVALID_STREAMER_ID, -1},//lspd
-	{1495, 250.65849, 62.58540, 1002.54999, 90.0, 6, 0, true, INVALID_STREAMER_ID, -1},//lspd
-	{1495, 226.16409, 71.01760, 1003.95050, 90.0, 6, 0, true, INVALID_STREAMER_ID, -1},//lspd
-	{1497, 222.14630, 70.52970, 1003.95050, -90.0, 6, 0, true, INVALID_STREAMER_ID, -1},//lspd
 	{1495, -1619.70764, 688.41058, 6.17220, 180.00000, 0, 0, true, INVALID_STREAMER_ID, -1},//sfpd
 	{1495, 239.58211, 116.84430, 1002.20319, 90.00000, 10, 0, true, INVALID_STREAMER_ID, -1},//sfpd
 	{1495, 253.19209, 108.35700, 1002.20319, 90.00000, 10, 0, true, INVALID_STREAMER_ID, -1},//sfpd
@@ -2270,7 +2265,7 @@ enum E_POLICE_START_WORK
 };
 new POLICE_START_WORK[][E_POLICE_START_WORK] =
 {
-	{253.280288, 76.219017, 1003.640625, -1, 6},
+	{1568.2251, -1690.5861, 19.8381, -1, 1},
 	{266.547180, 119.652816, 1004.617187, -1, 10},
 	{217.816406, 187.667922, 1003.031250, -1, 3}
 };
@@ -2285,7 +2280,7 @@ enum E_POLICE_EQUIP
 };
 new POLICE_EQUIP[][E_POLICE_EQUIP] =
 {
-	{219.244018, 69.982215, 1005.039062, -1, 6},
+	{1571.5701, -1690.7615, 19.8381, -1, 1},
 	{262.945587, 109.785270, 1004.617187, -1, 10},
 	{222.683914, 186.956054, 1003.031250, -1, 3}
 };
@@ -3022,11 +3017,11 @@ new ENTER_EXIT[][Enter_Exits] = // EE = EnterExits
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Gobierno San Andreas", INTERIOR_CITY_HALL_LS, -1, true, 1, 1, 920.2025, -1474.7396, 2754.3318, 0.0, 3, false, 0, 0, 1480.966918, -1772.065673, 18.795755, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Unity Station", INTERIOR_UNITY_STATION, -1, false, 0, 3, 1494.416015, 1303.681884, 1093.289062, 0.0, -1, false, 0, 0, 1752.603881, -1894.155883, 13.557376, 270.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Camioneros", INTERIOR_TRUCK, -1, true, 25, 18, 1297.457031, -61.437820, 1002.498046, 180.0, -1, false, 0, 0, -510.699890, -539.409118, 25.523437, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_LS, -1, false, 0, 6, 246.827011, 62.424068, 1003.640625, 0.0, 30, false, 0, 0, 1549.1693, -1674.8617, 16.3154, 89.4187, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_LS, -1, false, 1, 1, 1561.2817, -1674.4030, 19.8381, 271.4333, 30, false, 0, 0, 1550.5962, -1672.5985, 13.5579, 89.2858, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía San Fierro", INTERIOR_POLICE_SF, -1, false, 0, 10, 246.425857, 107.400123, 1003.218750, 0.0, 30, false, 0, 0, -1605.511840, 710.382507, 13.867187, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Las Venturas", INTERIOR_POLICE_LV, -1, false, 0, 3, 238.758178, 138.726867, 1003.023437, 0.0, 30, false, 0, 0, 2287.059082, 2432.260742, 10.820312, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Club Alhambra", INTERIOR_ALHAMBRA, -1, false, 0, 17, 493.487731, -24.662528, 1000.679687, 0.0, 48, false, 0, 0, 1836.876586, -1682.407104, 13.329626, 90.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_GARAGE, -1, false, 0, 6, 246.407897, 87.903236, 1003.640625, 180.0, -1, false, 0, 0, 1664.8936, -1643.7853, 6.6169, 88.2415, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_GARAGE, -1, false, 1, 1, 1571.8585, -1679.0742, 19.8381, 28.2647, -1, false, 0, 0, 1621.4292, -1654.3020, 4.1634, 88.4908, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía San Fierro", INTERIOR_POLICE_GARAGE, -1, false, 0, 10, 278.369232, 117.561325, 1004.617187, 90.0, -1, false, 0, 0, -1594.110107, 716.163024, -4.906250, 270.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Las Venturas", INTERIOR_POLICE_GARAGE, -1, false, 0, 3, 231.671142, 181.048477, 1003.031250, 90.0, -1, false, 0, 0, 2282.221923, 2423.218505, 3.476562, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Hospital", INTERIOR_HOSPITAL, -1, false, 1, 3, -2029.700683, -119.617759, 1035.171875, 0.0, 22, false, 0, 0,	2034.197875, -1403.040039, 17.294845, 180.0	, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
@@ -5760,17 +5755,13 @@ CMD:b(playerid, params[])
 CMD:do(playerid, params[])
 {
 	if(isnull(params)) return ErrorCommandParams(playerid, "/do [TEXTO]");
-
-    new str_text[190];
-    format(str_text, sizeof(str_text), "* %s (( %s ))", PlayerTemp[playerid][pt_NAME], params);
-	ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+    SendPlayerEnviroment(playerid, params);
 	return 1;
 }
 
 CMD:me(playerid, params[])
 {
 	if(isnull(params)) return ErrorCommandParams(playerid, "/me [TEXTO]");
-	
 	SendPlayerAction(playerid, params);
 	return 1;
 }
@@ -5779,20 +5770,16 @@ CMD:1(playerid, params[])
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL || PI[playerid][pSTATE] == ROLEPLAY_STATE_ARRESTED) return SendClientMessagef(playerid, -1, "Ahora no puedes usar este comando.");
 	
-	new str_text[190];
 	if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_SET] && PlayerTemp[playerid][pt_WORKING_IN] == WORK_POLICE)
 	{
 		SendPlayerAction(playerid, "desenfunda su arma con autoridad y determinación.");
-		format(str_text, sizeof(str_text), "* %s (( ..::Click::.. ..::Clack::.. Arma lista para disparar ))", PlayerTemp[playerid][pt_NAME]);
-		ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+		SendPlayerEnviroment(playerid, "..::Click::.. ..::Clack::.. Arma lista para disparar");
 	}
 	else
 	{
 		SendPlayerAction(playerid, "saca su arma con un gesto rápido y amenazante.");
-		format(str_text, sizeof(str_text), "* %s (( ..::Click::.. ..::Clack::.. Arma lista para disparar ))", PlayerTemp[playerid][pt_NAME]);
-		ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
-		format(str_text, sizeof(str_text), "* %s (( Se verian a todos los civiles correr cuando ven al sujeto armado ))", PlayerTemp[playerid][pt_NAME]);
-		ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+		SendPlayerEnviroment(playerid, "..::Click::.. ..::Clack::.. Arma lista para disparar");
+		SendPlayerEnviroment(playerid, "Se verian a todos los civiles correr cuando ven al sujeto armado");
 	}
 	return 1;
 }
@@ -6728,7 +6715,7 @@ CMD:setfdrum(playerid, params[])
 
 SendPlayerAction(playerid, const action[])
 {
-	new str_text[190];
+	new str_text[445];
 	format(str_text, sizeof str_text, "* %s %s", PlayerTemp[playerid][pt_NAME], action);
 	ProxDetector(playerid, 15.0, str_text, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 85);
 	return 1;
@@ -6736,9 +6723,25 @@ SendPlayerAction(playerid, const action[])
 
 Auto_SendPlayerAction(playerid, const action[])
 {
-	new str_text[145];
-	format(str_text, 145, "* %s %s", PlayerTemp[playerid][pt_NAME], action);
+	new str_text[445];
+	format(str_text, 145, "** %s %s", PlayerTemp[playerid][pt_NAME], action);
 	ProxDetector(playerid, 15.0, str_text, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF, 0xC2A2DAFF);
+	return 1;
+}
+
+SendPlayerEnviroment(playerid, const action[])
+{
+    new str_text[445];
+    format(str_text, sizeof(str_text), "* %s (( %s ))", PlayerTemp[playerid][pt_NAME], action);
+	ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+	return 1;
+}
+
+stock Auto_SendPlayerEnviroment(playerid, const action[])
+{
+    new str_text[445];
+    format(str_text, sizeof(str_text), "** %s (( %s ))", PlayerTemp[playerid][pt_NAME], action);
+	ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
 	return 1;
 }
 
@@ -23602,16 +23605,14 @@ CMD:esposar(playerid, params[])
 		Auto_SendPlayerAction(playerid, action);
 		return 1;
 	}
+
+	SendPlayerAction(playerid, "saca sus esposas y rapidamente se las coloca al sujeto.");
+	SendPlayerEnviroment(playerid, "¿Pondra resistencia? Si esta abatido entonces NO!");
 	
 	if(!pTemp(params[0])[pt_CUFFING])
 	{
 		if(oldstate == ROLEPLAY_STATE_CRACK) 
 		{
-			new str_text[445];
-			SendPlayerAction(playerid, "saca sus esposas y rapidamente se las coloca al sujeto.");
-			format(str_text, sizeof(str_text), "* %s (( ¿Pondra resistencia? Si esta abatido entonces NO! ))", PlayerTemp[playerid][pt_NAME]);
-			ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
-
 			KillTimer(pTemp(params[0])[pt_TASSED]);
 			pTemp(params[0])[pt_TASSED] = -1;
 			pTemp(params[0])[pt_TASSED_TIME] = 0;
@@ -23624,11 +23625,6 @@ CMD:esposar(playerid, params[])
 			SendClientMessagef(params[0], -1, "Estás siendo esposado, puedes /resistirse.");
 			SendClientMessagef(playerid, -1, "Estás esposando a esta persona, aun puede resistirse.");
 
-			new str_text[445];
-			SendPlayerAction(playerid, "saca sus esposas y rapidamente se las coloca al sujeto.");
-			format(str_text, sizeof(str_text), "* %s (( ¿Pondra resistencia? Si esta abatido entonces NO! ))", PlayerTemp[playerid][pt_NAME]);
-			ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
-			
 			pTemp(params[0])[pt_CUFFED] = false;
 			pTemp(params[0])[pt_CUFFING] = true;
 
@@ -23639,6 +23635,7 @@ CMD:esposar(playerid, params[])
 			KillTimer(pTemp(params[0])[pt_TIMERS][14]);
 			TogglePlayerControllableEx(params[0], false);
 			SetPlayerSpecialAction(params[0], SPECIAL_ACTION_HANDSUP);
+
 			pTemp(params[0])[pt_TIMERS][14] = SetTimerEx("CuffPlayer", 6000, false, "i", params[0]);
 		}
 	}
@@ -24135,7 +24132,7 @@ CMD:entregar(playerid, params[])
 	if(GetPlayerVehicleID(params[0]) != vehicleid) return SendClientMessagef(playerid, -1, "Para entregar a esta persona tiene que estar dentro del vehículo policial.");
 	if(PI[params[0]][pWANTED_LEVEL] == 0) return SendClientMessagef(playerid, -1, "Esta persona no tiene nivel de busqueda.");
 	
-	if(IsPlayerInRangeOfPoint(playerid, 20.0, 1564.971923, -1694.916381, 5.617697) || IsPlayerInRangeOfPoint(playerid, 20.0, 6808.6948, 5335.9800 ,14.9625))
+	if(IsPlayerInRangeOfPoint(playerid, 20.0, 1616.1844, -1646.2318, 3.8417)/* || IsPlayerInRangeOfPoint(playerid, 20.0, 6808.6948, 5335.9800 ,14.9625)*/)
 	{
 		new message[1024];
 		if(pTemp(playerid)[pt_POLICE_SWAT]) format(message, sizeof message, "{"#SWAT_COLOR"}[División S.W.A.T] {FFFFFF}%s reporta: {"#SWAT_COLOR"}%s (%d*) {FFFFFF}estado: {"#SWAT_COLOR"}Entregado.", PlayerTemp[playerid][pt_NAME], pTemp(params[0])[pt_NAME], PI[params[0]][pADMIN_LEVEL]);
@@ -24182,29 +24179,6 @@ CMD:policias(playerid, params[])
 	return 1;
 }
 
-CMD:entregarse(playerid, params[])
-{
-	if(PI[playerid][pWANTED_LEVEL] <= 0) return SendClientMessagef(playerid, -1, "No tienes cargos.");
-	
-	if(IsPlayerInRangeOfPoint(playerid, 1.5, 250.049026, 67.635704, 1003.640625))
-	{
-		PI[playerid][pPOLICE_JAIL_ID] = 0;
-		JailPlayer(playerid);
-	}
-	else if(IsPlayerInRangeOfPoint(playerid, 1.5, 246.349716, 118.358116, 1003.218750))
-	{
-		PI[playerid][pPOLICE_JAIL_ID] = 1;
-		JailPlayer(playerid);
-	}
-	else if(IsPlayerInRangeOfPoint(playerid, 1.5, 235.772537, 165.382186, 1003.029968))
-	{
-		PI[playerid][pPOLICE_JAIL_ID] = 2;
-		JailPlayer(playerid);
-	}
-	else SendClientMessagef(playerid, -1, "No estás en el lugar adecuado.");
-	return 1;
-}
-
 CMD:resistirse(playerid, params[])
 {
 	if(PlayerTemp[playerid][pt_CUFFING])
@@ -24214,10 +24188,7 @@ CMD:resistirse(playerid, params[])
 		TogglePlayerControllableEx(playerid, true);
 		SetPlayerSpecialAction(playerid, SPECIAL_ACTION_NONE);
 
-		new str_text[445];
-		format(str_text, sizeof(str_text), "* %s (( Si ))", PlayerTemp[playerid][pt_NAME]);
-		ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
-
+		SendPlayerEnviroment(playerid, "SI");
 		Auto_SendPlayerAction(playerid, "se resiste.");
 	}
 	return 1;
@@ -24249,10 +24220,7 @@ public CuffPlayer(playerid)
 	PlayerTemp[playerid][pt_CUFFING] = false;
 	TogglePlayerControllableEx(playerid, true);
 	SetPlayerSpecialAction(playerid, SPECIAL_ACTION_CUFFED);
-
-	new str_text[445];
-	format(str_text, sizeof(str_text), "* %s (( No ))", PlayerTemp[playerid][pt_NAME]);
-	ProxDetector(playerid, 15.0, str_text, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 0xADFF2FAA, 85);
+	SendPlayerEnviroment(playerid, "NO");
 	return 1;
 }
 
@@ -24277,12 +24245,12 @@ SendPoliceRadioMessage(radio, color, const message[])
 				{
 					if(pTemp(i)[pt_WORKING_IN] == WORK_POLICE)
 					{
-						if(radio == -1) SendClientMessage(i, color, message);
+						if(radio == -1) SendClientMessagef(i, color, message);
 						else
 						{
 							if(pTemp(i)[pt_POLICE_RADIO] == radio)
 							{
-								SendClientMessage(i, color, message);
+								SendClientMessagef(i, color, message);
 							}
 						}
 					}
