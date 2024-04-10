@@ -2853,7 +2853,8 @@ enum Temp_Enum
 	SV_BOOL:pt_VOICE_MICROPHONE,
 	SV_UINT:pt_LOCAL_CHANNEL,*/
 	pt_POCKETS_SELECTED_PLAYER,
-	pt_POCKETS_PLAYERID
+	pt_POCKETS_PLAYERID,
+	pt_VEHICLE_SPAWN_INDEX
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3021,7 +3022,7 @@ new ENTER_EXIT[][Enter_Exits] = // EE = EnterExits
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía San Fierro", INTERIOR_POLICE_SF, -1, false, 0, 10, 246.425857, 107.400123, 1003.218750, 0.0, 30, false, 0, 0, -1605.511840, 710.382507, 13.867187, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Las Venturas", INTERIOR_POLICE_LV, -1, false, 0, 3, 238.758178, 138.726867, 1003.023437, 0.0, 30, false, 0, 0, 2287.059082, 2432.260742, 10.820312, 180.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Club Alhambra", INTERIOR_ALHAMBRA, -1, false, 0, 17, 493.487731, -24.662528, 1000.679687, 0.0, 48, false, 0, 0, 1836.876586, -1682.407104, 13.329626, 90.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
-	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_GARAGE, -1, false, 1, 1, 1571.8585, -1679.0742, 19.8381, 28.2647, -1, false, 0, 0, 1621.4292, -1654.3020, 4.1634, 88.4908, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
+	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Los Santos", INTERIOR_POLICE_GARAGE, -1, false, 1, 1, 1571.8660, -1679.0662, 19.8381, 30.8891, -1, false, 0, 0, 1621.5770, -1654.2692, 4.1634, 90.2525, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía San Fierro", INTERIOR_POLICE_GARAGE, -1, false, 0, 10, 278.369232, 117.561325, 1004.617187, 90.0, -1, false, 0, 0, -1594.110107, 716.163024, -4.906250, 270.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Policía Las Venturas", INTERIOR_POLICE_GARAGE, -1, false, 0, 3, 231.671142, 181.048477, 1003.031250, 90.0, -1, false, 0, 0, 2282.221923, 2423.218505, 3.476562, 0.0, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID}, // garaje lspd
 	{-1, false, 0, INVALID_ACTOR_ID, -1, Text:INVALID_TEXT_DRAW, 0, -1, 0.0, -1, "Hospital", INTERIOR_HOSPITAL, -1, false, 1, 3, -2029.700683, -119.617759, 1035.171875, 0.0, 22, false, 0, 0,	2034.197875, -1403.040039, 17.294845, 180.0	, 0, 0, -1, -1, Text3D:INVALID_3DTEXT_ID, Text3D:INVALID_3DTEXT_ID, -1, -1, INVALID_OBJECT_ID},
@@ -3052,7 +3053,7 @@ enum enum_JAIL_POSITIONS
 }
 new JAIL_POSITIONS[][enum_JAIL_POSITIONS] = 
 {
-	{INTERIOR_POLICE_LS, 265.070129, 77.518280, 1001.039062, 270.0, 6}, //jaills
+	{INTERIOR_POLICE_LS, 1571.8126, -1662.1216, 19.8381, 88.8908, 1}, //jaills
 	{INTERIOR_POLICE_SF, 215.681945, 110.177680, 999.015625, 0.0, 10}, //jailsf
 	{INTERIOR_POLICE_LV, 197.925323, 174.997573, 1003.023437, 0.0, 3} //jaillv
 };
@@ -15089,11 +15090,8 @@ public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
 
 				if(PLAYER_WORKS[playerid][WORK_POLICE][pwork_LEVEL] < POLICE_VEHICLES_INFO[ PlayerTemp[playerid][pt_PLAYER_LISTITEM][index] ][1]) return SendClientMessagef(playerid, -1, "No tienes el rango adecuado para este vehiculo.");
 
-				new Float:pos[3];
-				GetPlayerPos(playerid, pos[0], pos[1], pos[2]);
-
 				new vehicle_id = INVALID_VEHICLE_ID;
-				vehicle_id = CreateVehicle(POLICE_VEHICLES_INFO[ PlayerTemp[playerid][pt_PLAYER_LISTITEM][index] ][0], pos[0], pos[1], pos[2], 270.0, 0, 1, -1, false);
+				vehicle_id = CreateVehicle(POLICE_VEHICLES_INFO[ PlayerTemp[playerid][pt_PLAYER_LISTITEM][index] ][0], POLICE_VEHICLES_SPAWN[ PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] ][0], POLICE_VEHICLES_SPAWN[ PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] ][1], POLICE_VEHICLES_SPAWN[ PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] ][2], POLICE_VEHICLES_SPAWN[ PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] ][3], 0, 1, -1, false);
 				if(vehicle_id == INVALID_VEHICLE_ID) return SendMessage(playerid, "No se pueden crear mas vehiculos, Intenta de nuevo mas tarde...");
 				
 				pTemp(playerid)[pt_VEHICLE_SPAWNED] = vehicle_id;
@@ -15101,10 +15099,10 @@ public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
 				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_TYPE] = VEHICLE_TYPE_WORK;
 				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_MODELID] = POLICE_VEHICLES_INFO[ PlayerTemp[playerid][pt_PLAYER_LISTITEM][index] ][0];
 				format(GLOBAL_VEHICLES[vehicle_id][gb_vehicle_NUMBER_PLATE], 32, "P-%04d", getRandomLetter(), getRandomLetter(), getRandomLetter(), random(9999));
-				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X] = pos[0];
-				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y] = pos[1];
-				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z] = pos[2];
-				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_ANGLE] = 270.0;
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X] = POLICE_VEHICLES_SPAWN[ PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] ][0];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y] = POLICE_VEHICLES_SPAWN[ PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] ][1];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Z] = POLICE_VEHICLES_SPAWN[ PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] ][2];
+				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_ANGLE] = POLICE_VEHICLES_SPAWN[ PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] ][3];
 				
 				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][0] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_X];
 				GLOBAL_VEHICLES[vehicle_id][gb_vehicle_POS][1] = GLOBAL_VEHICLES[vehicle_id][gb_vehicle_SPAWN_Y];
@@ -17500,6 +17498,7 @@ public OnPlayerPickUpDynamicPickup(playerid, pickupid)
 				if(PlayerTemp[playerid][pt_WORKING_IN] != WORK_POLICE) SendMessage(playerid, "No estas de servicio como policia.");
 				else
 				{
+					PlayerTemp[playerid][pt_VEHICLE_SPAWN_INDEX] = info[1];
 					ShowMenu(playerid, MENU_SELECT_POLICE_VEHICLE);
 				}
 			}
@@ -27982,7 +27981,7 @@ stock LoadServerInfo()
 		Streamer_SetArrayData(STREAMER_TYPE_PICKUP, equipment_pickup, E_STREAMER_EXTRA_ID, info);
 	}
 	
-	Jail_Areas[0] = CreateDynamicRectangle(258.236938, 72.319061, 273.117279, 95.841438, -1, 6);
+	Jail_Areas[0] = CreateDynamicRectangle(1593.5, -1725.5, 1657.5, -1597.5, -1, 1);
 	Jail_Areas[1] = CreateDynamicRectangle(211.001739, 117.171920, 236.010986, 104.004219, -1, 10);
 	Jail_Areas[2] = CreateDynamicRectangle(204.957885, 180.868392, 183.743148, 168.624618, -1, 3);
 	Jail_Areas[3] = CreateDynamicRectangle(366.3146, 1951.8367, 17.6406, 78.4408, -1, 13);
