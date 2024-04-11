@@ -29803,6 +29803,7 @@ public OnPlayerLogin(playerid)
 	LoadPlayerWeaponsData(playerid);
 	LoadPlayerWorks(playerid);
 	LoadPlayerCrewInfo(playerid);
+	LoadPlayerPockets(playerid);
 
 	SetPlayerScore(playerid, PI[playerid][pLEVEL]);
 	PlayerTemp[playerid][pt_DOUBT_CHANNEL_TIME] = gettime();

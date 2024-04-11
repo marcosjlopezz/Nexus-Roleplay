@@ -98,6 +98,32 @@ stock InserPlayerPocketData(playerid, index)
     return 1;
 }
 
+stock LoadPlayerPockets(playerid)
+{
+    inline OnPlayerPocketsLoad()
+    {
+        new rows;
+        if(cache_get_row_count(rows))
+        {
+            if(rows)
+            {
+                LoopEx(i, rows, 0)
+                {
+                    new slot;
+                    cache_get_value_name_int(i, "slot", slot);
+
+                    INVENTORY_DATA[playerid][slot][inventory_VALID] = true;
+                    cache_get_value_name_int(i, "type", INVENTORY_DATA[playerid][slot][inventory_TYPE]);
+                    cache_get_value_name_int(i, "extra", INVENTORY_DATA[playerid][slot][inventory_EXTRA]);
+                }
+            }
+        }
+    }
+    mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "SELECT * FROM pinventory WHERE id_player = %d;", PI[playerid][pID]);
+    mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPlayerPocketsLoad);
+    return 1;
+}
+
 stock InsertPlayerPocket_Snacks(playerid, index)
 {
     INVENTORY_DATA[playerid][index][inventory_TYPE] = INVENTORY_TYPE_SNACKS;
