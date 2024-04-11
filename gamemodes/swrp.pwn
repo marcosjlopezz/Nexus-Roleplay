@@ -126,6 +126,8 @@ AntiAmx()
 #define MAX_VIP_PROPERTIES 		3
 #define MAX_VIP_WORKS			3
 
+#define INFINITY_HEALTH        	Float:0x7F800000
+
 #define HidePlayerDialog(%1)	ShowPlayerDialog(%1, -1, 0, " ", " ", " ", " ")
 #define callbackp:%0(%1) 		forward %0(%1); public %0(%1)
 
@@ -10130,18 +10132,44 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				switch(Supermarket_Product_List[listitem][product_TYPE])
 				{
-					/*case PRODUCT_TYPE_FOOD, PRODUCT_TYPE_DRINK:
+					case PRODUCT_TYPE_FOOD:
 					{
+						new index = GetPlayerFreePocketsSlot(playerid);
+						if(index == -1) return SendMessage(playerid, "No te queda mas espacio en el inventario.");
+
 						if(PI[playerid][pCASH] >= Supermarket_Product_List[listitem][product_PRICE])
 						{
-
+							if(GivePlayerCash(playerid, -Supermarket_Product_List[listitem][product_PRICE], true, true)) 
+							{
+								InsertPlayerPocket_Snacks(playerid, index);
+								SendMessage(playerid, "Has comprado unos snacks, usa /n para consumir");
+							}
 						}
 						else
 						{
 							PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
 							SendMessagef(playerid, "No tienes dinero suficiente, te faltan ~r~%s$~w~ para poder comprar este producto.", number_format_thousand(Supermarket_Product_List[listitem][product_PRICE] - PI[playerid][pCASH]));
 						}
-					}*/
+					}
+					case PRODUCT_TYPE_DRINK:
+					{
+						new index = GetPlayerFreePocketsSlot(playerid);
+						if(index == -1) return SendMessage(playerid, "No te queda mas espacio en el inventario.");
+
+						if(PI[playerid][pCASH] >= Supermarket_Product_List[listitem][product_PRICE])
+						{
+							if(GivePlayerCash(playerid, -Supermarket_Product_List[listitem][product_PRICE], true, true)) 
+							{
+								InsertPlayerPocket_WaterBottle(playerid, index);
+								SendMessage(playerid, "Has comprado unas botellas de agua, usa /n para consumir");
+							}
+						}
+						else
+						{
+							PlayerPlaySoundEx(playerid, 1085, 0.0, 0.0, 0.0);
+							SendMessagef(playerid, "No tienes dinero suficiente, te faltan ~r~%s$~w~ para poder comprar este producto.", number_format_thousand(Supermarket_Product_List[listitem][product_PRICE] - PI[playerid][pCASH]));
+						}
+					}
 					case PRODUCT_TYPE_PHONE:
 					{						
 						if(PI[playerid][pCASH] >= Supermarket_Product_List[listitem][product_PRICE])
@@ -22848,9 +22876,7 @@ stock GivePlayerArmourEx(playerid, Float:armour)
 
 stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 {
-	new Float:sa_health;
-	GetPlayerHealth(playerid, sa_health);
-	if(sa_health < 999999999.8) SetPlayerHealth(playerid, 999999999.9);
+	SetPlayerHealth(playerid, INFINITY_HEALTH);
 
 	if(PI[playerid][pHEALTH] <= 0.1)
 	{
