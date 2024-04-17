@@ -79,11 +79,6 @@ stock ClearPlayerTempData(playerid)
     pTemp(playerid)[pt_PROPERTY_INDEX] = false;
     pTemp(playerid)[pt_KICKED] = false;
     pTemp(playerid)[pt_SELECTED_DIALOG_WEAPON_SLOT] = 0;
-    pTemp(playerid)[pt_TRICK_SELLER_PID] = 0;
-    pTemp(playerid)[pt_TRICK_SELLER_AID] = 0;
-    pTemp(playerid)[pt_TRICK_SELLER_EXTRA] = 0;
-    pTemp(playerid)[pt_TRICK_PRICE] = 0;
-    pTemp(playerid)[pt_TRICK_TIME] = 0;
     pTemp(playerid)[pt_DIALOG_BOT_VEHICLE] = 0;
     pTemp(playerid)[pt_DIALOG_BOT_VEHICLE_BOOT_SLOT] = 0;
     pTemp(playerid)[pt_POLICE_RADIO] = 0;

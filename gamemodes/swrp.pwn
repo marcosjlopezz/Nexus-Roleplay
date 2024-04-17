@@ -11,15 +11,15 @@ AntiAmx()
     #pragma unused a
 }
 
-/*#define MYSQL_HOST "23.167.232.40"
-#define MYSQL_USER "u13_33qWkls4Px"
-#define MYSQL_DB "s13_swrp_db"
-#define MYSQL_PASS "eU4=8wmwyO^Knz+stv=8ggbk"*/
+/*#define MYSQL_HOST 	""
+#define MYSQL_USER 		""
+#define MYSQL_DB 		""
+#define MYSQL_PASS 		""*/
 
-#define MYSQL_HOST "localhost"
-#define MYSQL_USER "root"
-#define MYSQL_DB "swrp_db"
-#define MYSQL_PASS ""
+#define MYSQL_HOST 		"localhost"
+#define MYSQL_USER 		"root"
+#define MYSQL_DB 		"swrp_db"
+#define MYSQL_PASS 		""
 
 #include <crashdetect>
 #include <YSI-Includes\YSI\y_inline>
@@ -40,7 +40,7 @@ AntiAmx()
 #include <PawnPlus>
 #include <YSF>
 #include <progress2>
-//#include <samp_bcrypt>
+#include <samp_bcrypt>
 #include <mobile>
 #include <eSelection>
 #include <discord-connector>
@@ -2739,11 +2739,6 @@ enum Temp_Enum
 	pt_PROPERTY_INDEX,
 	bool:pt_KICKED,
 	pt_SELECTED_DIALOG_WEAPON_SLOT,
-	pt_TRICK_SELLER_PID,
-	pt_TRICK_SELLER_AID,
-	pt_TRICK_SELLER_EXTRA,
-	pt_TRICK_PRICE,
-	pt_TRICK_TIME,
 	pt_DIALOG_BOT_VEHICLE,
 	pt_DIALOG_BOT_VEHICLE_BOOT_SLOT,
 	pt_POLICE_RADIO,
@@ -2861,8 +2856,15 @@ enum Temp_Enum
 	pt_VEHICLE_SPAWN_INDEX,
 	pt_SELECTED_POCKET_SLOT,
 	pt_HAND_POCKET,
+	pt_INVENTORY_OPTION_EXTRA,
 	pt_INVENTORY_DATA_EXTRA,
-	pt_INVENTORY_SELL_EXTRA
+	pt_INVENTORY_SELL_DATA,
+	pt_INVENTORY_SELL_EXTRA,
+	pt_TRICK_PLAYERID,
+	pt_TRICK_TYPE,
+	pt_TRICK_EXTRA,
+	pt_TRICK_PRICE,
+	pt_TRICK_TIMER
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -6790,15 +6792,15 @@ stock ShowDialog(playerid, dialogid)
 			new dialog[4096];
 			format(dialog, sizeof dialog, 
 			"\
-				{ffffff}Bienvenido {"#GREEN_COLOR"}%s. {ffffff}Esperamos que disfrutes el servidor\n\
+				{ffffff}Bienvenido {"#GREEN_COLOR"}%s. {ffffff}esperemos que disfrutes el servidor\n\
 				\n\
-				{ffffff}Tenemos muchisimos sistemas buenos\n\
+				{ffffff}Tenemos un buen espacio para ti en nuestra comunidad, ademas de varios sistemas\n\
 				{ffffff}manteniendo nuestra escencia de {"#LIGHT_RED"}Rol Medio.\n\
 				\n\
-				{ffffff}Para {"#YELLOW_COLOR"}registrarte {ffffff}ingresa una clave:\n\
-				\n\
 				{ffffff}- {"#PRIMARY_COLOR"}WEB: {d1d1d1}"#SERVER_WEBSITE"\n\
-				{ffffff}- {"#BLUE_COLOR"}DISCORD: {d1d1d1}"#SERVER_DISCORD"\
+				{ffffff}- {"#BLUE_COLOR"}DISCORD: {d1d1d1}"#SERVER_DISCORD"\n\
+				\n\
+				{ffffff}Para {"#YELLOW_COLOR"}registrarte {ffffff}ingresa una clave:\n\
 			",
 				PlayerTemp[playerid][pt_NAME]
 			);
@@ -6811,11 +6813,12 @@ stock ShowDialog(playerid, dialogid)
 			format(dialog, sizeof dialog, 
 			"\
 				\n\
-				{ffffff}Bienvenido de nuevo, {"#GREEN_COLOR"}%s. {ffffff}Gracias por conectarte una vez mas.\n\
-				{ffffff}Ingresa tu {"#YELLOW_COLOR"}clave{ffffff} para acceder:\n\
+				{ffffff}Bienvenido de nuevo, {"#GREEN_COLOR"}%s. {ffffff}esta cuenta esta registrada.\n\
 				\n\
 				{ffffff}- {"#PRIMARY_COLOR"}WEB: {d1d1d1}"#SERVER_WEBSITE"\n\
-				{ffffff}- {"#BLUE_COLOR"}DISCORD: {d1d1d1}"#SERVER_DISCORD"\
+				{ffffff}- {"#BLUE_COLOR"}DISCORD: {d1d1d1}"#SERVER_DISCORD"\n\
+				\n\
+				{ffffff}Ingresa tu {"#YELLOW_COLOR"}clave{ffffff} para acceder:\n\
 			",
 				PlayerTemp[playerid][pt_NAME]
 			);
@@ -9612,9 +9615,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				if(strlen(inputtext) < MIN_PASS_LENGTH || strlen(inputtext) > MAX_PASS_LENGTH) return ShowDialog(playerid, dialogid);
 				format(PlayerTemp[playerid][pt_PASSWD], 24, "%s", inputtext);
 				
-				//bcrypt_hash(playerid, "OnPlayerRegisterPassword", PlayerTemp[playerid][pt_PASSWD], BCRYPT_COST);
-				SHA256_PassHash(inputtext, "SampWorld", PI[playerid][pPASS], 64);
-				ShowDialog(playerid, DIALOG_EMAIL);			
+				bcrypt_hash(playerid, "OnPlayerRegisterPassword", PlayerTemp[playerid][pt_PASSWD], BCRYPT_COST);	
 			}
 			else Kick(playerid);
 			return 1;
@@ -9659,16 +9660,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(!response) return Kick(playerid);
 			if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 			
-			//bcrypt_verify(playerid, "OnPlayerLoginCheckPass", inputtext, PI[playerid][pPASS]);
-
-			new password[65];
-			SHA256_PassHash(inputtext, "SampWorld", password, 64);
-
-			if(!strcmp(password, PI[playerid][pPASS], false))
-			{
-				OnPlayerLoginCheckPass(playerid, true);
-			}
-			else OnPlayerLoginCheckPass(playerid, false);
+			bcrypt_verify(playerid, "OnPlayerLoginCheckPass", inputtext, PI[playerid][pPASS]);
 			return 1;
 		}
 		case DIALOG_CLOTHES:
@@ -13033,22 +13025,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 				
-				//bcrypt_verify(playerid, "OnChangePasswordCheck", inputtext, PI[playerid][pPASS]);
-
-				new password[64 + 1];
-				SHA256_PassHash(inputtext, "SampWorld", password, 64);
-			
-				if(!strcmp(password, PI[playerid][pPASS], false))
-				{
-					ShowDialog(playerid, DIALOG_CHANGE_PASSWORD_PASS);
-					PLAYER_TEMP[playerid][pt_BAD_LOGIN_ATTEMP] = 0;
-				}
-				else // Error
-				{
-					PLAYER_TEMP[playerid][pt_BAD_LOGIN_ATTEMP] ++;
-					if(PLAYER_TEMP[playerid][pt_BAD_LOGIN_ATTEMP] > MAX_BAD_LOGIN_ATTEMPS) return Kick(playerid);
-					SendMessagef(playerid, "Contraseña incorrecta, aviso %d/%d.", PLAYER_TEMP[playerid][pt_BAD_LOGIN_ATTEMP], MAX_BAD_LOGIN_ATTEMPS);
-				}
+				bcrypt_verify(playerid, "OnChangePasswordCheck", inputtext, PI[playerid][pPASS]);
 			}
 			return 1;
 		}
@@ -13058,13 +13035,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(strlen(inputtext) < MIN_PASS_LENGTH || strlen(inputtext) > MAX_PASS_LENGTH) return ShowDialog(playerid, dialogid);
 				
-				//bcrypt_hash(playerid, "OnChangePasswordHash", inputtext, BCRYPT_COST);
-				SHA256_PassHash(inputtext, "SampWorld", PI[playerid][pPASS], 64);
-	
-				mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET pass = '%e' WHERE id = %d;", PI[playerid][pPASS], PI[playerid][pID]);
-				mysql_tquery(handle_db, QUERY_BUFFER);
-				
-				SendMessage(playerid, "Tu contraseña ha sido cambiada correctamente.");
+				bcrypt_hash(playerid, "OnChangePasswordHash", inputtext, BCRYPT_COST);
 			}
 			return 1;
 		}
@@ -14551,7 +14522,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(!strlen(inputtext)) return ShowDialog(playerid, dialogid);
 		
-				//bcrypt_verify(playerid, "OnChangeNamePassCheck", inputtext, PI[playerid][pPASS]);
+				bcrypt_verify(playerid, "OnChangeNamePassCheck", inputtext, PI[playerid][pPASS]);
 			}
 			return 1;
 		}
@@ -26279,15 +26250,7 @@ CMD:setpass(playerid, params[])
 					if(connected) SendClientMessagef(playerid, -1, "JUGADOR '%s' DB-ID '%d' conectado, player_id: %d, no es necario cambiar la clave.", name, id, pid);
 					else
 					{
-						//bcrypt_hash(playerid, "OnSetPassChange", new_pass, BCRYPT_COST, "iss", id, name, new_pass);
-						
-						new pass_ex[65];
-						SHA256_PassHash(new_pass, "SampWorld", pass_ex, 64);
-						
-						mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET pass = '%e' WHERE id = %d;", pass_ex, id);
-						mysql_tquery(handle_db, QUERY_BUFFER);
-						
-						SendMessagef(playerid, "La contraseña de '%s' ahora es: %s", name, new_pass);					
+						bcrypt_hash(playerid, "OnSetPassChange", new_pass, BCRYPT_COST, "iss", id, name, new_pass);			
 					}
 				}
 				else SendClientMessagef(playerid, -1, "El rango administrativo de este jugador es superior al tuyo.");
@@ -29608,7 +29571,7 @@ SetPiDefaultValues(playerid)
 	format(PI[playerid][pLAST_CONNECTION], 24, "%s", date);
 	format(PI[playerid][pREG_DATE], 24, "%s", date);
 	PI[playerid][pLAST_CONNECTION_TIMESTAMP] = gettime();
-	PI[playerid][pLEVEL] = 2;
+	PI[playerid][pLEVEL] = 1;
 	PI[playerid][pREP] = 1;
 	PI[playerid][pCONNECTED] = 1;
 	PI[playerid][pPLAYERID] = playerid;
@@ -29623,7 +29586,7 @@ SetPiDefaultValues(playerid)
 	PI[playerid][pSTATE] = ROLEPLAY_STATE_NORMAL;
 	PI[playerid][pFIGHT_STYLE] = 4;
 	PI[playerid][pHEALTH] = 100.0;
-	PI[playerid][pARMOUR] = 25.0;
+	PI[playerid][pARMOUR] = 0.0;
 	PI[playerid][pHUNGRY] = 100.0;
 	PI[playerid][pTHIRST] = 100.0;
 	PI[playerid][pCONFIG_SOUNDS] = 1;
@@ -29664,7 +29627,7 @@ callbackp:OnChangePasswordCheck(playerid, bool:success)
 	return 1;
 }
 
-/*callbackp:OnChangePasswordHash(playerid)
+callbackp:OnChangePasswordHash(playerid)
 {
 	bcrypt_get_hash(PI[playerid][pPASS]);
 	SendMessage(playerid, "Tu clave se ha cambiado correctamente.");
@@ -29676,7 +29639,7 @@ callbackp:OnPlayerRegisterPassword(playerid)
 	bcrypt_get_hash(PI[playerid][pPASS]);
 	ShowDialog(playerid, DIALOG_EMAIL);
 	return 1;
-}*/
+}
 
 public OnPlayerRegister(playerid)
 {
@@ -29855,7 +29818,7 @@ callbackp:OnChangeNamePassCheck(playerid, bool:success)
 	return 1;
 }
 
-/*callbackp:OnSetPassChange(playerid, id, name[], new_pass[])
+callbackp:OnSetPassChange(playerid, id, name[], new_pass[])
 {
 	new pass[64 + 1];
 	bcrypt_get_hash(pass);
@@ -29865,7 +29828,7 @@ callbackp:OnChangeNamePassCheck(playerid, bool:success)
 
 	SendMessagef(playerid, "La clave de '%s' ahora es: %s", name, new_pass);
 	return 1;
-}*/
+}
 
 stock IsPlayerLoggedIn(playerid)
 {
