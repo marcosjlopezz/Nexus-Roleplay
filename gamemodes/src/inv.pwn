@@ -487,7 +487,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                 InserPlayerPocketData(playerid, INVENTORY_HAND);
 
                                 SendMessagef(playerid, "Has sacado tu ~g~%s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE] ][inv_NAME]);
-                            
+                                Auto_SendPlayerAction(playerid, "saca algo de sus bolsillos.");
+
                                 if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] == INVENTORY_TYPE_SNACKS || INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] == INVENTORY_TYPE_WATER_BOTTLE)
                                 {
                                     SendMessage(playerid, "Pulsa ~y~Y~w~ para consumir.");
@@ -524,11 +525,12 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                     if(!pTemp(i)[pt_USER_LOGGED]) continue;
                                     if(GetPlayerVirtualWorld(i) != current_vw) continue;
                                     if(GetPlayerInterior(i) != current_int) continue;
+                                    if(i == playerid) continue;
 
                                     if(IsPlayerInRangeOfPoint(i, 4.0, oldposx, oldposy, oldposz))
                                     {
                                         new line_str[145 + 24 + 4]; //string + name + id
-                                        format(line_str, sizeof(line_str), "{"#YELLOW_COLOR"}%s {000000}[{"#YELLOW_COLOR"}ID: %d{000000}]\n", PlayerTemp[i][pt_NAME], i);
+                                        format(line_str, sizeof(line_str), "{"#YELLOW_COLOR"}%s {000000}[{ffffff}ID: %d{000000}]\n", PlayerTemp[i][pt_NAME], i);
                                         strcat(dialog, line_str);
 
                                         Players_Count ++;
@@ -563,7 +565,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                             return Y_HOOKS_BREAK_RETURN_1;
                         }
 
-                        PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] = inputtext[0];
+                        PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] = strval(inputtext[0]);
                         
                         new dialog[445];
                         format(dialog, 445, 
@@ -577,7 +579,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                 PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][pt_NAME]
                         );
 
-                        ShowPlayerDialog(playerid, DIALOG_INVENTORY_OPTIONS_EXTRA, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Dar {ffffff}- Seleccionar Cantidad", dialog, "Continuar", "Cancelar");
+                        ShowPlayerDialog(playerid, DIALOG_INVENTORY_EXTRA_INFO, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Dar {ffffff}- Seleccionar Cantidad", dialog, "Continuar", "Cancelar");
                     }
                 }
             }
@@ -611,17 +613,27 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                             return Y_HOOKS_BREAK_RETURN_1;
                         }
                         
-                        if(INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_VALID])
+                        if(PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][pt_HAND_POCKET] != -1)
                         {
                             SendMessage(playerid, "El jugador no puede recibir nada debido a que tiene algo en su mano.");
                             return Y_HOOKS_BREAK_RETURN_1;
                         }
 
+                        if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] < inputtext[0])
+                        {
+                            SendMessage(playerid, "No tienes esa cantidad.");
+                            return Y_HOOKS_BREAK_RETURN_1;
+                        }
+
                         INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_VALID] = true;
                         INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_TYPE] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE];
-                        INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_EXTRA] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA];
+                        INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_EXTRA] = inputtext[0];
                     
-                        RemovePlayerPocketSlot(playerid, PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT]);
+                        if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] <= 0)
+                        {
+                            RemovePlayerPocketSlot(playerid, PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT]);
+                            RemovePlayerHandObject(playerid);
+                        }
                         SetPlayerHandObject(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0]);
                         InserPlayerPocketData(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0], INVENTORY_HAND);
 
