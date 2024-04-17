@@ -547,6 +547,8 @@ enum
 	DIALOG_LOGIN_DISCORD,
 	DIALOG_INVENTORY,
 	DIALOG_INVENTORY_OPTIONS,
+	DIALOG_INVENTORY_OPTIONS_EXTRA,
+	DIALOG_INVENTORY_EXTRA_INFO,
 	DIALOG_INVENTORY_EXTRA
 }
 
@@ -2856,7 +2858,10 @@ enum Temp_Enum
 	SV_UINT:pt_LOCAL_CHANNEL,*/
 	pt_POCKETS_SELECTED_PLAYER,
 	pt_POCKETS_PLAYERID,
-	pt_VEHICLE_SPAWN_INDEX
+	pt_VEHICLE_SPAWN_INDEX,
+	pt_SELECTED_POCKET_SLOT,
+	pt_HAND_POCKET,
+	pt_INVENTORY_DATA_EXTRA[3]
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -3858,6 +3863,7 @@ public OnPlayerConnect(playerid)
 	pTemp(playerid)[pt_TASER_GUN] = false;
 	pTemp(playerid)[pt_TASSED] = -1;
 	pTemp(playerid)[pt_TASSED_TIME] = 0;
+	PlayerTemp[playerid][pt_HAND_POCKET] = -1;
 	/*pTemp(playerid)[pt_VOICE_PLUGIN] = SvGetVersion(playerid);
 	pTemp(playerid)[pt_VOICE_MICROPHONE] = SvHasMicro(playerid);*/
 	//pTemp(playerid)[pt_LOCAL_CHANNEL] = SV_NULL;
@@ -6783,20 +6789,19 @@ stock ShowDialog(playerid, dialogid)
 			new dialog[4096];
 			format(dialog, sizeof dialog, 
 			"\
-				\n\
-				{"#PRIMARY_COLOR"}WEB: {d1d1d1}"#SERVER_WEBSITE"\n\
-				{"#BLUE_COLOR"}DISCORD: {d1d1d1}"#SERVER_DISCORD"\n\
-				\n\
 				{ffffff}Bienvenido {"#GREEN_COLOR"}%s. {ffffff}Esperamos que disfrutes el servidor\n\
 				\n\
 				{ffffff}Tenemos muchisimos sistemas buenos\n\
 				{ffffff}manteniendo nuestra escencia de {"#LIGHT_RED"}Rol Medio.\n\
 				\n\
 				{ffffff}Para {"#YELLOW_COLOR"}registrarte {ffffff}ingresa una clave:\n\
+				\n\
+				{ffffff}- {"#PRIMARY_COLOR"}WEB: {d1d1d1}"#SERVER_WEBSITE"\n\
+				{ffffff}- {"#BLUE_COLOR"}DISCORD: {d1d1d1}"#SERVER_DISCORD"\
 			",
 				PlayerTemp[playerid][pt_NAME]
 			);
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_PASSWORD, "{"#GREEN_COLOR"}Registrarse {ffffff}- "SERVER_NAME1"{"#PRIMARY_COLOR"}"SERVER_NAME2" {ffffff}Roleplay", dialog, "Continuar", "Cerrar");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_PASSWORD, "{ffffff}[{"#GREEN_COLOR"}Registrarse{ffffff}] - "SERVER_NAME1"{"#PRIMARY_COLOR"}"SERVER_NAME2" {ffffff}Roleplay", dialog, "Continuar", "Cerrar");
 			return 1;
 		}
 		case DIALOG_LOGIN:
@@ -6805,18 +6810,16 @@ stock ShowDialog(playerid, dialogid)
 			format(dialog, sizeof dialog, 
 			"\
 				\n\
-				{"#PRIMARY_COLOR"}WEB: {d1d1d1}"#SERVER_WEBSITE"\n\
-				{"#BLUE_COLOR"}DISCORD: {d1d1d1}"#SERVER_DISCORD"\n\
-				\n\
 				{ffffff}Bienvenido de nuevo, {"#GREEN_COLOR"}%s. {ffffff}Gracias por conectarte una vez mas.\n\
-				{ffffff}Recuerda siempre mantener tu cuenta segura de los {"#LIGHT_RED"}estafadores.\n\
-				\n\
 				{ffffff}Ingresa tu {"#YELLOW_COLOR"}clave{ffffff} para acceder:\n\
+				\n\
+				{ffffff}- {"#PRIMARY_COLOR"}WEB: {d1d1d1}"#SERVER_WEBSITE"\n\
+				{ffffff}- {"#BLUE_COLOR"}DISCORD: {d1d1d1}"#SERVER_DISCORD"\
 			",
 				PlayerTemp[playerid][pt_NAME]
 			);
 
-			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_PASSWORD, "{"#GREEN_COLOR"}Acceder {ffffff}- "SERVER_NAME1"{"#PRIMARY_COLOR"}"SERVER_NAME2" {ffffff}Roleplay", dialog, "Continuar", "Cerrar");
+			ShowPlayerDialog(playerid, dialogid, DIALOG_STYLE_PASSWORD, "{ffffff}[{"#BLUE_COLOR"}Acceder{ffffff}] - "SERVER_NAME1"{"#PRIMARY_COLOR"}"SERVER_NAME2" {ffffff}Roleplay", dialog, "Continuar", "Cerrar");
 			return 1;
 		}
 		case DIALOG_EMAIL:
@@ -22442,7 +22445,6 @@ public OnPlayerWeaponShot(playerid, weaponid, hittype, hitid, Float:fX, Float:fY
 	if(pTemp(playerid)[pt_TASER_GUN])
 	{
 		pTemp(playerid)[pt_TASER_GUN] = false;
-		UpdateWeaponsInBody(playerid);
 		Auto_SendPlayerAction(playerid, "guarda rapidamente su taser.");
 	}
 
@@ -23838,13 +23840,11 @@ CMD:taser(playerid, params[])
 	{
 		pTemp(playerid)[pt_TASER_GUN] = false;
 		Auto_SendPlayerAction(playerid, "guarda su taser.");
-		UpdateWeaponsInBody(playerid);
 	}
 	else
 	{
 		pTemp(playerid)[pt_TASER_GUN] = true;
 		Auto_SendPlayerAction(playerid, "saca su taser de su cinturon reglamentario.");
-		UpdateWeaponsInBody(playerid);
 	}
 	return 1;
 }

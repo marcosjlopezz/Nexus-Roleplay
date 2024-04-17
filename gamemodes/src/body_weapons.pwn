@@ -53,7 +53,8 @@ stock EnablePlayerArmedWeapons(playerid)
 stock UpdateWeaponsInBody(playerid) 
 {
 	RemovePlayerArmedWeapons(playerid);
-	
+	SetPlayerHandObject(playerid);
+		
 	for(new i = 0; i != sizeof PLAYER_WEAPONS[]; i ++) 
 	{
 		if(!PLAYER_WEAPONS[playerid][i][player_weapon_VALID]) continue;
