@@ -2861,7 +2861,8 @@ enum Temp_Enum
 	pt_VEHICLE_SPAWN_INDEX,
 	pt_SELECTED_POCKET_SLOT,
 	pt_HAND_POCKET,
-	pt_INVENTORY_DATA_EXTRA[3]
+	pt_INVENTORY_DATA_EXTRA,
+	pt_INVENTORY_SELL_EXTRA
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 

@@ -11,7 +11,8 @@
 	pt_POCKETS_PLAYERID
     pt_SELECTED_POCKET_SLOT
     pt_HAND_POCKET
-    pt_INVENTORY_DATA_EXTRA[3]
+    pt_INVENTORY_DATA_EXTRA
+    pt_INVENTORY_SELL_EXTRA
 */
 
 #define MAX_INVENTORY_SLOTS (10)
@@ -559,13 +560,14 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 {
                     default:
                     {
-                        if(sscanf(inputtext, "d", inputtext[0]))
+                        new id;
+                        if(sscanf(inputtext, "d", id))
                         {
                             SendMessage(playerid, "Parametros incorrectos.");
                             return Y_HOOKS_BREAK_RETURN_1;
                         }
 
-                        PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] = strval(inputtext[0]);
+                        PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] = id;
                         
                         new dialog[445];
                         format(dialog, 445, 
@@ -576,7 +578,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                             ",
                                 INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA], 
                                 INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] ][inv_NAME],
-                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][pt_NAME]
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_NAME]
                         );
 
                         ShowPlayerDialog(playerid, DIALOG_INVENTORY_EXTRA_INFO, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Dar {ffffff}- Seleccionar Cantidad", dialog, "Continuar", "Cancelar");
@@ -593,13 +595,19 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 {
                     default:
                     {
-                        if(sscanf(inputtext, "d", inputtext[0]))
+                        new value;
+                        if(sscanf(inputtext, "d", value))
                         {
                             SendMessage(playerid, "Parametros incorrectos.");
                             return Y_HOOKS_BREAK_RETURN_1;
                         }
+                        if(value <= 0)
+                        {
+                            SendMessage(playerid, "Debes introducir una cantidad mayor que 0.");
+                            return Y_HOOKS_BREAK_RETURN_1;
+                        }
 
-                        if(!IsPlayerConnected(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0]))
+                        if(!IsPlayerConnected(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA]))
                         {
                             SendMessage(playerid, "El jugador esta desconectado.");
                             return Y_HOOKS_BREAK_RETURN_1;
@@ -607,40 +615,43 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
                         new Float:oldposx, Float:oldposy, Float:oldposz;
 	                    GetPlayerPos(playerid, oldposx, oldposy, oldposz);
-                        if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0], 4.0, oldposx, oldposy, oldposz))
+                        if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], 4.0, oldposx, oldposy, oldposz))
                         {
                             SendMessage(playerid, "El jugador ya no esta cerca.");
                             return Y_HOOKS_BREAK_RETURN_1;
                         }
                         
-                        if(PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][pt_HAND_POCKET] != -1)
+                        if(PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_HAND_POCKET] != -1)
                         {
                             SendMessage(playerid, "El jugador no puede recibir nada debido a que tiene algo en su mano.");
                             return Y_HOOKS_BREAK_RETURN_1;
                         }
 
-                        if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] < inputtext[0])
+                        if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] < value)
                         {
                             SendMessage(playerid, "No tienes esa cantidad.");
                             return Y_HOOKS_BREAK_RETURN_1;
                         }
 
-                        INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_VALID] = true;
-                        INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_TYPE] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE];
-                        INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_EXTRA] = inputtext[0];
+                        INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][INVENTORY_HAND][inventory_VALID] = true;
+                        INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][INVENTORY_HAND][inventory_TYPE] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE];
+                        
+                        INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] -= value;
+                        INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][INVENTORY_HAND][inventory_EXTRA] = value;
                     
                         if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] <= 0)
                         {
+                            PlayerTemp[playerid][pt_HAND_POCKET] = -1;
                             RemovePlayerPocketSlot(playerid, PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT]);
                             RemovePlayerHandObject(playerid);
                         }
-                        SetPlayerHandObject(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0]);
-                        InserPlayerPocketData(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0], INVENTORY_HAND);
+                        SetPlayerHandObject(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA]);
+                        InserPlayerPocketData(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], INVENTORY_HAND);
 
-                        new action[445]; format(action, 445, "le da algo a %s.", PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][pt_NAME]);
+                        new action[445]; format(action, 445, "le da algo a %s.", PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_NAME]);
                         Auto_SendPlayerAction(playerid, action);
 
-                        SendMessagef(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0], "%s te ha dado %d %s.", PlayerTemp[playerid][pt_NAME], INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA][0] ][INVENTORY_HAND][inventory_TYPE] ][inv_NAME]);
+                        SendMessagef(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], "%s te ha dado %d %s.", PlayerTemp[playerid][pt_NAME], INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][INVENTORY_HAND][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][INVENTORY_HAND][inventory_TYPE] ][inv_NAME]);
                     }
                 }
             }
