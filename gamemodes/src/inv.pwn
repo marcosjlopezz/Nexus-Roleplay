@@ -19,6 +19,8 @@
 #define MAX_NU_POCKETS      (5)
 #define MAX_SU_POCKETS      (7)
 
+#define InvDataName(%0)     INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][%0][inventory_TYPE] ][inv_NAME]
+
 /* 
 
     HEADER
@@ -468,6 +470,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                 InserPlayerPocketData(playerid, slot);
 
                                 SendMessagef(playerid, "Has guardado tu ~r~%s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][slot][inventory_TYPE] ][inv_NAME]);
+                                Auto_SendPlayerAction(playerid, "guarda algo en sus bolsillos.");
                             }
                         }
                     }
@@ -499,7 +502,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                     }
                     case INV_SELECTION_GIVE:
                     {
-                        if(PlayerTemp[playerid][pt_HAND_POCKET] == -1 && !INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_VALID]) return SendMessage(playerid, "No tienes nada en tus manos.");
+                        if(PlayerTemp[playerid][pt_HAND_POCKET] == -1 && !INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_VALID]) return SendMessage(playerid, "No tienes nada en tu mano.");
 
                         new dialog[445];
                         switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
@@ -545,6 +548,43 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                 }
 
                                 ShowPlayerDialog(playerid, DIALOG_INVENTORY_OPTIONS_EXTRA, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Dar {ffffff}- Seleccionar Jugador", dialog, "Continuar", "Cancelar");
+                            }
+                        }
+                    }
+                    case INV_SELECTION_COLLECT:
+                    {
+                        if(PlayerTemp[playerid][pt_HAND_POCKET] == -1 && !INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_VALID]) return SendMessage(playerid, "No tienes nada en tu mano.");
+                        if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] >= INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] ][inv_AMOUNT]) return SendMessage(playerid, "Ya tienes la cantidad maxima de este objeto.");
+
+                        switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
+                        {
+                            default:
+                            {
+                                new Count = MAX_NU_POCKETS + 3;
+                                if(PI[playerid][pVIP]) Count = MAX_SU_POCKETS + 3;
+
+                                for(new i = 0; i != Count; i++)
+                                {
+                                    if(i == INVENTORY_HEAD) continue;
+                                    if(i == INVENTORY_BACK) continue;
+                                    if(i == INVENTORY_HAND) continue;
+                                    if(i == PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT]) continue;
+                                    if(INVENTORY_DATA[playerid][i][inventory_TYPE] != INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE]) continue;
+                                    if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] >= INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] ][inv_AMOUNT]) break;
+                    
+                                    INVENTORY_DATA[playerid][i][inventory_EXTRA] --;
+                                    if(INVENTORY_DATA[playerid][i][inventory_EXTRA] <= 0)
+                                    {
+                                        RemovePlayerPocketSlot(playerid, i);
+                                    }
+
+                                    INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] ++;
+                                }
+
+                                mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pinventory SET extra = %d WHERE id = %d;", INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA], INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_ID]);
+                                mysql_tquery(handle_db, QUERY_BUFFER);
+
+                                SendMessagef(playerid, "Has juntado tu(s) %s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] ][inv_NAME]);
                             }
                         }
                     }

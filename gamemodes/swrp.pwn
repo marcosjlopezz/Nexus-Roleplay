@@ -30076,12 +30076,6 @@ SavePlayerData(playerid)
 					phone_resolver = %d,\
 					mechanic_pieces = %d,\
 					fuel_drum = %d,\
-					seed_medicine = %d,\
-					seed_cannabis = %d,\
-					seed_crack = %d,\
-					medicine = %d,\
-					cannabis = %d,\
-					crack = %d,\
 					config_sounds = %d,\
 					config_audio = %d,\
 					config_admin = %d,\
@@ -30106,8 +30100,7 @@ SavePlayerData(playerid)
 				PI[playerid][pHUNGRY], PI[playerid][pTHIRST], PI[playerid][pWANTED_LEVEL], PI[playerid][pPOLICE_JAIL_TIME], PI[playerid][pPOLICE_DUTY],
 				PI[playerid][pPOLICE_JAIL_ID], PI[playerid][pDRIVE_LICENSE_POINTS], PI[playerid][pBANK_ACCOUNT], PI[playerid][pBANK_MONEY], PI[playerid][pPHONE_NUMBER],
 				PI[playerid][pPHONE_STATE], PI[playerid][pPHONE_VISIBLE_NUMBER], PI[playerid][pGPS], PI[playerid][pPHONE_RESOLVER], PI[playerid][pMECHANIC_PIECES], 
-				PI[playerid][pFUEL_DRUM], PI[playerid][pSEED_MEDICINE], PI[playerid][pSEED_CANNABIS], PI[playerid][pSEED_CRACK], PI[playerid][pMEDICINE],
-				PI[playerid][pCANNABIS], PI[playerid][pCRACK], PI[playerid][pCONFIG_SOUNDS], PI[playerid][pCONFIG_AUDIO],
+				PI[playerid][pFUEL_DRUM], PI[playerid][pCONFIG_SOUNDS], PI[playerid][pCONFIG_AUDIO],
 				PI[playerid][pCONFIG_ADMIN], PI[playerid][pMUTE], PI[playerid][pPLACA_PD], tmp_crew, PI[playerid][pCREW_RANK],
 				PI[playerid][pMECHANIC_KITS], PI[playerid][pMEDICAL_KITS], PI[playerid][pCONFIG_GLOBAL], PI[playerid][pGLOBAL_MUTE], 
 				PI[playerid][pBLACK_CASH], PI[playerid][pDISCORD_USERID], PI[playerid][pPHARMACY_TIMER],
