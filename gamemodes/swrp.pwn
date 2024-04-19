@@ -544,12 +544,12 @@ enum
 	DIALOG_BLACK_MARKET_ARMOUR,
 	DIALOG_RENOUNCE,
 	DIALOG_SELECT_POLICE_DIVISION,
-	DIALOG_LOGIN_DISCORD,
 	DIALOG_INVENTORY,
 	DIALOG_INVENTORY_OPTIONS,
 	DIALOG_INVENTORY_OPTIONS_EXTRA,
 	DIALOG_INVENTORY_EXTRA_INFO,
-	DIALOG_INVENTORY_EXTRA
+	DIALOG_INVENTORY_EXTRA,
+	DIALOG_INVENTORY_SELL
 }
 
 enum
@@ -2861,6 +2861,7 @@ enum Temp_Enum
 	pt_INVENTORY_SELL_DATA,
 	pt_INVENTORY_SELL_EXTRA,
 	pt_TRICK_PLAYERID,
+	pt_TRICK_ID,
 	pt_TRICK_TYPE,
 	pt_TRICK_EXTRA,
 	pt_TRICK_PRICE,
@@ -4784,24 +4785,6 @@ public OnPlayerRequestClass(playerid, classid)
 									cache_get_value_name(0, "ip", PI[playerid][pIP], 16);
 									cache_get_value_name(0, "email", PI[playerid][pEMAIL], 32);
 									cache_get_value_name(0, "pass", PI[playerid][pPASS], 65);
-
-									if(strlen(PI[playerid][pPASS]) <= 3)
-									{
-										ShowPlayerDialog(
-											playerid, DIALOG_INFO, DIALOG_STYLE_MSGBOX, "Aviso", 
-											"\
-												{d1d1d1}\nBienvenido, Lamentamos informarte que tu clave no esta correcta\n\
-												Para corregir este problema, ve a nuestro servidor de Discord, abre un ticket de \"Recuperar cuenta\" en la sección de soporte.\n\n\
-												Servidor de discord: "SERVER_DISCORD".\
-											", "Cerrar", ""
-										);
-
-										mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET connected = 0, playerid = 0 WHERE id = %d;", PI[playerid][pID]);
-										mysql_tquery(handle_db, QUERY_BUFFER);
-
-										KickEx(playerid, 500);
-										return 1;
-									}
 
 									mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE player SET connected = 1, playerid = %d WHERE id = %d;", playerid, PI[playerid][pID]);
 									mysql_tquery(handle_db, QUERY_BUFFER);
@@ -29779,7 +29762,6 @@ public OnPlayerLogin(playerid)
 	SetPlayerHealthEx(playerid, PI[playerid][pHEALTH]);
 	SetPlayerArmourEx(playerid, PI[playerid][pARMOUR]);
 	SetPlayerVirtualWorld(playerid, 0);
-	UpdatePlayerDiscordName(playerid);
 	StopAudioStreamForPlayer(playerid);
 	CancelSelectTextDrawEx(playerid);
 	PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
@@ -29795,7 +29777,6 @@ public OnPlayerLogin(playerid)
 	
 	PlayerTemp[playerid][pt_BAD_LOGIN_ATTEMP] = 0;
 	SendClientMessagef(playerid, PRIMARY_COLOR2, "[*]{ffffff} Bienvenido {"#BLUE_COLOR"}%s.{ffffff} Tu ultima conexion fue el {"#GOLD_COLOR"}%s.", PlayerTemp[playerid][pt_NAME], PI[playerid][pLAST_CONNECTION]);
-	if(strlen(PI[playerid][pDISCORD_USERID]) <= 0) SendClientMessagef(playerid, PRIMARY_COLOR2, "[*]{ffffff} No tienes una cuenta de discord vinculada, utiliza el comando {"#GOLD_COLOR"}/vincular");
 
     TogglePlayerSpectatingEx(playerid, false);
 	TogglePlayerControllableEx(playerid, false);

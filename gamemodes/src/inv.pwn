@@ -721,7 +721,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                         {
                             default:
                             {
-                                new dialog[445], value;
+                                new value;
                                 if(sscanf(inputtext, "d", value)) return SendMessage(playerid, "~r~Error en los parametros, intenta de nuevo.");
                                 if(value <= 0) return SendMessage(playerid, "~r~Debes introducir un valor positivo.");
                                 if(!IsPlayerConnected(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA])) return SendMessage(playerid, "El jugador esta desconectado.");
@@ -742,30 +742,98 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
         }
         case DIALOG_INVENTORY_EXTRA:
         {
-            switch(PlayerTemp[playerid][pt_INVENTORY_OPTION_EXTRA])
+            if(response)
             {
-                case INV_SELECTION_SELL:
+                switch(PlayerTemp[playerid][pt_INVENTORY_OPTION_EXTRA])
                 {
-                    switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
+                    case INV_SELECTION_SELL:
                     {
-                        default:
+                        switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
                         {
-                            new value;
-                            if(sscanf(inputtext, "d", value)) return SendMessage(playerid, "~r~Error en los parametros, intenta de nuevo.");
-                            if(value <= 0) return SendMessage(playerid, "Debes introducir una precio mayor que 0.");
-                            if(!IsPlayerConnected(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA])) return SendMessage(playerid, "El jugador esta desconectado.");
+                            default:
+                            {
+                                new value, Format_Dialog[445];
+                                if(sscanf(inputtext, "d", value)) return SendMessage(playerid, "~r~Error en los parametros, intenta de nuevo.");
+                                if(value <= 0) return SendMessage(playerid, "Debes introducir un valor positivo.");
+                                if(!IsPlayerConnected(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA])) return SendMessage(playerid, "El jugador esta desconectado.");
 
-                            new Float:oldposx, Float:oldposy, Float:oldposz;
-                            GetPlayerPos(playerid, oldposx, oldposy, oldposz);
-                            if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], 4.0, oldposx, oldposy, oldposz)) return SendMessage(playerid, "El jugador ya no esta cerca.");
-                            if(PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_HAND_POCKET] != -1) return SendMessage(playerid, "El jugador no puede recibir nada debido a que tiene algo en su mano.");
-                            if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] < value) return SendMessage(playerid, "No tienes esa cantidad.");
-                        
-                            PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_PLAYERID] = playerid;
-                            PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_TYPE] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE];
-                            PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_EXTRA] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA];
-                            PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_PRICE] = value;
-                            PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_TIMER] = gettime() + 15;
+                                new Float:oldposx, Float:oldposy, Float:oldposz;
+                                GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+                                if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], 4.0, oldposx, oldposy, oldposz)) return SendMessage(playerid, "El jugador ya no esta cerca.");
+                                if(PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_HAND_POCKET] != -1) return SendMessage(playerid, "El jugador no puede recibir nada debido a que tiene algo en su mano.");
+                                if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] < value) return SendMessage(playerid, "No tienes esa cantidad.");
+                            
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_PLAYERID] = playerid;
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_ID] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_ID];
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_TYPE] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE];
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_EXTRA] = PlayerTemp[playerid][pt_INVENTORY_SELL_DATA];
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_PRICE] = value;
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_TIMER] = gettime() + 15;
+                                
+                                format
+                                (
+                                    Format_Dialog, 
+                                    sizeof Format_Dialog, 
+
+                                    "\
+                                        {d1d1d1}%s (%d) te ha ofrecido una venta, tienes 15 segundos para aceptarla.\n\
+                                        \n\
+                                        Articulo: %s\n\
+                                        Cantidad: %d\n\
+                                        Precio: %s$\n\
+                                        \n\
+                                    ", 
+                                        PlayerTemp[playerid][pt_NAME], playerid, 
+                                        INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] ][inv_NAME], 
+                                        PlayerTemp[playerid][pt_INVENTORY_SELL_DATA], number_format_thousand(value)
+                                );
+
+                                ShowPlayerDialog(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], DIALOG_INVENTORY_SELL, DIALOG_STYLE_MSGBOX, "{"#GREEN_COLOR"}Venta {ffffff}- Articulo", Format_Dialog, "Aceptar", "Rechazar");
+                            }
+                        }
+                    }
+                }
+            }
+            return Y_HOOKS_BREAK_RETURN_1;
+        }
+        case DIALOG_INVENTORY_SELL:
+        {
+            if(response)
+            {
+                if(!IsPlayerConnected(PlayerTemp[playerid][pt_TRICK_PLAYERID])) return SendMessage(playerid, "El jugador se desconecto."); 
+                if(gettime() > PlayerTemp[playerid][pt_TRICK_TIMER]) return SendMessage(playerid, "Has tardado demasiado en aceptar el acuerdo.");
+                if(PlayerTemp[playerid][pt_HAND_POCKET] != -1) return SendMessage(playerid, "No puedes aceptar la compra porque tienes algo en tu mano.");
+                if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][pt_HAND_POCKET] == -1) return SendMessage(playerid, "El jugador ya no tiene el objeto en la mano.");
+                if(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][pt_HAND_POCKET] != PlayerTemp[playerid][pt_TRICK_ID]) return SendMessage(playerid, "El jugador ya no tiene el objeto en la mano.");
+                if(PlayerTemp[playerid][pt_TRICK_PRICE] < 0) return Y_HOOKS_BREAK_RETURN_1;
+
+                new Float:oldposx, Float:oldposy, Float:oldposz;
+                GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+                if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_TRICK_PLAYERID], 4.0, oldposx, oldposy, oldposz)) return SendMessage(playerid, "El jugador ya no esta cerca.");
+
+                switch(PlayerTemp[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][pt_INVENTORY_OPTION_EXTRA])
+                {
+                    case INV_SELECTION_SELL:
+                    {
+                        switch(PlayerTemp[playerid][pt_TRICK_TYPE])
+                        {
+                            default:
+                            {
+                                if(PI[playerid][pCASH] >= PlayerTemp[playerid][pt_TRICK_PRICE])
+                                {
+                                    if(GivePlayerCash(playerid, -PlayerTemp[playerid][pt_TRICK_PRICE], true, true) && GivePlayerCash(PlayerTemp[playerid][pt_TRICK_PLAYERID], PlayerTemp[playerid][pt_TRICK_PRICE], true, false))
+                                    {
+                                        INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE] = PlayerTemp[playerid][pt_TRICK_TYPE];
+                                        INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_EXTRA] = PlayerTemp[playerid][pt_TRICK_EXTRA];
+                                        InserPlayerPocketData(playerid, INVENTORY_HAND);
+                                        PlayerTemp[playerid][pt_HAND_POCKET] = INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_ID];
+
+                                        SendClientMessagef(PlayerTemp[playerid][pt_TRICK_PLAYERID], -1, "El comprador {"#YELLOW_COLOR"}%s (%d){ffffff} ha aceptado la venta, has ganado {"#GREEN_COLOR"}%s$.", PlayerTemp[playerid][pt_NAME], playerid, number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
+                                        SendClientMessagef(playerid, 0xCCCCCC, "Has comprado %s a %s (%d).", INVENTORY_ITEMS_DATA[ PlayerTemp[playerid][pt_TRICK_TYPE] ][inv_NAME], PlayerTemp[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][pt_NAME], PlayerTemp[playerid][pt_TRICK_PLAYERID]);
+                                    }
+                                }
+                                else SendMessage(playerid, "No tienes el dinero suficiente para aceptar esta compra.");
+                            }
                         }
                     }
                 }
