@@ -22611,7 +22611,7 @@ callbackp:TasePlayer(damagedid)
 public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
 	if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
-	else if(IsPlayerInSafeZone(playerid) && !PLAYER_WORKS[issuerid][WORK_POLICE][pwork_SET]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
+	else if(issuerid <= MAX_PLAYERS && IsPlayerInSafeZone(playerid) && !PLAYER_WORKS[issuerid][WORK_POLICE][pwork_SET]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else if(pTemp(playerid)[pt_TASER_GUN]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else if(PlayerTemp[playerid][pt_ADMIN_SERVICE]) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
 	else if(PI[playerid][pSTATE] == ROLEPLAY_STATE_JAIL) PlayerTemp[playerid][pt_PLAYER_DAMAGE] = false;
