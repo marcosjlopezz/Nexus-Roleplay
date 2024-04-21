@@ -18153,7 +18153,7 @@ public OnPlayerUpdate(playerid)
 	return 1;
 }
 
-stock SetPlayerPosEx(playerid, Float:x, Float:y, Float:z, Float:angle, interior, world, freeze = 0, addoffset = 0, camera = 1)
+stock SetPlayerPosEx(playerid, Float:x, Float:y, Float:z, Float:angle, interior, world, freeze = 0, addoffset = 0)
 {
 	PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_STATE_SPAMMER][p_ac_info_IMMUNITY] = gettime() + 3;
@@ -18174,7 +18174,7 @@ stock SetPlayerPosEx(playerid, Float:x, Float:y, Float:z, Float:angle, interior,
 	SetPlayerFacingAngle(playerid, angle);
 	SetPlayerInterior(playerid, interior);
 	SetPlayerVirtualWorld(playerid, world);
-	if(camera) SetCameraBehindPlayer(playerid);
+	SetCameraBehindPlayer(playerid);
 
 	PlayerTemp[playerid][pt_LAST_PICKUP_CHECKED] = gettime() + 3;
 	
