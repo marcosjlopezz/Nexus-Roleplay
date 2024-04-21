@@ -4555,6 +4555,8 @@ callbackp:OnPlayerSWDeath(playerid, killerid, reason)
 	}
 	else
 	{
+		if(GetPlayerAnimationIndex(playerid) != 386) ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
+		
 		switch(PI[playerid][pSTATE])
 		{
 			case ROLEPLAY_STATE_INTERIOR:
@@ -22838,6 +22840,7 @@ stock UpdatePlayerHealthInfo(playerid, killerid, reason = 0)
 	{
 		if(PI[playerid][pSTATE] != ROLEPLAY_STATE_CRACK)
 		{
+			if(GetPlayerAnimationIndex(playerid) != 386) ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
 			OnPlayerSWDeath(playerid, killerid, reason);
 		}
 	}
