@@ -4622,7 +4622,7 @@ callbackp:OnPlayerSWDeath(playerid, killerid, reason)
 		PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
 	}
 
-	if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+	if(GetPlayerAnimationIndex(playerid) != 1189) ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, true, false, false, false, true);
 	SpawnPlayerDeath(playerid);
 
 	PLAYER_TEMP[playerid][pt_GAME_STATE] = GAME_STATE_NORMAL;
@@ -18153,7 +18153,7 @@ public OnPlayerUpdate(playerid)
 	return 1;
 }
 
-stock SetPlayerPosEx(playerid, Float:x, Float:y, Float:z, Float:angle, interior, world, freeze = 0, addoffset = 0)
+stock SetPlayerPosEx(playerid, Float:x, Float:y, Float:z, Float:angle, interior, world, freeze = 0, addoffset = 0, camera = 1)
 {
 	PLAYER_AC_INFO[playerid][CHEAT_POS][p_ac_info_IMMUNITY] = gettime() + 3;
 	PLAYER_AC_INFO[playerid][CHEAT_STATE_SPAMMER][p_ac_info_IMMUNITY] = gettime() + 3;
@@ -18174,7 +18174,7 @@ stock SetPlayerPosEx(playerid, Float:x, Float:y, Float:z, Float:angle, interior,
 	SetPlayerFacingAngle(playerid, angle);
 	SetPlayerInterior(playerid, interior);
 	SetPlayerVirtualWorld(playerid, world);
-	SetCameraBehindPlayer(playerid);
+	if(camera) SetCameraBehindPlayer(playerid);
 
 	PlayerTemp[playerid][pt_LAST_PICKUP_CHECKED] = gettime() + 3;
 	
