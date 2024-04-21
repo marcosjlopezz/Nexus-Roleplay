@@ -147,20 +147,22 @@ stock SetPlayerHandObject(playerid)
 {
     if(PlayerTemp[playerid][pt_HAND_POCKET] == -1) return 0;
     new index = GetPlayerPocketIndexByID(playerid, PlayerTemp[playerid][pt_HAND_POCKET]);
-    new type = INVENTORY_DATA[playerid][index][inventory_TYPE];
+    if(INVENTORY_DATA[playerid][index][inventory_VALID] != true) return 0;
 
     SetPlayerAttachedObject
     (
-        playerid, 7, HAND_ATTACH_OBJECT[ type ][hand_MODELID], HAND_ATTACH_OBJECT[ type ][hand_BONE], 
-        HAND_ATTACH_OBJECT[ type ][hand_X], 
-        HAND_ATTACH_OBJECT[ type ][hand_Y], 
-        HAND_ATTACH_OBJECT[ type ][hand_Z], 
-        HAND_ATTACH_OBJECT[ type ][hand_RX], 
-        HAND_ATTACH_OBJECT[ type ][hand_RY], 
-        HAND_ATTACH_OBJECT[ type ][hand_RZ], 
-        HAND_ATTACH_OBJECT[ type ][hand_SX], 
-        HAND_ATTACH_OBJECT[ type ][hand_SY], 
-        HAND_ATTACH_OBJECT[ type ][hand_SZ], 
+        playerid, 7, 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_MODELID], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_BONE], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_X], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_Y], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_Z], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RX], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RY], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RZ], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SX], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SY], 
+        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SZ], 
         0, 0
     );
     return 1;
@@ -604,6 +606,59 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                             }
                         }
                     }
+                    case INV_SELECTION_SELL_EXTRA:
+                    {
+                        if(PlayerTemp[playerid][pt_HAND_POCKET] == -1 && !INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_VALID]) return SendMessage(playerid, "No tienes nada en tu mano.");
+
+                        new dialog[445];
+                        switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
+                        {
+                            default:
+                            {
+                                PlayerTemp[playerid][pt_INVENTORY_OPTION_EXTRA] = INV_SELECTION_SELL_EXTRA;
+
+                                format(
+                                    dialog, 445, 
+                                    
+                                    "\
+                                        {d1d1d1}Escribe la ID del jugador cercano ati para poder venderle tu(s) {"#GREEN_COLOR"}%s{d1d1d1}.\n\
+                                        \n\
+                                        {d1d1d1}Jugadores Cercanos:\n\
+                                    ",
+                                        INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] ][inv_NAME]
+                                );
+
+                                new Players_Count = 0, Float:oldposx, Float:oldposy, Float:oldposz, current_vw = GetPlayerVirtualWorld(playerid), current_int = GetPlayerInterior(playerid);
+	                            GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+
+                                LoopEx(i, MAX_PLAYERS, 0)
+                                {
+                                    if(!IsPlayerConnected(i)) continue;
+                                    if(!pTemp(i)[pt_USER_LOGGED]) continue;
+                                    if(GetPlayerVirtualWorld(i) != current_vw) continue;
+                                    if(GetPlayerInterior(i) != current_int) continue;
+                                    if(i == playerid) continue;
+
+                                    if(IsPlayerInRangeOfPoint(i, 4.0, oldposx, oldposy, oldposz))
+                                    {
+                                        new line_str[145 + 24 + 4]; //string + name + id
+                                        format(line_str, sizeof(line_str), "{"#YELLOW_COLOR"}%s {000000}[{ffffff}ID: %d{000000}]\n", PlayerTemp[i][pt_NAME], i);
+                                        strcat(dialog, line_str);
+
+                                        Players_Count ++;
+                                    }
+                                }
+
+                                if(Players_Count <= 0)
+                                {
+                                    SendMessage(playerid, "No hay jugadores cerca.");
+                                    return Y_HOOKS_BREAK_RETURN_1;
+                                }
+
+                                ShowPlayerDialog(playerid, DIALOG_INVENTORY_OPTIONS_EXTRA, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Vender {ffffff}- Seleccionar Jugador", dialog, "Continuar", "Cancelar");
+                            }
+                        }
+                    }
                 }
             }
             return Y_HOOKS_BREAK_RETURN_1;
@@ -664,7 +719,33 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
                                 ShowPlayerDialog(playerid, DIALOG_INVENTORY_EXTRA_INFO, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Vender {ffffff}- Seleccionar Cantidad", dialog, "Continuar", "Cancelar");
                             }
-                        } 
+                        }
+                    }
+                    case INV_SELECTION_SELL_EXTRA:
+                    {
+                        switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
+                        {
+                            default:
+                            {
+                                new id;
+                                if(sscanf(inputtext, "d", id)) return SendMessage(playerid, "~r~Error en los parametros, intenta de nuevo.");
+                                PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] = id;
+                                
+                                new dialog[445];
+                                format(dialog, 445, 
+                                    "\
+                                        {d1d1d1}Actualmente tienes %d %s en tu inventario\n\
+                                        \n\
+                                        {d1d1d1}Escribe la cantidad que quieres venderle en "SERVER_COIN"es a %s:\
+                                    ",
+                                        INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA], 
+                                        INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] ][inv_NAME],
+                                        PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_NAME]
+                                );
+
+                                ShowPlayerDialog(playerid, DIALOG_INVENTORY_EXTRA_INFO, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Vender {ffffff}- Seleccionar Cantidad", dialog, "Continuar", "Cancelar");
+                            }
+                        }
                     }
                 }
             }
@@ -732,7 +813,28 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                 if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] < value) return SendMessage(playerid, "No tienes esa cantidad.");
 
                                 PlayerTemp[playerid][pt_INVENTORY_SELL_DATA] = value;
-                                ShowPlayerDialog(playerid, DIALOG_INVENTORY_EXTRA_INFO, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Vender {ffffff}- Precio del objeto", "{d1d1d1}Escribe el precio en dinero para vender el objeto:", "Continuar", "Cancelar");
+                                ShowPlayerDialog(playerid, DIALOG_INVENTORY_EXTRA, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Vender {ffffff}- Precio del objeto", "{d1d1d1}Escribe el precio en dinero para vender el objeto:", "Continuar", "Cancelar");
+                            }
+                        }
+                    }
+                    case INV_SELECTION_SELL_EXTRA:
+                    {
+                        switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
+                        {
+                            default:
+                            {
+                                new value;
+                                if(sscanf(inputtext, "d", value)) return SendMessage(playerid, "~r~Error en los parametros, intenta de nuevo.");
+                                if(value <= 0) return SendMessage(playerid, "~r~Debes introducir un valor positivo.");
+                                if(!IsPlayerConnected(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA])) return SendMessage(playerid, "El jugador esta desconectado.");
+
+                                new Float:oldposx, Float:oldposy, Float:oldposz;
+                                GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+                                if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], 4.0, oldposx, oldposy, oldposz)) return SendMessage(playerid, "El jugador ya no esta cerca.");
+                                if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] < value) return SendMessage(playerid, "No tienes esa cantidad.");
+
+                                PlayerTemp[playerid][pt_INVENTORY_SELL_DATA] = value;
+                                ShowPlayerDialog(playerid, DIALOG_INVENTORY_EXTRA, DIALOG_STYLE_INPUT, "{"#GREEN_COLOR"}Vender {ffffff}- Precio del objeto", "{d1d1d1}Escribe el precio en "SERVER_COIN"es para vender el objeto:", "Continuar", "Cancelar");
                             }
                         }
                     }
@@ -761,7 +863,6 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                 GetPlayerPos(playerid, oldposx, oldposy, oldposz);
                                 if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], 4.0, oldposx, oldposy, oldposz)) return SendMessage(playerid, "El jugador ya no esta cerca.");
                                 if(PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_HAND_POCKET] != -1) return SendMessage(playerid, "El jugador no puede recibir nada debido a que tiene algo en su mano.");
-                                if(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA] < value) return SendMessage(playerid, "No tienes esa cantidad.");
                             
                                 PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_PLAYERID] = playerid;
                                 PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_ID] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_ID];
@@ -770,6 +871,8 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                 PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_PRICE] = value;
                                 PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_TIMER] = gettime() + 15;
                                 
+                                SendClientMessagef(playerid, 0xCCCCCCCC, "Le has ofrecido una venta a %s, espera a ver si la acepta.", PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_NAME]);
+
                                 format
                                 (
                                     Format_Dialog, 
@@ -781,6 +884,59 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                         Articulo: %s\n\
                                         Cantidad: %d\n\
                                         Precio: %s$\n\
+                                        \n\
+                                        Antes de aceptar recuerda tener tus manos vacias para poder recibir el articulo.\n\
+                                        Tambien recuerda que debes contar con el dinero exacto del precio para poder comprar el articulo\n\
+                                        \n\
+                                    ", 
+                                        PlayerTemp[playerid][pt_NAME], playerid, 
+                                        INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE] ][inv_NAME], 
+                                        PlayerTemp[playerid][pt_INVENTORY_SELL_DATA], number_format_thousand(value)
+                                );
+
+                                ShowPlayerDialog(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], DIALOG_INVENTORY_SELL, DIALOG_STYLE_MSGBOX, "{"#GREEN_COLOR"}Venta {ffffff}- Articulo", Format_Dialog, "Aceptar", "Rechazar");
+                            }
+                        }
+                    }
+                    case INV_SELECTION_SELL_EXTRA:
+                    {
+                        switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
+                        {
+                            default:
+                            {
+                                new value, Format_Dialog[445];
+                                if(sscanf(inputtext, "d", value)) return SendMessage(playerid, "~r~Error en los parametros, intenta de nuevo.");
+                                if(value <= 0) return SendMessage(playerid, "Debes introducir un valor positivo.");
+                                if(!IsPlayerConnected(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA])) return SendMessage(playerid, "El jugador esta desconectado.");
+
+                                new Float:oldposx, Float:oldposy, Float:oldposz;
+                                GetPlayerPos(playerid, oldposx, oldposy, oldposz);
+                                if(!IsPlayerInRangeOfPoint(PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA], 4.0, oldposx, oldposy, oldposz)) return SendMessage(playerid, "El jugador ya no esta cerca.");
+                                if(PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_HAND_POCKET] != -1) return SendMessage(playerid, "El jugador no puede recibir nada debido a que tiene algo en su mano.");
+                            
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_PLAYERID] = playerid;
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_ID] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_ID];
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_TYPE] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE];
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_EXTRA] = PlayerTemp[playerid][pt_INVENTORY_SELL_DATA];
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_PRICE] = value;
+                                PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_TRICK_TIMER] = gettime() + 15;
+                                
+                                SendClientMessagef(playerid, 0xCCCCCCCC, "Le has ofrecido una venta a %s, espera a ver si la acepta.", PlayerTemp[ PlayerTemp[playerid][pt_INVENTORY_DATA_EXTRA] ][pt_NAME]);
+
+                                format
+                                (
+                                    Format_Dialog, 
+                                    sizeof Format_Dialog, 
+
+                                    "\
+                                        {d1d1d1}%s (%d) te ha ofrecido una venta, tienes 15 segundos para aceptarla.\n\
+                                        \n\
+                                        Articulo: %s\n\
+                                        Cantidad: %d\n\
+                                        Precio: %s {"#GOLD_COLOR"}"SERVER_COIN"es{d1d1d1}\n\
+                                        \n\
+                                        Antes de aceptar recuerda tener tus manos vacias para poder recibir el articulo.\n\
+                                        Tambien recuerda que debes contar con el dinero exacto del precio para poder comprar el articulo\n\
                                         \n\
                                     ", 
                                         PlayerTemp[playerid][pt_NAME], playerid, 
@@ -826,13 +982,56 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                                         INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE] = PlayerTemp[playerid][pt_TRICK_TYPE];
                                         INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_EXTRA] = PlayerTemp[playerid][pt_TRICK_EXTRA];
                                         InserPlayerPocketData(playerid, INVENTORY_HAND);
-                                        PlayerTemp[playerid][pt_HAND_POCKET] = INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_ID];
+                                        
+                                        INVENTORY_DATA[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][INVENTORY_HAND][inventory_EXTRA] -= PlayerTemp[playerid][pt_TRICK_EXTRA];
+                                        
+                                        if(INVENTORY_DATA[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][INVENTORY_HAND][inventory_EXTRA] <= 0)
+                                        {
+                                            RemovePlayerPocketSlot(PlayerTemp[playerid][pt_TRICK_PLAYERID], INVENTORY_HAND);
+                                            RemovePlayerHandObject(PlayerTemp[playerid][pt_TRICK_PLAYERID]);
+                                            PlayerTemp[PlayerTemp[playerid][pt_TRICK_PLAYERID]][pt_HAND_POCKET] = -1;
+                                        }
 
                                         SendClientMessagef(PlayerTemp[playerid][pt_TRICK_PLAYERID], -1, "El comprador {"#YELLOW_COLOR"}%s (%d){ffffff} ha aceptado la venta, has ganado {"#GREEN_COLOR"}%s$.", PlayerTemp[playerid][pt_NAME], playerid, number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
-                                        SendClientMessagef(playerid, 0xCCCCCC, "Has comprado %s a %s (%d).", INVENTORY_ITEMS_DATA[ PlayerTemp[playerid][pt_TRICK_TYPE] ][inv_NAME], PlayerTemp[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][pt_NAME], PlayerTemp[playerid][pt_TRICK_PLAYERID]);
+                                        SendClientMessagef(playerid, 0xCCCCCCCC, "Has comprado %d %s a %s (%d) y has gastado %s$.", PlayerTemp[playerid][pt_TRICK_EXTRA], INVENTORY_ITEMS_DATA[ PlayerTemp[playerid][pt_TRICK_TYPE] ][inv_NAME], PlayerTemp[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][pt_NAME], PlayerTemp[playerid][pt_TRICK_PLAYERID], number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
+                                    
+                                        SetPlayerHandObject(playerid);
                                     }
                                 }
                                 else SendMessage(playerid, "No tienes el dinero suficiente para aceptar esta compra.");
+                            }
+                        }
+                    }
+                    case INV_SELECTION_SELL_EXTRA:
+                    {
+                        switch(PlayerTemp[playerid][pt_TRICK_TYPE])
+                        {
+                            default:
+                            {
+                                if(PI[playerid][pCOINS] >= PlayerTemp[playerid][pt_TRICK_PRICE])
+                                {
+                                    INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE] = PlayerTemp[playerid][pt_TRICK_TYPE];
+                                    INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_EXTRA] = PlayerTemp[playerid][pt_TRICK_EXTRA];
+                                    InserPlayerPocketData(playerid, INVENTORY_HAND);
+
+                                    PI[playerid][pCOINS] -= PlayerTemp[playerid][pt_TRICK_PRICE];
+                                    PI[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][pCOINS] += PlayerTemp[playerid][pt_TRICK_PRICE];
+                                    
+                                    INVENTORY_DATA[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][INVENTORY_HAND][inventory_EXTRA] -= PlayerTemp[playerid][pt_TRICK_EXTRA];
+                                    
+                                    if(INVENTORY_DATA[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][INVENTORY_HAND][inventory_EXTRA] <= 0)
+                                    {
+                                        RemovePlayerPocketSlot(PlayerTemp[playerid][pt_TRICK_PLAYERID], INVENTORY_HAND);
+                                        RemovePlayerHandObject(PlayerTemp[playerid][pt_TRICK_PLAYERID]);
+                                        PlayerTemp[PlayerTemp[playerid][pt_TRICK_PLAYERID]][pt_HAND_POCKET] = -1;
+                                    }
+
+                                    SendClientMessagef(PlayerTemp[playerid][pt_TRICK_PLAYERID], -1, "El comprador {"#YELLOW_COLOR"}%s (%d){ffffff} ha aceptado la venta, has ganado {"#GREEN_COLOR"}%s "SERVER_COIN"es.", PlayerTemp[playerid][pt_NAME], playerid, number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
+                                    SendClientMessagef(playerid, 0xCCCCCCCC, "Has comprado %d %s a %s (%d) y has gastado %s "SERVER_COIN"es.", PlayerTemp[playerid][pt_TRICK_EXTRA], INVENTORY_ITEMS_DATA[ PlayerTemp[playerid][pt_TRICK_TYPE] ][inv_NAME], PlayerTemp[ PlayerTemp[playerid][pt_TRICK_PLAYERID] ][pt_NAME], PlayerTemp[playerid][pt_TRICK_PLAYERID], number_format_thousand(PlayerTemp[playerid][pt_TRICK_PRICE]));
+                                
+                                    SetPlayerHandObject(playerid);
+                                }
+                                else SendMessage(playerid, "No tienes las coins suficiente para aceptar esta compra.");
                             }
                         }
                     }

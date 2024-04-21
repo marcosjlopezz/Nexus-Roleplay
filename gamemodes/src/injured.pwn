@@ -21,8 +21,10 @@ stock SpawnPlayerDeath(playerid)
         if(PI[playerid][pWANTED_LEVEL] > 0) SendClientMessagef(playerid, -1, "Estas herido y en búsqueda, espera a que la policia venga a por ti.");
         else SendClientMessagef(playerid, -1, "Estas herido, espera a que venga un medico.");
 
-        SetPlayerPosEx(playerid, PLAYER_TEMP[playerid][pt_INJURED_POS][0], PLAYER_TEMP[playerid][pt_INJURED_POS][1], PLAYER_TEMP[playerid][pt_INJURED_POS][2], PLAYER_TEMP[playerid][pt_INJURED_POS][3], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid), 0, 1);
-        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+        SetPlayerPosEx(playerid, PLAYER_TEMP[playerid][pt_INJURED_POS][0], PLAYER_TEMP[playerid][pt_INJURED_POS][1], PLAYER_TEMP[playerid][pt_INJURED_POS][2], PLAYER_TEMP[playerid][pt_INJURED_POS][3], PI[playerid][pINTERIOR], GetPlayerVirtualWorld(playerid), 0, 1);
+        SetPlayerVirtualWorld(playerid, 0);
+
+        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 1);
     }
 }
 
@@ -30,7 +32,7 @@ hook OnPlayerSpawn(playerid)
 {
     if(PI[playerid][pSTATE] == ROLEPLAY_STATE_CRACK) 
     {
-        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 1);
 		SpawnPlayerDeath(playerid);
     }
 }
@@ -46,10 +48,11 @@ hook OnPlayerUpdate(playerid)
 
         if(distance > 3.0)
         {
-            SetPlayerPosEx(playerid, PLAYER_TEMP[playerid][pt_INJURED_POS][0], PLAYER_TEMP[playerid][pt_INJURED_POS][1], PLAYER_TEMP[playerid][pt_INJURED_POS][2], PLAYER_TEMP[playerid][pt_INJURED_POS][3], GetPlayerInterior(playerid), GetPlayerVirtualWorld(playerid), 0, 1);
+            SetPlayerPosEx(playerid, PLAYER_TEMP[playerid][pt_INJURED_POS][0], PLAYER_TEMP[playerid][pt_INJURED_POS][1], PLAYER_TEMP[playerid][pt_INJURED_POS][2], PLAYER_TEMP[playerid][pt_INJURED_POS][3], PI[playerid][pINTERIOR], GetPlayerVirtualWorld(playerid), 0, 1);
+            SetPlayerVirtualWorld(playerid, 0);
         }
         
-        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+        if(GetPlayerAnimationIndex(playerid) != 1537) ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 1);
     }
     return Y_HOOKS_CONTINUE_RETURN_1;
 }
@@ -63,7 +66,7 @@ hook OnPlayerEnterVehicle(playerid, vehicleid, ispassenger)
         RemovePlayerFromVehicle(playerid);
 		SetPlayerPos(playerid, sx, sy, sz);
 
-		ApplyAnimation(playerid, "SWEET", "Sweet_injuredloop", 4.1, true, 0, 0, 0, 0, 1);
+		ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 1);
 		return Y_HOOKS_BREAK_RETURN_1;
 	}
     return Y_HOOKS_CONTINUE_RETURN_1;
