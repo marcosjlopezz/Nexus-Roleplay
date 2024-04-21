@@ -4622,7 +4622,7 @@ callbackp:OnPlayerSWDeath(playerid, killerid, reason)
 		PlayerTemp[playerid][pt_INJURED_POS][3] = PI[playerid][pANGLE];
 	}
 
-	if(GetPlayerAnimationIndex(playerid) != 1189) ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
+	if(GetPlayerAnimationIndex(playerid) != 386) ApplyAnimation(playerid, "CRACK", "crckdeth2", 4.0, 0, 0, 0, 1, 0);
 	SpawnPlayerDeath(playerid);
 
 	PLAYER_TEMP[playerid][pt_GAME_STATE] = GAME_STATE_NORMAL;
