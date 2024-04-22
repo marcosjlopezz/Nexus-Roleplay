@@ -94,6 +94,4 @@ stock UpdateWeaponsInBody(playerid)
 			case 15: SetPlayerAttachedObject(playerid, 7, 326, 1, 0.3190, -0.1019, -0.0429, 15.0999, -50.9997, -167.0001, 1.0000, 1.0000, 1.0000, 0xFFFFFFFF, 0xFFFFFFFF);
 		}
 	}
-
-	if(pTemp(playerid)[pt_TASER_GUN]) SetPlayerAttachedObject(playerid, 7, 18642, 6, 0.060000, 0.025000, 0.034000, 195.000000, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000);
 }

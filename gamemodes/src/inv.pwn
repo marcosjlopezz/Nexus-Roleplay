@@ -42,12 +42,12 @@ enum
 {
     INVENTORY_TYPE_NONE = -1,
     INVENTORY_TYPE_SNACKS,
-    INVENTORY_TYPE_WATER_BOTTLE
+    INVENTORY_TYPE_WATER_BOTTLE,
+    INVENTORY_TYPE_TASER,
 }
 
 enum E_INVENTORY_ITEMS_DATA
 {
-    inv_TYPE,
     inv_NAME[32],
     Float:inv_HUNGRY,
     Float:inv_THIRST,
@@ -55,13 +55,13 @@ enum E_INVENTORY_ITEMS_DATA
 };
 new INVENTORY_ITEMS_DATA[][E_INVENTORY_ITEMS_DATA] =
 {
-    {INVENTORY_TYPE_SNACKS, "Snacks", 0.4, 0.0, 4},
-    {INVENTORY_TYPE_WATER_BOTTLE, "Botella de Agua", 0.0, 0.7, 1}
+    {"Snacks", 0.4, 0.0, 4},
+    {"Botella de Agua", 0.0, 0.7, 1},
+    {"Taser", 0.0, 0.0, 100}
 };
 
 enum E_HAND_ATTACHED_OBJECT
 {
-    hand_TYPE,
     hand_MODELID,
     hand_BONE, //5 izq || 6 derech
     Float:hand_X,
@@ -76,8 +76,9 @@ enum E_HAND_ATTACHED_OBJECT
 }
 new HAND_ATTACH_OBJECT[][E_HAND_ATTACHED_OBJECT] =
 {
-    {INVENTORY_TYPE_SNACKS, 2663, 6, 0.049999, 0.020000, 0.000000, 5.000000, -370.000000, -359.070007, 0.290000, 0.370000, 0.290000},
-    {INVENTORY_TYPE_WATER_BOTTLE, 19570, 6, 0.109999, 0.030000, -0.119999, 5.000000, -370.000000, -359.070007, 0.440000, 0.409999, 0.620000}
+    {2663, 6, 0.049999, 0.020000, 0.000000, 5.000000, -370.000000, -359.070007, 0.290000, 0.370000, 0.290000},
+    {19570, 6, 0.109999, 0.030000, -0.119999, 5.000000, -370.000000, -359.070007, 0.440000, 0.409999, 0.620000},
+    {18642, 6, 0.060000, 0.025000, 0.034000, 195.000000, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000}
 };
 
 enum
@@ -146,25 +147,27 @@ stock GetPlayerPocketIndexByID(playerid, id)
 stock SetPlayerHandObject(playerid)
 {
     if(PlayerTemp[playerid][pt_HAND_POCKET] == -1) return 0;
+    if(INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_VALID] != true) return 0;
     new index = GetPlayerPocketIndexByID(playerid, PlayerTemp[playerid][pt_HAND_POCKET]);
-    if(INVENTORY_DATA[playerid][index][inventory_VALID] != true) return 0;
-
-    SetPlayerAttachedObject
-    (
-        playerid, 7, 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_MODELID], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_BONE], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_X], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_Y], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_Z], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RX], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RY], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RZ], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SX], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SY], 
-        HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SZ], 
-        0, 0
-    );
+    if(index != -1)
+    {
+        SetPlayerAttachedObject
+        (
+            playerid, 7, 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_MODELID], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_BONE], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_X], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_Y], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_Z], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RX], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RY], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_RZ], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SX], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SY], 
+            HAND_ATTACH_OBJECT[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][hand_SZ], 
+            0, 0
+        );   
+    }
     return 1;
 }
 
@@ -219,7 +222,16 @@ stock LoadPlayerPockets(playerid)
                     cache_get_value_name_int(i, "type", INVENTORY_DATA[playerid][slot][inventory_TYPE]);
                     cache_get_value_name_int(i, "extra", INVENTORY_DATA[playerid][slot][inventory_EXTRA]);
 
-                    if(slot == INVENTORY_HAND) PlayerTemp[playerid][pt_HAND_POCKET] = INVENTORY_DATA[playerid][slot][inventory_ID];
+                    if(slot == INVENTORY_HAND)
+                    {
+                        PlayerTemp[playerid][pt_HAND_POCKET] = INVENTORY_DATA[playerid][slot][inventory_ID];
+                        pTemp(playerid)[pt_TASER_GUN] = INVENTORY_HAND;
+                    }
+
+                    if(INVENTORY_DATA[playerid][slot][inventory_TYPE] == INVENTORY_TYPE_TASER)
+                    {
+                        pTemp(playerid)[pt_TASER_ENERGY] = INVENTORY_DATA[playerid][slot][inventory_EXTRA];
+                    }
                 }
             }
         }
@@ -243,6 +255,114 @@ stock InsertPlayerPocket_WaterBottle(playerid, index)
     INVENTORY_DATA[playerid][index][inventory_EXTRA] = INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_AMOUNT];
     InserPlayerPocketData(playerid, index);
     return index;
+}
+
+stock InserPlayerPocket_Taser(playerid, index)
+{
+    INVENTORY_DATA[playerid][index][inventory_TYPE] = INVENTORY_TYPE_TASER;
+    INVENTORY_DATA[playerid][index][inventory_EXTRA] = INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_AMOUNT];
+    pTemp(playerid)[pt_TASER_ENERGY] = INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_AMOUNT]; 
+    InserPlayerPocketData(playerid, index);
+    return index;
+}
+
+stock GiveTaserEnergy(playerid, taser_index, value)
+{
+    pTemp(playerid)[pt_TASER_ENERGY] += value;
+    if(pTemp(playerid)[pt_TASER_ENERGY] > 100) pTemp(playerid)[pt_TASER_ENERGY] = 100;
+    INVENTORY_DATA[playerid][taser_index][inventory_EXTRA] += value;
+    if(INVENTORY_DATA[playerid][taser_index][inventory_EXTRA] > 100) INVENTORY_DATA[playerid][taser_index][inventory_EXTRA] = 100;
+    return taser_index;
+}
+
+stock IsValidPlayerInventoryTaser(playerid)
+{
+    new Count = MAX_NU_POCKETS + 3;
+    if(PI[playerid][pVIP]) Count = MAX_SU_POCKETS + 3;
+
+    for(new i = 0; i != Count; i++)
+    {
+        if(i == INVENTORY_HEAD) continue;
+        if(i == INVENTORY_BACK) continue;
+
+        if(!INVENTORY_DATA[playerid][i][inventory_VALID]) continue;
+        if(INVENTORY_DATA[playerid][i][inventory_TYPE] == INVENTORY_TYPE_TASER)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+stock RemovePlayerInventoryTaser(playerid)
+{
+    for(new i = 0; i != MAX_INVENTORY_SLOTS; i++)
+    {
+        if(INVENTORY_DATA[playerid][i][inventory_VALID] == false) continue;
+        if(INVENTORY_DATA[playerid][i][inventory_TYPE] != INVENTORY_TYPE_TASER) continue;
+        
+        RemovePlayerPocketSlot(playerid, i);
+        pTemp(playerid)[pt_TASER_GUN] = -1;
+    }
+}
+
+stock SavePlayerHand(playerid, bool:force_save, bool:messages = false)
+{
+    switch(INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE])
+    {
+        case INVENTORY_TYPE_TASER:
+        {
+            new slot = GetPlayerFreePocketsSlot(playerid);
+            if(force_save) {
+                if(slot == -1) return PlayerTemp[playerid][pt_UNUSABLE_HAND] = true;
+            }
+            else {
+                if(slot == -1) return SendMessage(playerid, "Tus bolsillos estan llenos, no puedes guardar el taser.");
+            }
+            
+            INVENTORY_DATA[playerid][slot][inventory_VALID] = true;
+            INVENTORY_DATA[playerid][slot][inventory_TYPE] = INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE];
+            INVENTORY_DATA[playerid][slot][inventory_EXTRA] = INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_EXTRA];
+
+            PlayerTemp[playerid][pt_HAND_POCKET] = -1;
+            RemovePlayerPocketSlot(playerid, INVENTORY_HAND);
+            RemovePlayerHandObject(playerid);
+            InserPlayerPocketData(playerid, slot);
+            pTemp(playerid)[pt_TASER_GUN] = -1;
+
+            if(messages)
+            {
+                SendMessagef(playerid, "Has guardado tu ~b~%s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][slot][inventory_TYPE] ][inv_NAME]);
+                Auto_SendPlayerAction(playerid, "guarda su taser en su cinturon reglamentario.");
+            }
+        }
+        default:
+        {
+            new slot = GetPlayerFreePocketsSlot(playerid);
+            if(force_save) {
+                if(slot == -1) return PlayerTemp[playerid][pt_UNUSABLE_HAND] = true;
+            }
+            else {
+                if(slot == -1) return SendMessage(playerid, "Tus bolsillos estan llenos, no puedes guardar este objeto.");
+            }
+            
+            INVENTORY_DATA[playerid][slot][inventory_VALID] = true;
+            INVENTORY_DATA[playerid][slot][inventory_TYPE] = INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE];
+            INVENTORY_DATA[playerid][slot][inventory_EXTRA] = INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_EXTRA];
+
+            PlayerTemp[playerid][pt_HAND_POCKET] = -1;
+            RemovePlayerPocketSlot(playerid, INVENTORY_HAND);
+            RemovePlayerHandObject(playerid);
+            InserPlayerPocketData(playerid, slot);
+
+            if(messages)
+            {
+                SendMessagef(playerid, "Has guardado tu ~r~%s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][slot][inventory_TYPE] ][inv_NAME]);
+                Auto_SendPlayerAction(playerid, "guarda algo en sus bolsillos.");
+            }
+        }
+    }
+    return 1;
 }
 
 stock ShowPlayerPockets(playerid, pid)
@@ -346,6 +466,25 @@ stock ShowPlayerInventoryOptions(playerid, slot)
         switch(Inv_Type)
         {
             case INVENTORY_TYPE_NONE: ShowPlayerPockets(playerid, pTemp(playerid)[pt_POCKETS_SELECTED_PLAYER]);
+            case INVENTORY_TYPE_TASER:
+            {
+                format(caption, sizeof(caption), "{"#POLICE_COLOR"}%s {ffffff}- Opciones", INVENTORY_ITEMS_DATA[Inv_Type][inv_NAME]);
+
+                if(PlayerTemp[playerid][pt_HAND_POCKET] == INVENTORY_DATA[playerid][slot][inventory_ID])
+                {
+                    strcat(dialog, "Guardar\n");
+                    PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] = INV_SELECTION_HAND_SAVE;
+                    listitem ++;
+                }
+                else
+                {
+                    strcat(dialog, "Sacar\n");
+                    PlayerTemp[playerid][pt_PLAYER_LISTITEM][listitem] = INV_SELECTION_USE;
+                    listitem ++;
+                }
+
+                ShowPlayerDialog(playerid, DIALOG_INVENTORY_OPTIONS, DIALOG_STYLE_LIST, caption, dialog, "Continuar", "Cerrar");
+            }
             case INVENTORY_TYPE_SNACKS, INVENTORY_TYPE_WATER_BOTTLE:
             {
                 format(caption, sizeof(caption), "{"#GREEN_COLOR"}%s {ffffff}- Opciones", INVENTORY_ITEMS_DATA[Inv_Type][inv_NAME]);
@@ -457,20 +596,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                         {
                             default:
                             {
-                                new slot = GetPlayerFreePocketsSlot(playerid);
-                                if(slot == -1) return SendMessage(playerid, "Tus bolsillos estan llenos, no puedes guardar este objeto.");
-
-                                INVENTORY_DATA[playerid][slot][inventory_VALID] = true;
-                                INVENTORY_DATA[playerid][slot][inventory_TYPE] = INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE];
-                                INVENTORY_DATA[playerid][slot][inventory_EXTRA] = INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_EXTRA];
-
-                                PlayerTemp[playerid][pt_HAND_POCKET] = -1;
-                                RemovePlayerPocketSlot(playerid, INVENTORY_HAND);
-                                RemovePlayerHandObject(playerid);
-                                InserPlayerPocketData(playerid, slot);
-
-                                SendMessagef(playerid, "Has guardado tu ~r~%s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][slot][inventory_TYPE] ][inv_NAME]);
-                                Auto_SendPlayerAction(playerid, "guarda algo en sus bolsillos.");
+                                SavePlayerHand(playerid, false, true);
                             }
                         }
                     }
@@ -480,12 +606,29 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 
                         switch(INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE])
                         {
+                            case INVENTORY_TYPE_TASER:
+                            {
+                                INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_VALID] = true;
+                                INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE];
+                                INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_EXTRA] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA];
+
+                                PlayerTemp[playerid][pt_UNUSABLE_HAND] = false;
+                                RemovePlayerPocketSlot(playerid, PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT]);
+                                SetPlayerHandObject(playerid);
+                                InserPlayerPocketData(playerid, INVENTORY_HAND);
+                                pTemp(playerid)[pt_TASER_GUN] = INVENTORY_HAND;
+                                PlayerTemp[playerid][pt_TASER_TIMER] = gettime() + 15;
+
+                                SendMessagef(playerid, "Has sacado tu ~b~%s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE] ][inv_NAME]);
+                                Auto_SendPlayerAction(playerid, "saca su taser de su cinturon reglamentario.");
+                            }
                             default:
                             {
                                 INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_VALID] = true;
                                 INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_TYPE] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_TYPE];
                                 INVENTORY_DATA[playerid][INVENTORY_HAND][inventory_EXTRA] = INVENTORY_DATA[playerid][ PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT] ][inventory_EXTRA];
 
+                                PlayerTemp[playerid][pt_UNUSABLE_HAND] = false;
                                 RemovePlayerPocketSlot(playerid, PlayerTemp[playerid][pt_SELECTED_POCKET_SLOT]);
                                 SetPlayerHandObject(playerid);
                                 InserPlayerPocketData(playerid, INVENTORY_HAND);
@@ -1053,39 +1196,43 @@ hook OnPlayerKeyStateChange(playerid, newkeys, oldkeys)
     {
         if(PlayerTemp[playerid][pt_HAND_POCKET] != -1)
         {
-            new index = GetPlayerPocketIndexByID(playerid, PlayerTemp[playerid][pt_HAND_POCKET]);
-
-            switch(INVENTORY_DATA[playerid][index][inventory_TYPE])
+            if(PlayerTemp[playerid][pt_UNUSABLE_HAND] == false)
             {
-                case INVENTORY_TYPE_SNACKS, INVENTORY_TYPE_WATER_BOTTLE:
+                new index = GetPlayerPocketIndexByID(playerid, PlayerTemp[playerid][pt_HAND_POCKET]);
+
+                switch(INVENTORY_DATA[playerid][index][inventory_TYPE])
                 {
-                    INVENTORY_DATA[playerid][index][inventory_EXTRA] --;
+                    case INVENTORY_TYPE_SNACKS, INVENTORY_TYPE_WATER_BOTTLE:
+                    {
+                        INVENTORY_DATA[playerid][index][inventory_EXTRA] --;
+                        
+                        Add_Hungry_Thirst(playerid, INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_HUNGRY], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_THIRST]);
+                        ShowPlayerHudInfo(playerid, 3);
+
+                        ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 0, 0, 0, 0, 0, 0);
+                        ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 4.1, false, true, true, false, 1000);
+
+                        new action[445]; format(action, 445, "consume %s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_NAME]);
+                        Auto_SendPlayerAction(playerid, action);
+
+                        SendMessagef(playerid, "Has consumido ~b~%s~w~.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_NAME]);
                     
-                    Add_Hungry_Thirst(playerid, INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_HUNGRY], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_THIRST]);
-                    ShowPlayerHudInfo(playerid, 3);
-
-                    ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 0, 0, 0, 0, 0, 0);
-					ApplyAnimation(playerid, "FOOD", "EAT_Pizza", 4.1, false, true, true, false, 1000);
-
-                    new action[445]; format(action, 445, "consume %s.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_NAME]);
-                    Auto_SendPlayerAction(playerid, action);
-
-                    SendMessagef(playerid, "Has consumido ~b~%s~w~.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_NAME]);
-                
-                    if(INVENTORY_DATA[playerid][index][inventory_EXTRA] <= 0)
-                    {
-                        SendMessagef(playerid, "Ya no te queda mas ~r~%s~w~.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_NAME]);
-                        RemovePlayerPocketSlot(playerid, index);
-                        RemovePlayerHandObject(playerid);
-                        PlayerTemp[playerid][pt_HAND_POCKET] = -1;
-                    }
-                    else
-                    {
-                        mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pinventory SET extra = %d WHERE id = %d;", INVENTORY_DATA[playerid][index][inventory_EXTRA], INVENTORY_DATA[playerid][index][inventory_ID]);
-                        mysql_tquery(handle_db, QUERY_BUFFER);
+                        if(INVENTORY_DATA[playerid][index][inventory_EXTRA] <= 0)
+                        {
+                            SendMessagef(playerid, "Ya no te queda mas ~r~%s~w~.", INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_NAME]);
+                            RemovePlayerPocketSlot(playerid, index);
+                            RemovePlayerHandObject(playerid);
+                            PlayerTemp[playerid][pt_HAND_POCKET] = -1;
+                        }
+                        else
+                        {
+                            mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "UPDATE pinventory SET extra = %d WHERE id = %d;", INVENTORY_DATA[playerid][index][inventory_EXTRA], INVENTORY_DATA[playerid][index][inventory_ID]);
+                            mysql_tquery(handle_db, QUERY_BUFFER);
+                        }
                     }
                 }
             }
+            else SendMessage(playerid, "No puedes utilizar tus manos.");
             return Y_HOOKS_BREAK_RETURN_1;
         }
     }
