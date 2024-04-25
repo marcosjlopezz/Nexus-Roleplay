@@ -549,7 +549,8 @@ enum
 	DIALOG_INVENTORY_OPTIONS_EXTRA,
 	DIALOG_INVENTORY_EXTRA_INFO,
 	DIALOG_INVENTORY_EXTRA,
-	DIALOG_INVENTORY_SELL
+	DIALOG_INVENTORY_SELL,
+	DIALOG_TOYS_SHOP_CONFIRM
 }
 
 enum
@@ -15157,7 +15158,8 @@ public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
         {
 			if(response == MODEL_RESPONSE_SELECT)
 			{
-				PlayerTemp[playerid][pt_SELECTED_TOY] = PlayerTemp[playerid][pt_PLAYER_LISTITEM][index];	
+				PlayerTemp[playerid][pt_SELECTED_TOY] = PlayerTemp[playerid][pt_PLAYER_LISTITEM][index];
+				ShowPlayerConfirmToyShop(playerid);
 			}
             return 1;
         }
