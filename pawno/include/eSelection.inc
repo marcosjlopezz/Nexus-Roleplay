@@ -370,7 +370,7 @@ public OnGameModeInit()
 	TextDrawFont(g_MenuBottomBanner, 0);
 
 	//close button
-	g_MenuCloseButton = TextDrawCreate(490.666809, 337.829711, "CLOSE");
+	g_MenuCloseButton = TextDrawCreate(490.666809, 337.829711, "CERRAR");
 	TextDrawLetterSize(g_MenuCloseButton, 0.128333, 0.957036);
 	TextDrawTextSize(g_MenuCloseButton, 10.5021, 10.0187);
 	TextDrawAlignment(g_MenuCloseButton, 2);

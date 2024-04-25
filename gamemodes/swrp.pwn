@@ -554,7 +554,8 @@ enum
 
 enum
 {
-	MENU_SELECT_POLICE_VEHICLE
+	MENU_SELECT_POLICE_VEHICLE,
+	MENU_TOYS_SHOP
 }
 
 enum
@@ -2866,7 +2867,8 @@ enum Temp_Enum
 	pt_TRICK_EXTRA,
 	pt_TRICK_PRICE,
 	pt_TRICK_TIMER,
-	bool:pt_UNUSABLE_HAND
+	bool:pt_UNUSABLE_HAND,
+	pt_SELECTED_TOY
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -9693,6 +9695,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						SendMessage(playerid, "Pulsa 'ESCAPE' para dejar de probarte ropa.");
 						SelectTextDrawEx(playerid, PRIMARY_COLOR2);
 					}
+					case 1:
+					{
+						ShowPlayerToysShop(playerid);
+					}
 				}
 			}
 			return 1;
@@ -15147,6 +15153,14 @@ public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
 				PutPlayerInVehicleEx(playerid, vehicle_id, 0);
 			}
 		}
+        case MENU_TOYS_SHOP:
+        {
+			if(response == MODEL_RESPONSE_SELECT)
+			{
+				PlayerTemp[playerid][pt_SELECTED_TOY] = PlayerTemp[playerid][pt_PLAYER_LISTITEM][index];	
+			}
+            return 1;
+        }
 	}
 	return 1;
 } //OnModelSelectionResponse
@@ -16360,9 +16374,11 @@ public OnPlayerClickTextDraw(playerid, Text:clickedid)
 			ClosePlayerClothingMenu(playerid);
 			ExitPlayerWardrobe(playerid);
 		}
-		
+
 		if(IsPlayerInGenderSelector(playerid)) KickEx(playerid, 500);
 		if(IsPlayerInPlayButton(playerid)) KickEx(playerid, 500);
+
+		ShowPlayerProgressBar(playerid, PlayerBars[playerid][pbHEALTH]);
 		return 1;
 	}
 
@@ -22621,7 +22637,7 @@ callbackp:TasePlayer(damagedid)
 	pTemp(damagedid)[pt_TASSED_TIME] += 15.0;
 
 	KillTimer(pTemp(damagedid)[pt_TASSED]);
-	pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", seconds(1), false, "i", damagedid);
+	pTemp(damagedid)[pt_TASSED] = SetTimerEx("TasePlayer", 500, false, "i", damagedid);
 	return 1;
 }
 
@@ -30455,3 +30471,4 @@ stock GetNearVehicle(playerid, Float:fDis = 5.0)
 #include "src/player_data.pwn"
 #include "src/pharmacy.pwn"
 #include "src/discord.pwn"
+#include "src/toys_shop.pwn"
