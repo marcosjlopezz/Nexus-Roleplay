@@ -11,6 +11,13 @@ enum
     TOY_POSITION_HEAD
 }
 
+new Toys_Bones_Name[][] =
+{
+    {"Desconocido"},
+    {"Espalda"},
+    {"Cabeza"}
+};
+
 enum TOYS_SHOP_INFO
 {
     toy_NAME[32],
@@ -21,9 +28,9 @@ enum TOYS_SHOP_INFO
 }
 new TOYS_SHOP[][TOYS_SHOP_INFO] =
 {
-    {"Guitarra Warlock", 0, 5, 19317,TOY_POSITION_SPINE},
-    {"Guitarra Warlock Blanca", 0, 5, 19318,TOY_POSITION_SPINE},
-    {"Guitarra Warlock Negra", 0, 5, 19319,TOY_POSITION_SPINE},
+    {"Guitarra Warlock", 0, 5, 19317, TOY_POSITION_SPINE},
+    {"Guitarra Warlock Blanca", 0, 5, 19318, TOY_POSITION_SPINE},
+    {"Guitarra Warlock Negra", 0, 5, 19319, TOY_POSITION_SPINE},
     {"Casco Obrero", 30000, 0, 18638, TOY_POSITION_HEAD},
     {"Casco Moto rojo", 1650, 0, 18977, TOY_POSITION_HEAD},
     {"Bandana", 1500, 0, 18891, TOY_POSITION_HEAD}
@@ -48,7 +55,7 @@ stock ShowPlayerToysShop(playerid)
 
 stock ShowPlayerConfirmToyShop(playerid)
 {
-    new dialog[445 + 24], price, Currency[64];
+    new dialog[1024], price, Currency[64];
 
     if(TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_PRICE] > 0)
     {
@@ -78,7 +85,7 @@ stock ShowPlayerConfirmToyShop(playerid)
         ",
             TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_NAME],
             number_format_thousand(price), Currency,
-            (TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_BONE] ? "Ninguno" : "Espalda" : "Cabeza")
+            Toys_Bones_Name[ TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_BONE] ]
     );
 
     ShowPlayerDialog(playerid, DIALOG_TOYS_SHOP_CONFIRM, DIALOG_STYLE_MSGBOX, "{"#GREEN_COLOR"}Accesorio {ffffff}- Comprar", dialog, "Confirmar", "Cerrar");
