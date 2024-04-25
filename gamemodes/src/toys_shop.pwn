@@ -6,16 +6,10 @@
 
 enum
 {
-    TOY_POSITION_SPINE = 1,
+    TOY_POSITION_NONE = 0,
+    TOY_POSITION_SPINE,
     TOY_POSITION_HEAD
 }
-
-new Toys_Bones[] =
-{
-    "Ninguno",
-    "Espalda",
-    "Cabeza"
-};
 
 enum TOYS_SHOP_INFO
 {
@@ -83,8 +77,8 @@ stock ShowPlayerConfirmToyShop(playerid)
             \n\
         ",
             TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_NAME],
-            number_format_thousand(price), Currency, 
-            Toys_Bones[ TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_BONE] ]
+            number_format_thousand(price), Currency,
+            (TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_BONE] ? "Ninguno" : "Espalda" : "Cabeza")
     );
 
     ShowPlayerDialog(playerid, DIALOG_TOYS_SHOP_CONFIRM, DIALOG_STYLE_MSGBOX, "{"#GREEN_COLOR"}Accesorio {ffffff}- Comprar", dialog, "Confirmar", "Cerrar");
