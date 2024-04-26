@@ -326,19 +326,12 @@ new POLICE_VEHICLES_INFO[][] =
 {
 	{596, 2},
 	{597, 2},
-	{598, 3},
-	{599, 3},
-	{601, 2},
 	{523, 1},
-	{522, 3},
-	{468, 1},
-	{490, 3},
-	{528, 4},
-	{427, 2},
-	{411, 6},
-	{541, 6},
-	{402, 6},
-	{415, 6}
+	{402, 7},
+	{468, 7},
+	{527, 9},
+	{590, 12},
+	{506, 13}
 };
 
 enum e_PLAYER_AC_INFO
@@ -2147,7 +2140,7 @@ enum enum_POLICE_SKINS
 }
 new POLICE_SKINS[][enum_POLICE_SKINS] =
 {
-    {SEX_MALE, 253, 1},
+    {SEX_MALE, 71, 1},
 	{SEX_MALE, 280, 2},
 	{SEX_MALE, 266, 6},
 	{SEX_MALE, 267, 9},
@@ -2662,6 +2655,12 @@ enum
 	PED_BYCICLING,
 }
 
+enum
+{
+	PLAYER_PLATFORM_PC = 0,
+	PLAYER_PLATFORM_ANDROID
+}
+
 enum Temp_Enum
 {
 	pt_GAME_STATE,
@@ -2869,7 +2868,8 @@ enum Temp_Enum
 	pt_TRICK_PRICE,
 	pt_TRICK_TIMER,
 	bool:pt_UNUSABLE_HAND,
-	pt_SELECTED_TOY
+	pt_SELECTED_TOY,
+	pt_PLAYER_PLATFORM
 };
 new PlayerTemp[MAX_PLAYERS][Temp_Enum]; // Guardar todas las variables en el modulo player_data.pwn
 
@@ -15159,6 +15159,8 @@ public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
 			if(response == MODEL_RESPONSE_SELECT)
 			{
 				PlayerTemp[playerid][pt_SELECTED_TOY] = PlayerTemp[playerid][pt_PLAYER_LISTITEM][index];
+				if(TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_SKIN] != PI[playerid][pi_SKIN]) return SendMessage(playerid, "Este accesorio no esta disponible para tu ropa actual.");
+				
 				ShowPlayerConfirmToyShop(playerid);
 			}
             return 1;
@@ -24614,6 +24616,7 @@ ShowPlayerStats(playerid, pid)
 			{d1d1d1}Nombre:\t{ffffff}%s\n\
 			{d1d1d1}Correo electronico:\t{ffffff}%s\n\
 			{d1d1d1}Fecha registro:\t{ffffff}%s\n\
+			{d1d1d1}Plataforma:\t{ffffff}%s\n\
 			{d1d1d1}ult. conexion:\t{ffffff}%s\n\
 			{d1d1d1}Tiempo jugando:\t{ffffff}%.1f horas\n\
 			{d1d1d1}Nivel:\t{ffffff}%d\n\
@@ -24630,6 +24633,7 @@ ShowPlayerStats(playerid, pid)
 			PI[pid][pNAME],
 			PI[pid][pEMAIL],
 			PI[pid][pREG_DATE],
+			(PlayerTemp[playerid][pt_PLAYER_PLATFORM] ? "Android" : "Ordenador"),
 			PI[pid][pLAST_CONNECTION],
 			hours,
 			PI[pid][pLEVEL],
@@ -24765,7 +24769,7 @@ CMD:id(playerid, params[])
 	if(sscanf(params, "u", to_playerid)) return ErrorCommandParams(playerid, "/id [PlayerID/Nombre]");
 	if(!IsPlayerConnected(to_playerid)) return SendMessage(playerid, "Jugador desconectado.");
 	
-	SendClientMessagef(playerid, -1, "Nombre: '%s' DB-ID: '%d' Playerid: '%d' Nivel: %d Ping: %d", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, PI[to_playerid][pLEVEL], GetPlayerPing(to_playerid));
+	SendClientMessagef(playerid, -1, "Nombre: '%s' | DB-ID: '%d' | Playerid: '%d' | Nivel: %d | Ping: %d | Plataforma: %s", PI[to_playerid][pNAME], PI[to_playerid][pID], to_playerid, PI[to_playerid][pLEVEL], GetPlayerPing(to_playerid), (PlayerTemp[to_playerid][pt_PLAYER_PLATFORM] ? "Android" : "Ordenador"));
 	return 1;
 }
 
@@ -29786,6 +29790,8 @@ public OnPlayerLogin(playerid)
 	CancelSelectTextDrawEx(playerid);
 	PlayerTemp[playerid][pt_PICKUP_TIMER] = gettime();
 	pTemp(playerid)[pt_GIVECASHALL_TIME] = gettime();
+	PlayerTemp[playerid][pt_PLAYER_PLATFORM] = PLAYER_PLATFORM_PC;
+	if(IsPlayerUsingMobile(playerid)) PlayerTemp[playerid][pt_PLAYER_PLATFORM] = PLAYER_PLATFORM_ANDROID;
 
 	PlayerTemp[playerid][pt_INJURED_POS][0] = PI[playerid][pPOS_X];
 	PlayerTemp[playerid][pt_INJURED_POS][1] = PI[playerid][pPOS_Y];
@@ -30459,6 +30465,7 @@ stock GetNearVehicle(playerid, Float:fDis = 5.0)
 #include "src/air_veh_fuel.pwn"
 #include "src/attachobjecttoobjectex.pwn"
 #include "src/key_press.pwn"
+#include "src/toys_shop.pwn"
 #include "src/inv.pwn"
 #include "src/body_weapons.pwn"
 #include "src/injured.pwn"
@@ -30473,4 +30480,3 @@ stock GetNearVehicle(playerid, Float:fDis = 5.0)
 #include "src/player_data.pwn"
 #include "src/pharmacy.pwn"
 #include "src/discord.pwn"
-#include "src/toys_shop.pwn"

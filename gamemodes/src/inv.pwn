@@ -21,8 +21,6 @@
 #define MAX_NU_POCKETS      (5)
 #define MAX_SU_POCKETS      (7)
 
-#define InvDataName(%0)     INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][%0][inventory_TYPE] ][inv_NAME]
-
 /* 
 
     HEADER
@@ -34,7 +32,8 @@ enum E_INVENTORY_DATA
     bool:inventory_VALID,
     inventory_ID,
     inventory_TYPE,
-    inventory_EXTRA
+    inventory_EXTRA,
+    inventory_DATA
 };
 new INVENTORY_DATA[MAX_PLAYERS][MAX_INVENTORY_SLOTS][E_INVENTORY_DATA];
 
@@ -44,6 +43,7 @@ enum
     INVENTORY_TYPE_SNACKS,
     INVENTORY_TYPE_WATER_BOTTLE,
     INVENTORY_TYPE_TASER,
+    INVENTORY_TYPE_TOY,
 }
 
 enum E_INVENTORY_ITEMS_DATA
@@ -57,7 +57,8 @@ new INVENTORY_ITEMS_DATA[][E_INVENTORY_ITEMS_DATA] =
 {
     {"Snacks", 0.4, 0.0, 4},
     {"Botella de Agua", 0.0, 0.7, 1},
-    {"Taser", 0.0, 0.0, 100}
+    {"Taser", 0.0, 0.0, 100},
+    {"", 0.0, 0.0, 0} //NO
 };
 
 enum E_HAND_ATTACHED_OBJECT
@@ -78,13 +79,14 @@ new HAND_ATTACH_OBJECT[][E_HAND_ATTACHED_OBJECT] =
 {
     {2663, 6, 0.049999, 0.020000, 0.000000, 5.000000, -370.000000, -359.070007, 0.290000, 0.370000, 0.290000},
     {19570, 6, 0.109999, 0.030000, -0.119999, 5.000000, -370.000000, -359.070007, 0.440000, 0.409999, 0.620000},
-    {18642, 6, 0.060000, 0.025000, 0.034000, 195.000000, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000}
+    {18642, 6, 0.060000, 0.025000, 0.034000, 195.000000, 0.000000, 0.000000, 1.000000, 1.000000, 1.000000},
+    {-1, -1, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000} //NO
 };
 
 enum
 {
     INVENTORY_HEAD = 0,
-    INVENTORY_BACK,
+    INVENTORY_SPINE,
     INVENTORY_HAND,
     INVENTORY_SLOT_0,
     INVENTORY_SLOT_1,
@@ -123,7 +125,7 @@ stock GetPlayerFreePocketsSlot(playerid)
     for(new i = 0; i != Count; i++)
     {
         if(i == INVENTORY_HEAD) continue;
-        if(i == INVENTORY_BACK) continue;
+        if(i == INVENTORY_SPINE) continue;
         if(i == INVENTORY_HAND) continue;
 
         if(!INVENTORY_DATA[playerid][i][inventory_VALID]) return i;
@@ -184,8 +186,10 @@ stock InserPlayerPocketData(playerid, index)
         INVENTORY_DATA[playerid][index][inventory_VALID] = true;
         if(index == INVENTORY_HAND) PlayerTemp[playerid][pt_HAND_POCKET] = INVENTORY_DATA[playerid][index][inventory_ID];
     }
-    mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "INSERT INTO pinventory (id_player, type, extra, slot) VALUES(%d, %d, %d, %d);",
-        PI[playerid][pID], INVENTORY_DATA[playerid][index][inventory_TYPE], INVENTORY_DATA[playerid][index][inventory_EXTRA], index
+    mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "INSERT INTO pinventory (id_player, type, extra, data, slot) VALUES(%d, %d, %d, %d, %d);",
+        PI[playerid][pID], INVENTORY_DATA[playerid][index][inventory_TYPE], INVENTORY_DATA[playerid][index][inventory_EXTRA], 
+        INVENTORY_DATA[playerid][index][inventory_DATA],
+        index
     );
     mysql_tquery_inline(handle_db, QUERY_BUFFER, using inline OnPlayerPocketInserted);
     return 1;
@@ -197,6 +201,7 @@ stock RemovePlayerPocketSlot(playerid, index)
     INVENTORY_DATA[playerid][index][inventory_ID] = 0;
     INVENTORY_DATA[playerid][index][inventory_TYPE] = INVENTORY_TYPE_NONE;
     INVENTORY_DATA[playerid][index][inventory_EXTRA] = 0;
+    INVENTORY_DATA[playerid][index][inventory_DATA] = 0;
 
     mysql_format(handle_db, QUERY_BUFFER, sizeof QUERY_BUFFER, "DELETE FROM pinventory WHERE id_player = %d AND slot = %d;", PI[playerid][pID], index);
     mysql_tquery(handle_db, QUERY_BUFFER);
@@ -221,6 +226,7 @@ stock LoadPlayerPockets(playerid)
                     cache_get_value_name_int(i, "id", INVENTORY_DATA[playerid][slot][inventory_ID]);
                     cache_get_value_name_int(i, "type", INVENTORY_DATA[playerid][slot][inventory_TYPE]);
                     cache_get_value_name_int(i, "extra", INVENTORY_DATA[playerid][slot][inventory_EXTRA]);
+                    cache_get_value_name_int(i, "data", INVENTORY_DATA[playerid][slot][inventory_DATA]);
 
                     if(slot == INVENTORY_HAND)
                     {
@@ -245,6 +251,7 @@ stock InsertPlayerPocket_Snacks(playerid, index)
 {
     INVENTORY_DATA[playerid][index][inventory_TYPE] = INVENTORY_TYPE_SNACKS;
     INVENTORY_DATA[playerid][index][inventory_EXTRA] = INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_AMOUNT];
+    INVENTORY_DATA[playerid][index][inventory_DATA] = 0;
     InserPlayerPocketData(playerid, index);
     return index;
 }
@@ -253,6 +260,7 @@ stock InsertPlayerPocket_WaterBottle(playerid, index)
 {
     INVENTORY_DATA[playerid][index][inventory_TYPE] = INVENTORY_TYPE_WATER_BOTTLE;
     INVENTORY_DATA[playerid][index][inventory_EXTRA] = INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_AMOUNT];
+    INVENTORY_DATA[playerid][index][inventory_DATA] = 0;
     InserPlayerPocketData(playerid, index);
     return index;
 }
@@ -261,7 +269,8 @@ stock InserPlayerPocket_Taser(playerid, index)
 {
     INVENTORY_DATA[playerid][index][inventory_TYPE] = INVENTORY_TYPE_TASER;
     INVENTORY_DATA[playerid][index][inventory_EXTRA] = INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_AMOUNT];
-    pTemp(playerid)[pt_TASER_ENERGY] = INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_AMOUNT]; 
+    pTemp(playerid)[pt_TASER_ENERGY] = INVENTORY_ITEMS_DATA[ INVENTORY_DATA[playerid][index][inventory_TYPE] ][inv_AMOUNT];
+    INVENTORY_DATA[playerid][index][inventory_DATA] = 0;
     InserPlayerPocketData(playerid, index);
     return index;
 }
@@ -283,7 +292,7 @@ stock IsValidPlayerInventoryTaser(playerid)
     for(new i = 0; i != Count; i++)
     {
         if(i == INVENTORY_HEAD) continue;
-        if(i == INVENTORY_BACK) continue;
+        if(i == INVENTORY_SPINE) continue;
 
         if(!INVENTORY_DATA[playerid][i][inventory_VALID]) continue;
         if(INVENTORY_DATA[playerid][i][inventory_TYPE] == INVENTORY_TYPE_TASER)
@@ -304,6 +313,15 @@ stock RemovePlayerInventoryTaser(playerid)
         RemovePlayerPocketSlot(playerid, i);
         pTemp(playerid)[pt_TASER_GUN] = -1;
     }
+}
+
+stock InserPlayerInventoryToy(playerid)
+{
+    INVENTORY_DATA[playerid][index][inventory_TYPE] = INVENTORY_TYPE_TOY;
+    INVENTORY_DATA[playerid][index][inventory_EXTRA] = TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_MODELID];
+    INVENTORY_DATA[playerid][index][inventory_DATA] = PlayerTemp[playerid][pt_SELECTED_TOY];
+    InserPlayerPocketData(playerid, index);
+    return index;
 }
 
 stock SavePlayerHand(playerid, bool:force_save, bool:messages = false)
@@ -373,16 +391,22 @@ stock ShowPlayerPockets(playerid, pid)
 
     format(caption, sizeof(caption), "INVENTARIO | SKIN %d", PI[pid][pSKIN]);
 
-    if(INVENTORY_DATA[pid][INVENTORY_HEAD][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_HEAD][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_HEAD][inventory_TYPE] ][inv_NAME]);
+    if(INVENTORY_DATA[pid][INVENTORY_HEAD][inventory_VALID])
+    {
+        format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_HEAD][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_HEAD][inventory_EXTRA] ][toy_NAME]);
+    }
     else line_str = "{ff0000}Vacio{ffffff}[] | Cabeza\n";
     strcat(dialog, line_str);
     PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_HEAD;
     listitem ++;
 
-    if(INVENTORY_DATA[pid][INVENTORY_BACK][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_BACK][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_BACK][inventory_TYPE] ][inv_NAME]);
+    if(INVENTORY_DATA[pid][INVENTORY_SPINE][inventory_VALID])
+    {
+        format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SPINE][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_SPINE][inventory_EXTRA] ][toy_NAME]);
+    }
     else line_str = "{ff0000}Vacio{ffffff}[] | Espalda\n";
     strcat(dialog, line_str);
-    PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_BACK;
+    PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_SPINE;
     listitem ++;
 
     if(INVENTORY_DATA[pid][INVENTORY_HAND][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_HAND][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_HAND][inventory_TYPE] ][inv_NAME]);
@@ -391,31 +415,66 @@ stock ShowPlayerPockets(playerid, pid)
     PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_HAND;
     listitem ++;
 
-    if(INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_TYPE] ][inv_NAME]);
+    if(INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_VALID])
+    {
+        if(INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_TYPE] == INVENTORY_TYPE_TOY)
+        {
+            format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_EXTRA] ][toy_NAME]);
+        }
+        else format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_0][inventory_TYPE] ][inv_NAME]);
+    }
     else line_str = "{ff0000}Vacio{ffffff}[] | Bolsillo\n";
     strcat(dialog, line_str);
     PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_SLOT_0;
     listitem ++;
 
-    if(INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_TYPE] ][inv_NAME]);
+    if(INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_VALID])
+    {
+        if(INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_TYPE] == INVENTORY_TYPE_TOY)
+        {
+            format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_EXTRA] ][toy_NAME]);
+        }
+        else format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_1][inventory_TYPE] ][inv_NAME]);
+    }
     else line_str = "{ff0000}Vacio{ffffff}[] | Bolsillo\n";
     strcat(dialog, line_str);
     PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_SLOT_1;
     listitem ++;
 
-    if(INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_TYPE] ][inv_NAME]);
+    if(INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_VALID])
+    {
+        if(INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_TYPE] == INVENTORY_TYPE_TOY)
+        {
+            format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_EXTRA] ][toy_NAME]);
+        }
+        else format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_2][inventory_TYPE] ][inv_NAME]);
+    }
     else line_str = "{ff0000}Vacio{ffffff}[] | Bolsillo\n";
     strcat(dialog, line_str);
     PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_SLOT_2;
     listitem ++;
 
-    if(INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_TYPE] ][inv_NAME]);
+    if(INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_VALID])
+    {
+        if(INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_TYPE] == INVENTORY_TYPE_TOY)
+        {
+            format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_EXTRA] ][toy_NAME]);
+        }
+        else format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_3][inventory_TYPE] ][inv_NAME]);
+    }
     else line_str = "{ff0000}Vacio{ffffff}[] | Bolsillo\n";
     strcat(dialog, line_str);
     PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_SLOT_3;
     listitem ++;
 
-    if(INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_TYPE] ][inv_NAME]);
+    if(INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_VALID])
+    {
+        if(INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_TYPE] == INVENTORY_TYPE_TOY)
+        {
+            format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_EXTRA] ][toy_NAME]);
+        }
+        else format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_4][inventory_TYPE] ][inv_NAME]);
+    }
     else line_str = "{ff0000}Vacio{ffffff}[] | Bolsillo\n";
     strcat(dialog, line_str);
     PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_SLOT_4;
@@ -423,13 +482,27 @@ stock ShowPlayerPockets(playerid, pid)
 
     if(PI[pid][pVIP])
     {
-        if(INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_TYPE] ][inv_NAME]);
+        if(INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_VALID])
+        {
+            if(INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_TYPE] == INVENTORY_TYPE_TOY)
+            {
+                format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_EXTRA] ][toy_NAME]);
+            }
+            else format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_5][inventory_TYPE] ][inv_NAME]);
+        }
         else line_str = "{ff0000}Vacio{ffffff}[] | Bolsillo\n";
         strcat(dialog, line_str);
         PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_SLOT_5;
         listitem ++;
 
-        if(INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_VALID]) format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_TYPE] ][inv_NAME]);
+        if(INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_VALID])
+        {
+            if(INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_TYPE] == INVENTORY_TYPE_TOY)
+            {
+                format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_EXTRA], TOYS_SHOP[ INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_EXTRA] ][toy_NAME]);
+            }
+            else format(line_str, 445, "{"#GREEN_COLOR"}[%d]{ffffff} | %s\n", INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_EXTRA], INVENTORY_ITEMS_DATA[ INVENTORY_DATA[pid][INVENTORY_SLOT_6][inventory_TYPE] ][inv_NAME]);
+        }
         else line_str = "{ff0000}Vacio{ffffff}[] | Bolsillo\n";
         strcat(dialog, line_str);
         PlayerTemp[pid][pt_PLAYER_LISTITEM][listitem] = INVENTORY_SLOT_6;
@@ -571,7 +644,7 @@ hook OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
                 switch(slot)
                 {
                     case INVENTORY_HEAD: return Y_HOOKS_BREAK_RETURN_1;
-                    case INVENTORY_BACK: return Y_HOOKS_BREAK_RETURN_1;
+                    case INVENTORY_SPINE: return Y_HOOKS_BREAK_RETURN_1;
                     case INVENTORY_SLOT_CREW: PC_EmulateCommand(playerid, "/banda");
                     default:
                     {

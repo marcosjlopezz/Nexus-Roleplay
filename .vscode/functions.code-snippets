@@ -1,0 +1,12 @@
+{
+	"Create a function": {
+		"prefix": "newFun",
+		"body": [
+			"forward $1();",
+			"public  $1()",
+			"{",
+			"}"
+		],
+		"description": "Create a public function"
+	}
+}
