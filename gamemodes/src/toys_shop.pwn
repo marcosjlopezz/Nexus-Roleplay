@@ -19,19 +19,19 @@ enum TOYS_SHOP_INFO
     toy_SKIN,
     toy_PRICE,
     toy_EXTRA,
-    float:TOY_POS_X,
-    float:TOY_POS_Y,
-    float:TOY_POS_Z,
-    float:TOY_ROT_X,
-    float:TOY_ROT_Y,
-    float:TOY_ROT_Z,
-    float:TOY_SIZE_X,
-    float:TOY_SIZE_Y,
-    float:TOY_SIZE_Z
+    Float:TOY_POS_X,
+    Float:TOY_POS_Y,
+    Float:TOY_POS_Z,
+    Float:TOY_ROT_X,
+    Float:TOY_ROT_Y,
+    Float:TOY_ROT_Z,
+    Float:TOY_SIZE_X,
+    Float:TOY_SIZE_Y,
+    Float:TOY_SIZE_Z
 }
 new TOYS_SHOP[][TOYS_SHOP_INFO] =
 {
-
+    {"Mombre", 0, 5, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}
 };
 
 stock ShowPlayerToysShop(playerid)

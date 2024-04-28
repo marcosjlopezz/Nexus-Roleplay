@@ -1,3 +1,21 @@
+/*
+
+				Nexus Roleplay
+	Desc: Esta gamemode ha sido modificada por marcosjlopezz (discord) 
+		  a partir de una gamemode base llamada Super Roleplay 2
+
+	Tiene muchos sistemas intentando imitar a SampDroid y NewGamers
+	Por ejemplo el sistema de vida personalizado, donde corrige muchisimos bugs de android
+	Sistema de inventario de SampDroid (Incompleto) y muchisimos sistemas mas, unidad swat, etc.
+
+	Cosas por terminar:
+	Sistema de inventario (solo los slot cabeza y espalda)
+	Sistema de comprar toys (hay que vincularlo con el inventario, o como prefieran)
+
+	Se eliminaron los comandos de consumir, dar, etc ya que se tenia pensado implementar todo
+	al inventario.
+*/
+
 #pragma option -d2
 
 #include <a_samp>
@@ -18,7 +36,7 @@ AntiAmx()
 
 #define MYSQL_HOST 		"localhost"
 #define MYSQL_USER 		"root"
-#define MYSQL_DB 		"swrp_db"
+#define MYSQL_DB 		"nxrp_db"
 #define MYSQL_PASS 		""
 
 #include <crashdetect>
@@ -49,21 +67,21 @@ AntiAmx()
 //#include <sampvoice>
 
 /* NOMBRES */
-#define SERVER_VERSION			"3.0 Alpha"
+#define SERVER_VERSION			"1.0"
 
-#define SERVER_NAME				"SampWorld Roleplay"
-#define SERVER_SHORT_NAME		"SampWorld"
+#define SERVER_NAME				"Nexus Roleplay"
+#define SERVER_SHORT_NAME		"Nexus"
 
-#define	SERVER_NAME1			"Samp"
-#define	SERVER_NAME2			"World"
+#define	SERVER_NAME1			"Nex"
+#define	SERVER_NAME2			"us"
 
-#define SERVER_GAMEMODE			"Roleplay r"SERVER_VERSION""
+#define SERVER_GAMEMODE			"Roleplay en Español"
 #define SERVER_LANGUAGE			"Español - Spanish"
-#define SERVER_WEBSITE			"https://discord.gg/Zy4Sc2nhnd"
-#define	SERVER_DISCORD			"https://discord.gg/Zy4Sc2nhnd"
-#define SERVER_HOSTNAME 		"(ESP) • "SERVER_NAME"® • [Android/PC]"
+#define SERVER_WEBSITE			"https://web.dominio/"
+#define	SERVER_DISCORD			"https://discord.gg/invite/code"
+#define SERVER_HOSTNAME 		""SERVER_NAME" - PC/Android"
 
-#define SERVER_COIN				"Yuan"
+#define SERVER_COIN				"Coins"
 
 #define MAX_BAD_LOGIN_ATTEMPS 	3
 #define REP_MULTIPLIER 			4
@@ -71,20 +89,20 @@ AntiAmx()
 #define REP_FOR_PAYDAY 			3
 #define LOGIN_TIME 				180000
 
-#define PRIMARY_COLOR 			"2D50D7"
-#define PRIMARY_COLOR2 			0x2D50D7FF
+#define PRIMARY_COLOR 			"FFCD37"
+#define PRIMARY_COLOR2 			0xFFCD37FF
 
 #define SILVER_COLOR 			"d1d1d1"
 #define SILVER_COLOR2 			0xd1d1d1d1
 
-#define	GOLD_COLOR				"FFD25F"
-#define	GOLD_COLOR2				0xFFD25FFF
+#define	GOLD_COLOR				"FFAF37"
+#define	GOLD_COLOR2				0xFFAF37FF
 
 #define RED_COLOR 				"E10000"
 #define RED_COLOR2 				0xE10000FF
 
-#define YELLOW_COLOR			"FAFF5F"
-#define	YELLOW_COLOR2			0xFAFF5FFF
+#define YELLOW_COLOR			"F5FF37"
+#define	YELLOW_COLOR2			0xF5FF37FF
 
 #define GREEN_COLOR 			"B9FF4B"
 #define GREEN_COLOR2 			0xB9FF4BFF
@@ -15159,7 +15177,7 @@ public OnModelSelectionResponse(playerid, extraid, index, modelid, response)
 			if(response == MODEL_RESPONSE_SELECT)
 			{
 				PlayerTemp[playerid][pt_SELECTED_TOY] = PlayerTemp[playerid][pt_PLAYER_LISTITEM][index];
-				if(TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_SKIN] != PI[playerid][pi_SKIN]) return SendMessage(playerid, "Este accesorio no esta disponible para tu ropa actual.");
+				//if(TOYS_SHOP[ PlayerTemp[playerid][pt_SELECTED_TOY] ][toy_SKIN] != PI[playerid][pi_SKIN]) return SendMessage(playerid, "Este accesorio no esta disponible para tu ropa actual.");
 				
 				ShowPlayerConfirmToyShop(playerid);
 			}

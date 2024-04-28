@@ -1,11 +1,19 @@
+/* 
+
+						Nexus Roleplay
+		Mapeos de Nexus roleplay, aca estan todos los mapeos
+		El sistema de mapeo esta modificado eliminando muchos bugs y demas
+		Se re mapearon todos los mapeos con texture studio.
+*/
+
 #include <a_samp>
 #include <streamer>
 
-#define SERVER_NAME				"SampWorld Roleplay"
-#define SERVER_SHORT_NAME		"SampWorld"
+#define SERVER_NAME				"Nexus Roleplay"
+#define SERVER_SHORT_NAME		"Nexus"
 
-#define	SERVER_NAME1			"Samp"
-#define	SERVER_NAME2			"World"
+#define	SERVER_NAME1			"Nex"
+#define	SERVER_NAME2			"us"
 
 public OnFilterScriptInit()
 {

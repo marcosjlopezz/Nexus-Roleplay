@@ -11,7 +11,7 @@ samp-server.exe
 
 #Compiled Files
 maps.amx
-swrp.amx
+main.amx
 
 #Others
 server.sql

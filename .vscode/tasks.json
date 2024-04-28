@@ -8,13 +8,7 @@
 			"runOptions": {
 				"instanceLimit": 1
 			},
-			"args": [
-				"${workspaceRoot}\\gamemodes\\main.pwn",
-				"-Dgamemodes",
-				"'-(+'",
-				"'-;+'",
-				"'-d3'"
-			],
+			"args": ["${file}", "--%", "-Dgamemodes", "-;+", "-(+", "-d3"],
 			"group": {
 				"kind": "build",
 				"isDefault": true
